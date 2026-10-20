@@ -13,4 +13,4 @@ MAIL_FROM = "Lytmoz <onboarding@resend.dev>"
 [[d1_databases]]
 binding = "DB"
 database_name = "lytmoz"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "f440c191-3e9e-49da-a3db-98b601f68064"

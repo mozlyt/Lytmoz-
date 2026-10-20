@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<main id="login" class="login" hidden>
+<main id="login" class="login" hidden style="flex-wrap:wrap;gap:16px">
 <form id="login-form" class="card stack">
 <a class="brand" href="/"><img src="assets/favicon.svg" width="36" height="36" alt=""><span>Lytmoz</span><span class="tag">HQ</span></a>
 <h1 class="serif" style="font-size:38px">Welcome back.</h1>
@@ -19,6 +19,17 @@
 <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
 <p id="login-msg" class="msg" role="status"></p>
 <button class="btn" type="submit">Log in</button>
+<button id="setup-toggle" class="btn ghost small" type="button" style="align-self:flex-start">First time? Set up HQ</button>
+</form>
+<form id="setup-form" class="card stack" hidden>
+<h2 class="serif" style="font-size:30px">Set up HQ</h2>
+<p class="muted" style="margin:0;font-size:13px;line-height:1.6">One time only. Use the setup key you saved in GitHub as SETUP_KEY.</p>
+<label>Setup key<input type="password" name="key" required></label>
+<label>Your name<input name="name" required></label>
+<label>Email<input type="email" name="email" autocomplete="username" required></label>
+<label>Password (10+ characters)<input type="password" name="password" minlength="10" autocomplete="new-password" required></label>
+<p id="setup-msg" class="msg" role="status"></p>
+<button class="btn" type="submit">Create my HQ account</button>
 </form>
 </main>
 
@@ -183,6 +194,14 @@
       if (d.user.role !== 'admin') throw new Error('This login is for the Lytmoz team. Clients use the client portal.');
       LZ.setToken(d.token); showApp(d.user);
     }).catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+  $('setup-toggle').addEventListener('click', function () { $('setup-form').hidden = !$('setup-form').hidden; });
+  $('setup-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, d = Object.fromEntries(new FormData(f));
+    LZ.api('POST', '/api/setup', d).then(function () { return LZ.api('POST', '/api/login', { email: d.email, password: d.password }); })
+      .then(function (r) { LZ.setToken(r.token); showApp(r.user); })
+      .catch(function (err) { LZ.setMsg($('setup-msg'), err.message, 'err'); });
   });
   $('logout').addEventListener('click', function () {
     if (preview) return;

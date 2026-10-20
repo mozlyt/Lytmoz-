@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lytmoz — From idea to a system that grows</title>
+<meta name="description" content="Lytmoz turns your idea or running business into one system that is easy to grow: your people, subscriptions, payments and one HQ, working while you rest. Accra and Lagos.">
+<meta name="theme-color" content="#0E0D0C">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lytmoz — From idea to a system that grows">
+<meta property="og:description" content="Book a free consultation and audit. We build systems, not showpieces.">
+<meta property="og:image" content="https://mozlytfit.com/assets/og.jpg">
+<meta property="og:url" content="https://mozlytfit.com/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+
+body{margin:0;background:#0E0D0C}
+.lz-spin{transform-box:view-box;transform-origin:50% 50%;animation:lzspin 14s linear infinite}
+.lz-spin-rev{transform-box:view-box;transform-origin:50% 50%;animation:lzspin 9s linear infinite reverse}
+.lz-pulse{transform-box:view-box;transform-origin:50% 50%;animation:lzpulse 3.2s ease-in-out infinite}
+@keyframes lzspin{to{transform:rotate(360deg)}}
+.lz-ticker{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+.lz-track{display:inline-flex;white-space:nowrap;animation:lzmarquee 26s linear infinite}
+.lz-slow{animation-duration:40s}
+.lz-ticker:hover .lz-slow{animation-play-state:paused}
+@keyframes lzmarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes lzpulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:.8;transform:scale(1.08)}}
+@media (prefers-reduced-motion: reduce){.lz-spin,.lz-spin-rev,.lz-pulse,.lz-track{animation:none}}
+a{color:#C98A5E}a:hover{color:#E2A97F}
+
+.lz-opt{background:transparent;color:#0E0D0C}.lz-opt[aria-pressed="true"]{background:#0E0D0C;color:#F2EDE4}
+input:focus,textarea:focus{outline:2px solid #C98A5E;outline-offset:1px}
+a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div style="background: #0E0D0C; color: #F2EDE4; font-family: Manrope, system-ui, sans-serif; width: 100%; overflow-x: hidden">
+
+<header style="position: relative; z-index: 5; max-width: 1240px; margin: 0 auto; padding: 24px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #F2EDE4">
+<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" stroke="#3A342E" stroke-width="1.2" fill="none"></circle><circle cx="17" cy="17" r="9" stroke="#C98A5E" stroke-width="1.2" fill="none"></circle><circle cx="17" cy="17" r="4" fill="#C98A5E"></circle><circle cx="17" cy="2" r="2" fill="#F2EDE4"></circle><circle cx="30" cy="24.5" r="2" fill="#F2EDE4"></circle><circle cx="4" cy="24.5" r="2" fill="#F2EDE4"></circle></svg>
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 30px; letter-spacing: 4px">Lytmoz</span>
+</a>
+<button type="button" id="lz-menu-btn" aria-expanded="false" aria-controls="lz-menu" style="font-family: Manrope, sans-serif; display: inline-flex; align-items: center; gap: 12px; background: #171513; color: #F2EDE4; border: 1px solid #3A342E; border-radius: 999px; padding: 10px 18px 10px 20px; min-height: 48px; font-size: 14px; font-weight: 600; letter-spacing: 1.5px; cursor: pointer">
+<span id="lz-menu-label">MENU</span>
+<span aria-hidden="true" style="display: inline-flex; flex-direction: column; gap: 5px; width: 20px">
+<span style="height: 1.5px; background: #C98A5E; border-radius: 2px; width: 20px"></span>
+<span style="height: 1.5px; background: #F2EDE4; border-radius: 2px; width: 14px; align-self: flex-end"></span>
+</span>
+</button>
+<nav id="lz-menu" aria-label="Main" hidden style="position: absolute; top: 88px; right: 24px; left: 24px; max-width: 420px; margin-left: auto; background: #151311; border: 1px solid #2A2622; border-radius: 24px; padding: 14px; display: flex; flex-direction: column; box-shadow: 0 30px 80px rgba(0,0,0,0.55)">
+<a href="#clients" data-close style="display: flex; justify-content: space-between; align-items: center; color: #F2EDE4; text-decoration: none; padding: 16px 16px; border-radius: 14px; font-size: 17px; border-bottom: 1px solid #221F1B"><span>Clients</span><span style="color: #C98A5E; font-size: 12px; letter-spacing: 2px">01</span></a>
+<a href="#build" data-close style="display: flex; justify-content: space-between; align-items: center; color: #F2EDE4; text-decoration: none; padding: 16px 16px; border-radius: 14px; font-size: 17px; border-bottom: 1px solid #221F1B"><span>What we build</span><span style="color: #C98A5E; font-size: 12px; letter-spacing: 2px">02</span></a>
+<a href="#work" data-close style="display: flex; justify-content: space-between; align-items: center; color: #F2EDE4; text-decoration: none; padding: 16px 16px; border-radius: 14px; font-size: 17px; border-bottom: 1px solid #221F1B"><span>Our work</span><span style="color: #C98A5E; font-size: 12px; letter-spacing: 2px">03</span></a>
+<a href="#pricing" data-close style="display: flex; justify-content: space-between; align-items: center; color: #F2EDE4; text-decoration: none; padding: 16px 16px; border-radius: 14px; font-size: 17px; border-bottom: 1px solid #221F1B"><span>Pricing</span><span style="color: #C98A5E; font-size: 12px; letter-spacing: 2px">04</span></a>
+<a href="#audit" data-close style="display: flex; justify-content: space-between; align-items: center; color: #F2EDE4; text-decoration: none; padding: 16px 16px; border-radius: 14px; font-size: 17px"><span>Consultation &amp; audit</span><span style="color: #C98A5E; font-size: 12px; letter-spacing: 2px">05</span></a>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; padding: 12px 4px 4px">
+<a href="portal.html" style="flex: 1 1 140px; text-align: center; border: 1px solid #3A342E; color: #F2EDE4; text-decoration: none; font-weight: 600; font-size: 14px; padding: 14px; border-radius: 999px">Client login</a>
+<a href="#audit" data-close style="flex: 1 1 140px; text-align: center; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 14px; padding: 14px; border-radius: 999px">Book a consultation</a>
+</div>
+</nav>
+</header>
+
+<section id="top" style="max-width: 1000px; margin: 0 auto; padding: 16px 24px 64px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px">
+<svg role="img" aria-label="Lytmoz logo" viewBox="0 0 200 200" style="width: 148px; height: 148px; overflow: visible">
+<defs>
+<radialGradient id="lzHalo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#E2A97F" stop-opacity="0.55"></stop><stop offset="60%" stop-color="#C98A5E" stop-opacity="0.12"></stop><stop offset="100%" stop-color="#C98A5E" stop-opacity="0"></stop></radialGradient>
+<linearGradient id="lzTrail" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#F2EDE4" stop-opacity="0"></stop><stop offset="100%" stop-color="#F2EDE4" stop-opacity="0.9"></stop></linearGradient>
+<filter id="lzGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.6" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+</defs>
+<circle class="lz-pulse" cx="100" cy="100" r="62" fill="url(#lzHalo)"></circle>
+<circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="2.4"></circle>
+<circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="2.6"></circle>
+<g class="lz-spin-rev"><circle cx="100" cy="100" r="48" fill="none" stroke="#F6D3B6" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="26 276" filter="url(#lzGlow)"></circle></g>
+<circle cx="100" cy="100" r="21" fill="#C98A5E" filter="url(#lzGlow)"></circle>
+<g class="lz-spin">
+<circle cx="100" cy="100" r="80" fill="none" stroke="url(#lzTrail)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="70 433" stroke-dashoffset="70" transform="rotate(-90 100 100)"></circle>
+<circle cx="100" cy="20" r="9" fill="#F2EDE4" filter="url(#lzGlow)"></circle>
+<circle cx="30.7" cy="140" r="9" fill="#F2EDE4" filter="url(#lzGlow)"></circle>
+<circle cx="169.3" cy="140" r="9" fill="#F2EDE4" filter="url(#lzGlow)"></circle>
+</g>
+</svg>
+<div style="display: flex; align-self: center; gap: 10px; align-items: center; border: 1px solid #2E2925; border-radius: 999px; padding: 6px 12px; width: 100%; max-width: 400px; box-sizing: border-box; font-size: 11px; color: #C9C0B4; letter-spacing: 1.2px; text-transform: uppercase">
+<span style="flex: none; width: 5px; height: 5px; border-radius: 999px; background: #C98A5E"></span>
+<div class="lz-ticker" style="flex: 1; min-width: 0">
+<div class="lz-track">
+<span style="padding-right: 28px">Lytmoz builds your website</span><span style="padding-right: 28px; color: #C98A5E">Systems, not showpieces</span><span style="padding-right: 28px">Built to run like your daily routine</span><span style="padding-right: 28px; color: #C98A5E">Orders · Sellers · Payments</span><span style="padding-right: 28px">A system that works while you rest</span>
+<span style="padding-right: 28px" aria-hidden="true">Lytmoz builds your website</span><span style="padding-right: 28px; color: #C98A5E" aria-hidden="true">Systems, not showpieces</span><span style="padding-right: 28px" aria-hidden="true">Built to run like your daily routine</span><span style="padding-right: 28px; color: #C98A5E" aria-hidden="true">Orders · Sellers · Payments</span><span style="padding-right: 28px" aria-hidden="true">A system that works while you rest</span>
+</div>
+</div>
+</div>
+<h1 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(50px, 8vw, 104px); line-height: 0.98; letter-spacing: -1.5px; max-width: 900px">From idea to a system <em style="color: #C98A5E">that grows.</em></h1>
+<p style="margin: 0; font-size: clamp(17px, 2vw, 20px); line-height: 1.65; color: #C9C0B4; max-width: 640px">Whether you have an idea or a business already running, Lytmoz builds it into one system that is easy to grow. It connects the people already around you, and lets anyone new find you, join in and start working.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; max-width: 620px">
+<a href="#audit" style="flex: 1 1 260px; text-align: center; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 18px 26px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Book a free consultation &amp; audit</a>
+<a href="#pricing" style="flex: 1 1 180px; text-align: center; background: #171513; border: 1px solid #3A342E; color: #F2EDE4; text-decoration: none; font-weight: 600; font-size: 15px; padding: 18px 26px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Get started</a>
+</div>
+</section>
+
+<section id="clients" style="padding: 0 16px">
+<div style="max-width: 1100px; margin: 0 auto; border: 1px solid #2A2622; border-bottom: 0; border-radius: 44px 44px 0 0; background: radial-gradient(ellipse 60% 220px at 50% 0%, #211C17 0%, #0E0D0C 100%); padding: 56px 24px 52px; display: flex; flex-direction: column; align-items: center; gap: 36px; text-align: center">
+<p style="margin: 0; color: #A9A096; font-size: clamp(17px, 2vw, 20px); line-height: 1.6; max-width: 480px">Brands built and backed by Lytmoz.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 20px; width: 100%; max-width: 520px">
+<a href="#now" aria-label="Abina Community Farm" style="min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #F2EDE4">
+<div style="width: 116px; height: 116px; border-radius: 30px; border: 1px solid #2E2925; background: #101513; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 #22302A"><svg width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Abina Community Farm logo"><circle cx="48" cy="48" r="46" fill="#3A3024"></circle><circle cx="48" cy="48" r="38" fill="#0D3E2E"></circle><g fill="none" stroke="#E2B65A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M48 64V40"></path><path d="M48 46C48 39 43 34 37 33C37 40 41 45 48 46Z"></path><path d="M48 46C48 39 53 34 59 33C59 40 55 45 48 46Z"></path></g></svg></div>
+<span style="font-size: 16px; font-weight: 600">Abina Community Farm</span>
+<span style="font-size: 13px; color: #A9A096; line-height: 1.5">Farm hubs · Nigeria</span>
+</a>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" aria-label="Visit MOZLYT" style="min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #F2EDE4">
+<div style="width: 116px; height: 116px; border-radius: 30px; border: 1px solid #2E2925; background: #050505; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 #1E1C1A"><svg width="84" height="84" viewBox="0 0 84 84" role="img" aria-label="MOZLYT logo"><g fill="none" stroke="#D9A441" stroke-linecap="round"><path d="M22 26A26 26 0 0 0 22 58" stroke-width="2.6"></path><path d="M62 26A26 26 0 0 1 62 58" stroke-width="2.6"></path><path d="M14 18A37 37 0 0 0 14 66" stroke-width="2.2" opacity="0.75"></path><path d="M70 18A37 37 0 0 1 70 66" stroke-width="2.2" opacity="0.75"></path></g><path d="M47 12L28 45H40L35 72L56 37H44L47 12Z" fill="#D9A441"></path></svg></div>
+<span style="font-size: 16px; font-weight: 600">MOZLYT</span>
+<span style="font-size: 13px; color: #A9A096; line-height: 1.5">Wellness network · Ghana</span>
+</a>
+<a href="#top" aria-label="Lytmoz" style="grid-column: 1 / -1; justify-self: center; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; color: #F2EDE4">
+<div style="width: 116px; height: 116px; border-radius: 30px; border: 1px solid #2E2925; background: #0E0D0C; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 #2A2622"><svg width="92" height="92" viewBox="0 0 200 200" role="img" aria-label="Lytmoz logo"><circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="6"></circle><circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="7"></circle><circle cx="100" cy="100" r="22" fill="#C98A5E"></circle><g class="lz-spin"><circle cx="100" cy="20" r="11" fill="#F2EDE4"></circle><circle cx="30.7" cy="140" r="11" fill="#F2EDE4"></circle><circle cx="169.3" cy="140" r="11" fill="#F2EDE4"></circle></g></svg></div>
+<span style="font-size: 16px; font-weight: 600">Lytmoz</span>
+<span style="font-size: 13px; color: #A9A096; line-height: 1.5">Our own HQ · Ghana</span>
+</a>
+</div>
+<a href="#work" style="color: #C9C0B4; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-flex; gap: 10px; align-items: center; min-height: 44px">See what we built <span aria-hidden="true">›</span></a>
+</div>
+</section>
+
+<section id="now" style="max-width: 1240px; margin: 0 auto; padding: 64px 0 64px; display: flex; flex-direction: column; align-items: center; gap: 32px; text-align: center">
+<div style="display: flex; flex-direction: column; gap: 14px; align-items: center; padding: 0 24px">
+<span style="font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; color: #C98A5E; font-weight: 700">On the build table</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 60px); line-height: 1.04; max-width: 640px">Systems we are shaping right now.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.6; max-width: 460px">Some started as an idea. Some are businesses already running. All of them are becoming systems.</p>
+</div>
+<div class="lz-ticker" style="width: 100%; max-width: 980px; padding: 6px 0">
+<div class="lz-track lz-slow">
+<a href="#" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #24160F; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 78 78" aria-hidden="true"><circle cx="39" cy="39" r="35" fill="none" stroke="#E8B931" stroke-width="3.5"></circle><text x="39" y="49.5" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="700" font-size="30" fill="#E8B931">R</text></svg></span><span>Ravella Ultra Solution</span></a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #101513; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#3A3024"></circle><circle cx="48" cy="48" r="38" fill="#0D3E2E"></circle><g fill="none" stroke="#E2B65A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M48 64V40"></path><path d="M48 46C48 39 43 34 37 33C37 40 41 45 48 46Z"></path><path d="M48 46C48 39 53 34 59 33C59 40 55 45 48 46Z"></path></g></svg></span><span>Abina Community Farm</span></a>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #050505; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="true"><g fill="none" stroke="#D9A441" stroke-linecap="round"><path d="M22 26A26 26 0 0 0 22 58" stroke-width="2.6"></path><path d="M62 26A26 26 0 0 1 62 58" stroke-width="2.6"></path><path d="M14 18A37 37 0 0 0 14 66" stroke-width="2.2" opacity="0.75"></path><path d="M70 18A37 37 0 0 1 70 66" stroke-width="2.2" opacity="0.75"></path></g><path d="M47 12L28 45H40L35 72L56 37H44L47 12Z" fill="#D9A441"></path></svg></span><span>MOZLYT country branches</span></a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0E0D0C; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="6"></circle><circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="7"></circle><circle cx="100" cy="100" r="22" fill="#C98A5E"></circle><g class="lz-spin"><circle cx="100" cy="20" r="11" fill="#F2EDE4"></circle><circle cx="30.7" cy="140" r="11" fill="#F2EDE4"></circle><circle cx="169.3" cy="140" r="11" fill="#F2EDE4"></circle></g></svg></span><span>Lytmoz HQ</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #24160F; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 78 78" aria-hidden="true"><circle cx="39" cy="39" r="35" fill="none" stroke="#E8B931" stroke-width="3.5"></circle><text x="39" y="49.5" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="700" font-size="30" fill="#E8B931">R</text></svg></span><span>Ravella Ultra Solution</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #101513; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#3A3024"></circle><circle cx="48" cy="48" r="38" fill="#0D3E2E"></circle><g fill="none" stroke="#E2B65A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M48 64V40"></path><path d="M48 46C48 39 43 34 37 33C37 40 41 45 48 46Z"></path><path d="M48 46C48 39 53 34 59 33C59 40 55 45 48 46Z"></path></g></svg></span><span>Abina Community Farm</span></a>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #050505; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="true"><g fill="none" stroke="#D9A441" stroke-linecap="round"><path d="M22 26A26 26 0 0 0 22 58" stroke-width="2.6"></path><path d="M62 26A26 26 0 0 1 62 58" stroke-width="2.6"></path><path d="M14 18A37 37 0 0 0 14 66" stroke-width="2.2" opacity="0.75"></path><path d="M70 18A37 37 0 0 1 70 66" stroke-width="2.2" opacity="0.75"></path></g><path d="M47 12L28 45H40L35 72L56 37H44L47 12Z" fill="#D9A441"></path></svg></span><span>MOZLYT country branches</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0E0D0C; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="6"></circle><circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="7"></circle><circle cx="100" cy="100" r="22" fill="#C98A5E"></circle><g class="lz-spin"><circle cx="100" cy="20" r="11" fill="#F2EDE4"></circle><circle cx="30.7" cy="140" r="11" fill="#F2EDE4"></circle><circle cx="169.3" cy="140" r="11" fill="#F2EDE4"></circle></g></svg></span><span>Lytmoz HQ</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #24160F; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 78 78" aria-hidden="true"><circle cx="39" cy="39" r="35" fill="none" stroke="#E8B931" stroke-width="3.5"></circle><text x="39" y="49.5" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="700" font-size="30" fill="#E8B931">R</text></svg></span><span>Ravella Ultra Solution</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #101513; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#3A3024"></circle><circle cx="48" cy="48" r="38" fill="#0D3E2E"></circle><g fill="none" stroke="#E2B65A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M48 64V40"></path><path d="M48 46C48 39 43 34 37 33C37 40 41 45 48 46Z"></path><path d="M48 46C48 39 53 34 59 33C59 40 55 45 48 46Z"></path></g></svg></span><span>Abina Community Farm</span></a>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #050505; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="true"><g fill="none" stroke="#D9A441" stroke-linecap="round"><path d="M22 26A26 26 0 0 0 22 58" stroke-width="2.6"></path><path d="M62 26A26 26 0 0 1 62 58" stroke-width="2.6"></path><path d="M14 18A37 37 0 0 0 14 66" stroke-width="2.2" opacity="0.75"></path><path d="M70 18A37 37 0 0 1 70 66" stroke-width="2.2" opacity="0.75"></path></g><path d="M47 12L28 45H40L35 72L56 37H44L47 12Z" fill="#D9A441"></path></svg></span><span>MOZLYT country branches</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0E0D0C; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="6"></circle><circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="7"></circle><circle cx="100" cy="100" r="22" fill="#C98A5E"></circle><g class="lz-spin"><circle cx="100" cy="20" r="11" fill="#F2EDE4"></circle><circle cx="30.7" cy="140" r="11" fill="#F2EDE4"></circle><circle cx="169.3" cy="140" r="11" fill="#F2EDE4"></circle></g></svg></span><span>Lytmoz HQ</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #24160F; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 78 78" aria-hidden="true"><circle cx="39" cy="39" r="35" fill="none" stroke="#E8B931" stroke-width="3.5"></circle><text x="39" y="49.5" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="700" font-size="30" fill="#E8B931">R</text></svg></span><span>Ravella Ultra Solution</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #101513; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#3A3024"></circle><circle cx="48" cy="48" r="38" fill="#0D3E2E"></circle><g fill="none" stroke="#E2B65A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M48 64V40"></path><path d="M48 46C48 39 43 34 37 33C37 40 41 45 48 46Z"></path><path d="M48 46C48 39 53 34 59 33C59 40 55 45 48 46Z"></path></g></svg></span><span>Abina Community Farm</span></a>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #050505; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 84 84" aria-hidden="true"><g fill="none" stroke="#D9A441" stroke-linecap="round"><path d="M22 26A26 26 0 0 0 22 58" stroke-width="2.6"></path><path d="M62 26A26 26 0 0 1 62 58" stroke-width="2.6"></path><path d="M14 18A37 37 0 0 0 14 66" stroke-width="2.2" opacity="0.75"></path><path d="M70 18A37 37 0 0 1 70 66" stroke-width="2.2" opacity="0.75"></path></g><path d="M47 12L28 45H40L35 72L56 37H44L47 12Z" fill="#D9A441"></path></svg></span><span>MOZLYT country branches</span></a>
+<a href="#" aria-hidden="true" tabindex="-1" style="display: inline-flex; align-items: center; gap: 12px; padding: 6px 18px 6px 6px; margin-right: 14px; border: 1px solid #2A2622; border-radius: 999px; background: #141210; color: #F2EDE4; text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap"><span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #0E0D0C; display: inline-flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="80" fill="none" stroke="#3A3632" stroke-width="6"></circle><circle cx="100" cy="100" r="48" fill="none" stroke="#C98A5E" stroke-width="7"></circle><circle cx="100" cy="100" r="22" fill="#C98A5E"></circle><g class="lz-spin"><circle cx="100" cy="20" r="11" fill="#F2EDE4"></circle><circle cx="30.7" cy="140" r="11" fill="#F2EDE4"></circle><circle cx="169.3" cy="140" r="11" fill="#F2EDE4"></circle></g></svg></span><span>Lytmoz HQ</span></a>
+</div>
+</div>
+<a href="#audit" style="display: inline-flex; align-items: center; gap: 10px; border: 1px dashed #4A423A; color: #F2EDE4; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 20px; border-radius: 999px; min-height: 44px; box-sizing: border-box"><span aria-hidden="true" style="color: #C98A5E; font-size: 18px; line-height: 1">+</span>Add your project</a>
+</section>
+
+<section id="build" style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: flex-end">
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.02; max-width: 640px">Not a showpiece. A system that works while you rest.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.6; max-width: 380px">Every Lytmoz system is shaped around how you operate, so it fits your business instead of forcing your business to fit it.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1px; background: #2A2622; border: 1px solid #2A2622; border-radius: 24px; overflow: hidden">
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">01</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">One platform</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">Bring everything you run, from sales and services to bookings and stock, into one system that keeps working while you sleep.</p></div>
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">02</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">Your people, connected</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">Workers, sellers, agents and partners all work inside the same system, not in separate apps or group chats. Every effort adds up in one place.</p></div>
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">03</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">Subscriptions, your way</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">Clean monthly or yearly plans shaped around what you offer, so you are paid fairly and on time for your work and services.</p></div>
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">04</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">One HQ</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">A headquarters dashboard that oversees everything running across your system: people, orders, payments and performance, at a glance.</p></div>
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">05</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">Payments and records</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">Every payment is recorded automatically, with receipts and history you can open at any time. Clear, fair records leave no room for money to go missing.</p></div>
+<div style="background: #0E0D0C; padding: 28px; display: flex; flex-direction: column; gap: 12px"><span style="color: #C98A5E; font-size: 13px; letter-spacing: 2px">06</span><h3 style="margin: 0; font-size: 22px; font-weight: 600">Room to grow</h3><p style="margin: 0; color: #A9A096; line-height: 1.6; font-size: 15px">Add new services, branches or even countries as you grow, without starting over. Your system expands with your ambition.</p></div>
+</div>
+</section>
+
+<section id="calc" style="background: #F2EDE4; color: #0E0D0C">
+<div style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center">
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 32px; min-width: 0">
+<span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #8A4E28; font-weight: 700">Earnings calculator</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 60px); line-height: 1.02">What could your system earn you every month?</h2>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 14px; font-weight: 600">People subscribed to your system</span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" class="lz-opt" data-group="d" data-val="50" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">50</button>
+<button type="button" class="lz-opt" data-group="d" data-val="200" aria-pressed="true" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">200</button>
+<button type="button" class="lz-opt" data-group="d" data-val="500" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">500</button>
+<button type="button" class="lz-opt" data-group="d" data-val="1000" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">1,000</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 14px; font-weight: 600">Monthly subscription per person</span>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<button type="button" class="lz-opt" data-group="f" data-val="5" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">$5</button>
+<button type="button" class="lz-opt" data-group="f" data-val="10" aria-pressed="true" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">$10</button>
+<button type="button" class="lz-opt" data-group="f" data-val="20" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">$20</button>
+<button type="button" class="lz-opt" data-group="f" data-val="50" aria-pressed="false" style="font-family: Manrope, sans-serif; font-size: 15px; font-weight: 600; padding: 12px 22px; min-height: 44px; border-radius: 999px; border: 1px solid #0E0D0C; cursor: pointer">$50</button>
+</div>
+</div>
+</div>
+<div style="flex: 1 1 380px; background: #0E0D0C; color: #F2EDE4; border-radius: 28px; padding: 36px; display: flex; flex-direction: column; gap: 18px; min-width: 0; box-sizing: border-box">
+<span style="font-size: 14px; color: #A9A096">Subscription income, monthly</span>
+<span style="font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(56px, 7vw, 92px); line-height: 1; color: #C98A5E"><span id="lz-monthly">$2,000</span></span>
+<div style="height: 1px; background: #2A2622"></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; font-size: 15px"><span style="color: #A9A096">Per year</span><span style="font-weight: 700"><span id="lz-yearly">$24,000</span></span></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.6; color: #A9A096">Subscriptions only. Sales, bookings and services come on top. These figures are an example, not a promise.</p>
+<a href="#audit" style="background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 16px 24px; border-radius: 999px; text-align: center; min-height: 44px; box-sizing: border-box">Build this for me</a>
+</div>
+</div>
+</section>
+
+<section id="work" style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-wrap: wrap; gap: 36px; align-items: center">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: center">
+<a href="https://mozlyt.com" target="_blank" rel="noopener" aria-label="Open mozlyt.com" style="display: block; width: 100%; max-width: 300px; background: #171513; border: 1px solid #3A342E; border-radius: 44px; padding: 12px; box-sizing: border-box; box-shadow: 0 40px 90px rgba(0,0,0,0.5)">
+<div style="border-radius: 34px; overflow: hidden; aspect-ratio: 9 / 16; background: #0E0D0C"><img src="assets/mozlyt-shot.jpg" alt="MOZLYT homepage on a phone" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block"></div>
+</a>
+</div>
+<div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 22px; min-width: 0">
+<span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #C98A5E; font-weight: 700">Case study · MOZLYT</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04">A wellness brand turned into a system that runs itself.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.7">Country branches, personal seller shops, paid training with certificates, subscriptions with free trials, online payments, and one HQ that oversees it all.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Branch dashboards</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Seller shops</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Training and certificates</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">One HQ</span>
+</div>
+<a href="https://mozlyt.com" target="_blank" rel="noopener" style="align-self: flex-start; display: inline-flex; gap: 10px; align-items: center; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 14px 24px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Visit mozlyt.com <span aria-hidden="true">›</span></a>
+</div>
+</section>
+
+<section style="border-top: 1px solid #2A2622">
+<div style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 36px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.02">From first conversation to a running system.</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #C98A5E; padding-top: 22px"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; color: #C98A5E">I</span><h3 style="margin: 0; font-size: 19px; font-weight: 600">Audit</h3><p style="margin: 0; color: #A9A096; font-size: 14px; line-height: 1.6">We study your idea or business and how it runs today.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3A342E; padding-top: 22px"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; color: #C98A5E">II</span><h3 style="margin: 0; font-size: 19px; font-weight: 600">Proposal</h3><p style="margin: 0; color: #A9A096; font-size: 14px; line-height: 1.6">You receive a private page showing your future system and its price.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3A342E; padding-top: 22px"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; color: #C98A5E">III</span><h3 style="margin: 0; font-size: 19px; font-weight: 600">Build</h3><p style="margin: 0; color: #A9A096; font-size: 14px; line-height: 1.6">Follow every step live in your client portal.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3A342E; padding-top: 22px"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; color: #C98A5E">IV</span><h3 style="margin: 0; font-size: 19px; font-weight: 600">Launch</h3><p style="margin: 0; color: #A9A096; font-size: 14px; line-height: 1.6">Your domain, payments and first users go live.</p></div>
+<div style="display: flex; flex-direction: column; gap: 12px; border-top: 1px solid #3A342E; padding-top: 22px"><span style="font-family: 'Instrument Serif', serif; font-size: 40px; color: #C98A5E">V</span><h3 style="margin: 0; font-size: 19px; font-weight: 600">Grow</h3><p style="margin: 0; color: #A9A096; font-size: 14px; line-height: 1.6">Monthly care: updates, fixes, new features and reports.</p></div>
+</div>
+</div>
+</section>
+
+<section id="pricing" style="background: #171513; border-top: 1px solid #2A2622; border-bottom: 1px solid #2A2622">
+<div style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 700px">
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.02">Clear prices. Serious results.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.6">A one-time setup fee, then monthly care. A 50% deposit starts the work. Pay in US dollars or the equivalent in cedis or naira.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+<div style="border: 1px solid #2A2622; background: #0E0D0C; border-radius: 28px; padding: 32px; display: flex; flex-direction: column; gap: 18px">
+<h3 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">Launch</h3>
+<p style="margin: 0; color: #A9A096; font-size: 15px; line-height: 1.6">A premium website that builds trust and brings in enquiries.</p>
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 44px; font-weight: 700">$600</span><span style="color: #A9A096; font-size: 14px">setup</span></div>
+<span style="color: #C9C0B4; font-size: 15px">+ $30 / month care</span>
+<div style="height: 1px; background: #2A2622"></div>
+<span style="font-size: 14px; color: #C9C0B4; line-height: 2">Up to 5 pages · WhatsApp and enquiry forms · Mobile-first design · Hosting and SSL</span>
+<a href="#audit" style="margin-top: auto; border: 1px solid #4A423A; color: #F2EDE4; text-decoration: none; font-weight: 600; font-size: 15px; padding: 16px; border-radius: 999px; text-align: center; min-height: 44px; box-sizing: border-box">Start with Launch</a>
+</div>
+<div style="border: 1px solid #C98A5E; background: #0E0D0C; border-radius: 28px; padding: 32px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h3 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">Network</h3><span style="background: #C98A5E; color: #0E0D0C; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; letter-spacing: 1px">RECOMMENDED</span></div>
+<p style="margin: 0; color: #A9A096; font-size: 15px; line-height: 1.6">The complete system: your people, subscriptions, one HQ and payments, all working together.</p>
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 44px; font-weight: 700">$2,500</span><span style="color: #A9A096; font-size: 14px">setup</span></div>
+<span style="color: #C9C0B4; font-size: 15px">+ $100 / month care</span>
+<div style="height: 1px; background: #2A2622"></div>
+<span style="font-size: 14px; color: #C9C0B4; line-height: 2">Personal storefronts · Subscription plans · HQ and team dashboards · Payments and records</span>
+<a href="#audit" style="margin-top: auto; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 16px; border-radius: 999px; text-align: center; min-height: 44px; box-sizing: border-box">Start with Network</a>
+</div>
+<div style="border: 1px solid #2A2622; background: #0E0D0C; border-radius: 28px; padding: 32px; display: flex; flex-direction: column; gap: 18px">
+<h3 style="margin: 0; font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 36px">Empire</h3>
+<p style="margin: 0; color: #A9A096; font-size: 15px; line-height: 1.6">A multi-branch, multi-country system for businesses ready to scale.</p>
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 44px; font-weight: 700">$6,000</span><span style="color: #A9A096; font-size: 14px">from</span></div>
+<span style="color: #C9C0B4; font-size: 15px">+ $250 / month care</span>
+<div style="height: 1px; background: #2A2622"></div>
+<span style="font-size: 14px; color: #C9C0B4; line-height: 2">Branches and countries · Custom domains · Analytics · Priority support</span>
+<a href="#audit" style="margin-top: auto; border: 1px solid #4A423A; color: #F2EDE4; text-decoration: none; font-weight: 600; font-size: 15px; padding: 16px; border-radius: 999px; text-align: center; min-height: 44px; box-sizing: border-box">Talk about Empire</a>
+</div>
+</div>
+</div>
+</section>
+
+<section style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-wrap: wrap; gap: 36px; align-items: center">
+<div style="flex: 0 1 340px; min-width: 0; aspect-ratio: 4 / 5; border-radius: 200px 200px 28px 28px; overflow: hidden; border: 1px solid #3A342E; background: #171513"><img src="assets/founder.jpg" alt="Founder of Lytmoz" style="width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block"></div>
+<div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 22px; min-width: 0">
+<span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #C98A5E; font-weight: 700">Who builds it</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(36px, 4.5vw, 56px); line-height: 1.04">Built by someone who runs a system, not just someone who designs one.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.7">Lytmoz grew out of building and running MOZLYT, with its sellers, trainees and branches, here in Ghana. You get a partner who understands how a business, and its money, really moves.</p>
+</div>
+</section>
+
+<section id="audit" style="background: #F2EDE4; color: #0E0D0C">
+<div style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #8A4E28; font-weight: 700">Free consultation &amp; audit</span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: clamp(40px, 5.5vw, 68px); line-height: 1">Idea or running business? Let’s make it a system.</h2>
+<p style="margin: 0; color: #4A423A; font-size: 16px; line-height: 1.7">Tell us where you are. Within 2 working days we come back with a short audit and a clear picture of the system your idea or business can become.</p>
+<a href="https://wa.me/233538729743?text=Hello%20Lytmoz%2C%20I%27d%20like%20a%20free%20consultation." target="_blank" rel="noopener" style="align-self: flex-start; display: inline-flex; gap: 10px; align-items: center; background: #0E0D0C; color: #F2EDE4; text-decoration: none; font-weight: 700; font-size: 15px; padding: 16px 26px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Chat on WhatsApp</a>
+</div>
+<form id="lz-form" novalidate style="flex: 1 1 440px; min-width: 0; background: #FFFFFF; border-radius: 28px; padding: 40px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600">Your name or business name<input type="text" name="name" required style="font-family: Manrope, sans-serif; font-size: 16px; padding: 14px 16px; border: 1px solid #CFC6B8; border-radius: 14px; background: #FAF7F2"></label>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600">Current website or social page (optional)<input type="text" inputmode="url" name="website" style="font-family: Manrope, sans-serif; font-size: 16px; padding: 14px 16px; border: 1px solid #CFC6B8; border-radius: 14px; background: #FAF7F2"></label>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600">WhatsApp number<input type="tel" name="whatsapp" required style="font-family: Manrope, sans-serif; font-size: 16px; padding: 14px 16px; border: 1px solid #CFC6B8; border-radius: 14px; background: #FAF7F2"></label>
+<label style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 600">Tell us about your idea or business<textarea name="message" required rows="3" style="font-family: Manrope, sans-serif; font-size: 16px; padding: 14px 16px; border: 1px solid #CFC6B8; border-radius: 14px; background: #FAF7F2; resize: vertical"></textarea></label>
+<p style="margin: 0; font-size: 12px; color: #6B6259; line-height: 1.5">We only use your details to reply to your request. We never share or sell them.</p>
+<p id="lz-form-msg" role="status" style="margin: 0; font-size: 14px; min-height: 20px; color: #4A423A"></p>
+<button type="submit" style="font-family: Manrope, sans-serif; background: #C98A5E; color: #0E0D0C; border: 0; font-weight: 700; font-size: 16px; padding: 18px; border-radius: 999px; cursor: pointer; min-height: 44px">Book my free consultation</button>
+</form>
+</div>
+</section>
+
+<footer style="max-width: 1240px; margin: 0 auto; padding: 40px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: center; color: #A9A096; font-size: 14px">
+<span style="font-family: 'Instrument Serif', serif; font-size: 26px; letter-spacing: 4px; color: #F2EDE4">Lytmoz</span>
+<span>Systems that work while you rest.</span>
+<span>Accra · Lagos · © 2026 Lytmoz</span>
+</footer>
+</div>
+<script src="config.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

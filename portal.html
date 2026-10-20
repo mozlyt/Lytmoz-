@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Client portal · Lytmoz</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<main id="login" class="login" hidden>
+<form id="login-form" class="card stack">
+<a class="brand" href="/"><img src="assets/favicon.svg" width="36" height="36" alt=""><span>Lytmoz</span></a>
+<h1 class="serif" style="font-size:38px">Your client portal.</h1>
+<p class="muted" style="margin:0;line-height:1.6">Follow your project, see invoices and request changes. Use the email and password we sent you.</p>
+<label>Email<input type="email" name="email" autocomplete="username" required></label>
+<label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+<p id="login-msg" class="msg" role="status"></p>
+<button class="btn" type="submit">Log in</button>
+<p class="muted" style="margin:0;font-size:13px">Not a client yet? <a href="/#audit">Book a free consultation</a>.</p>
+</form>
+</main>
+
+<div id="app" hidden>
+<header class="top"><div class="wrap">
+<a class="brand" href="/"><img src="assets/favicon.svg" width="32" height="32" alt=""><span>Lytmoz</span></a>
+<div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button">Log out</button></div>
+</div></header>
+
+<main class="wrap stack" style="max-width:1000px;padding-top:36px;padding-bottom:60px;gap:22px">
+<p id="preview" class="banner" hidden>Preview mode: this shows sample data until the backend is connected.</p>
+<div id="empty" class="card" hidden><h1 class="serif" style="font-size:34px">Welcome to Lytmoz.</h1><p class="muted">Your project will appear here as soon as we set it up.</p></div>
+<div id="project" class="stack" style="gap:22px" hidden>
+<div class="stack" style="gap:8px">
+<span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700" id="plan"></span>
+<h1 class="serif" style="font-size:clamp(34px,5vw,52px);line-height:1.05" id="headline"></h1>
+</div>
+<section class="card stack" style="gap:18px">
+<div class="row between"><strong>Progress</strong><span style="color:var(--copper);font-weight:700" id="stage-label"></span></div>
+<div class="bar"><div id="bar" style="width:0"></div></div>
+<div class="steps" id="steps"></div>
+</section>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+<section class="card stack">
+<h2 style="font-size:18px">Latest updates</h2>
+<div class="feed" id="updates"></div>
+<a id="preview-link" class="btn ghost" style="align-self:flex-start" target="_blank" rel="noopener" hidden>Preview my system</a>
+</section>
+<section class="card stack light" id="invoice-card">
+<h2 style="font-size:18px">Invoices</h2>
+<div id="invoices" class="stack"></div>
+</section>
+</div>
+<section class="card stack">
+<h2 style="font-size:18px">Request a change</h2>
+<form id="request-form" class="stack">
+<label>What would you like changed?<textarea name="text" rows="3" required></textarea></label>
+<div class="row"><button class="btn" type="submit">Send request</button><p id="request-msg" class="msg" role="status"></p></div>
+</form>
+</section>
+</div>
+</main>
+</div>
+
+<script src="config.js"></script>
+<script src="assets/api.js"></script>
+<script>
+(function () {
+  var esc = LZ.esc, money = LZ.money, when = LZ.when, preview = !LZ.cfg.api;
+  var $ = function (id) { return document.getElementById(id); };
+  var sample = {
+    user: { name: 'Sample client' },
+    project: { name: 'Supplements distributor', plan: 'Network', stage: 3, monthly_care_cents: 10000, preview_url: null },
+    updates: [
+      { text: 'Team sign-up and your HQ dashboard are ready for review.', created_at: new Date().toISOString() },
+      { text: 'Shop design approved, and online payments connected for testing.', created_at: new Date(Date.now() - 7 * 864e5).toISOString() },
+      { text: 'Deposit received, and the build has started.', created_at: new Date(Date.now() - 14 * 864e5).toISOString() }
+    ],
+    invoices: [{ description: 'Balance on launch · Network setup', amount_cents: 125000, currency: 'USD', status: 'due', pay_url: null }]
+  };
+  function showLogin() { $('app').hidden = true; $('login').hidden = false; }
+  function render(d) {
+    $('login').hidden = true; $('app').hidden = false; $('preview').hidden = !preview;
+    $('who').textContent = d.user.name;
+    if (!d.project) { $('empty').hidden = false; $('project').hidden = true; return; }
+    var p = d.project; $('empty').hidden = true; $('project').hidden = false;
+    $('plan').textContent = 'Your project · ' + p.plan + ' plan';
+    $('headline').textContent = p.stage >= 5 ? p.name + ' is live and growing.' : p.stage === 4 ? p.name + ' is launching.' : 'Your system is being built.';
+    $('stage-label').textContent = 'Stage ' + p.stage + ' of 5';
+    $('bar').style.width = (p.stage / 5 * 100 - (p.stage < 5 ? 10 : 0)) + '%';
+    $('steps').innerHTML = LZ.stages.map(function (s, i) {
+      var n = i + 1, st = n < p.stage || p.stage === 5 ? ['Done', '#9FD3AE'] : n === p.stage ? ['In progress', '#E2A97F'] : [n === p.stage + 1 ? 'Next' : 'Later', '#A9A096'];
+      return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
+    }).join('');
+    $('updates').innerHTML = d.updates.length ? d.updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
+    if (p.preview_url) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
+    var due = d.invoices.filter(function (i) { return i.status === 'due'; });
+    $('invoices').innerHTML = d.invoices.length ? d.invoices.map(function (i) {
+      var isDue = i.status === 'due';
+      return '<div class="stack" style="gap:6px;' + (isDue ? '' : 'opacity:.7') + '"><span class="serif" style="font-size:' + (isDue ? '46' : '28') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><span class="muted" style="font-size:14px">' + esc(i.description) + ' · ' + (isDue ? 'Due' : 'Paid') + '</span>' +
+        (isDue ? (i.pay_url ? '<a class="btn" href="' + esc(i.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a>' : '<a class="btn" href="https://wa.me/' + (LZ.cfg.whatsapp || '') + '?text=' + encodeURIComponent('Hello Lytmoz, I would like to pay: ' + i.description) + '" target="_blank" rel="noopener">Ask for a payment link</a>') : '') + '</div>';
+    }).join('<hr style="border:0;border-top:1px solid #D8CFC2;width:100%">') : '<p class="muted">No invoices yet.</p>';
+    if (p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
+  }
+  function load() {
+    if (preview) return render(sample);
+    LZ.api('GET', '/api/portal').then(render).catch(function (e) { if (e.status === 401 || e.status === 403) showLogin(); });
+  }
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button'); b.disabled = true;
+    LZ.api('POST', '/api/login', Object.fromEntries(new FormData(f))).then(function (d) {
+      if (d.user.role !== 'client') throw new Error('This portal is for clients. The Lytmoz team logs in at HQ.');
+      LZ.setToken(d.token); load();
+    }).catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+  $('request-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target;
+    if (preview) { LZ.setMsg($('request-msg'), 'Preview mode: requests are saved once the backend is live.', 'ok'); return; }
+    LZ.api('POST', '/api/portal/requests', Object.fromEntries(new FormData(f))).then(function () {
+      f.reset(); LZ.setMsg($('request-msg'), 'Sent. We will get back to you shortly.', 'ok');
+    }).catch(function (err) { LZ.setMsg($('request-msg'), err.message, 'err'); });
+  });
+  $('logout').addEventListener('click', function () {
+    if (preview) return;
+    LZ.api('POST', '/api/logout', {}).finally(function () { LZ.setToken(''); showLogin(); });
+  });
+  if (preview || LZ.getToken()) load(); else showLogin();
+})();
+</script>
+</body>
+</html>

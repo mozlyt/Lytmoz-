@@ -1,0 +1,16 @@
+name = "lytmoz-api"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# Serve the API on api.mozlytfit.com once the domain's DNS is on Cloudflare.
+# routes = [{ pattern = "api.mozlytfit.com", custom_domain = true }]
+
+[vars]
+ALLOWED_ORIGINS = "https://mozlytfit.com,https://www.mozlytfit.com,https://mozlyt.github.io"
+ADMIN_EMAIL = "monadebenezer61@gmail.com"
+MAIL_FROM = "Lytmoz <onboarding@resend.dev>"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lytmoz"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

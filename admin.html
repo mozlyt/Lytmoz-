@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Lytmoz HQ</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<main id="login" class="login" hidden>
+<form id="login-form" class="card stack">
+<a class="brand" href="/"><img src="assets/favicon.svg" width="36" height="36" alt=""><span>Lytmoz</span><span class="tag">HQ</span></a>
+<h1 class="serif" style="font-size:38px">Welcome back.</h1>
+<label>Email<input type="email" name="email" autocomplete="username" required></label>
+<label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+<p id="login-msg" class="msg" role="status"></p>
+<button class="btn" type="submit">Log in</button>
+</form>
+</main>
+
+<div id="app" hidden>
+<header class="top"><div class="wrap">
+<a class="brand" href="/"><img src="assets/favicon.svg" width="32" height="32" alt=""><span>Lytmoz</span><span class="tag">HQ</span></a>
+<div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button">Log out</button></div>
+</div></header>
+
+<main class="wrap stack" style="padding-top:28px;padding-bottom:60px;gap:22px">
+<p id="preview" class="banner" hidden>Preview mode: the backend isn't connected yet, so this shows sample data. It switches to your real data once the Cloudflare backend is live.</p>
+<div class="row between">
+<div><p class="muted" id="today" style="margin:0 0 4px"></p><h1 class="serif" style="font-size:42px">Good <span id="greet">day</span>.</h1></div>
+<div class="tabs" role="tablist">
+<button role="tab" aria-selected="true" data-tab="leads">Consultations</button>
+<button role="tab" aria-selected="false" data-tab="projects">Clients &amp; projects</button>
+<button role="tab" aria-selected="false" data-tab="requests">Change requests</button>
+</div>
+</div>
+
+<section class="grid stats">
+<div class="card stat"><div class="k">Consultation requests this month</div><div class="v" id="s-leads">0</div></div>
+<div class="card stat"><div class="k">Active projects</div><div class="v" id="s-active">0</div></div>
+<div class="card stat"><div class="k">Monthly care income</div><div class="v" id="s-care" style="color:var(--copper)">$0</div></div>
+<div class="card stat"><div class="k">Invoices due</div><div class="v" id="s-due">$0</div></div>
+</section>
+
+<section data-panel="leads" class="card stack">
+<div class="row between"><h2 style="font-size:18px">Consultation requests</h2><span class="muted" style="font-size:13px">Newest first</span></div>
+<div class="table"><table>
+<thead><tr><th>Name</th><th>WhatsApp</th><th>Their idea or business</th><th>Received</th><th>Status</th></tr></thead>
+<tbody id="leads"></tbody>
+</table></div>
+</section>
+
+<section data-panel="projects" class="stack" hidden>
+<div class="card stack">
+<div class="row between"><h2 style="font-size:18px">Projects</h2><button id="new-client-btn" class="btn small" type="button">New client</button></div>
+<form id="client-form" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))" hidden>
+<label>Client name<input name="name" required></label>
+<label>Client email<input type="email" name="email" required></label>
+<label>Temporary password (10+ characters)<input name="password" minlength="10" required></label>
+<label>Project name<input name="projectName" required></label>
+<label>Plan<select name="plan"><option>Launch</option><option selected>Network</option><option>Empire</option></select></label>
+<label>Monthly care (USD)<input type="number" name="monthlyCare" min="0" step="1" value="100"></label>
+<div class="row" style="grid-column:1/-1"><button class="btn" type="submit">Create client and project</button><p id="client-msg" class="msg" role="status"></p></div>
+</form>
+<div id="projects" class="stack"></div>
+</div>
+</section>
+
+<section data-panel="requests" class="card stack" hidden>
+<h2 style="font-size:18px">Change requests from clients</h2>
+<div id="requests" class="feed"></div>
+</section>
+</main>
+</div>
+
+<script src="config.js"></script>
+<script src="assets/api.js"></script>
+<script>
+(function () {
+  var esc = LZ.esc, money = LZ.money, when = LZ.when, preview = !LZ.cfg.api;
+  var $ = function (id) { return document.getElementById(id); };
+  var leadStatuses = [['new','New'],['contacted','Contacted'],['call_booked','Call booked'],['audit_sent','Audit sent'],['won','Won'],['lost','Lost']];
+
+  var sample = {
+    overview: { leadsThisMonth: 3, activeProjects: 2, monthlyCareCents: 10000, invoicesDueCents: 125000 },
+    leads: [
+      { id: 3, name: 'Herbal wellness brand', whatsapp: '+233 24 000 0001', message: 'We sell herbal drinks through about 300 agents and want them to order online.', status: 'new', created_at: new Date().toISOString() },
+      { id: 2, name: 'Akosua (idea stage)', whatsapp: '+233 20 000 0002', message: 'I want to start a home-cleaning service with a team of cleaners.', status: 'call_booked', created_at: new Date(Date.now() - 864e5).toISOString() },
+      { id: 1, name: 'Skincare reseller', whatsapp: '+234 80 000 0003', message: 'About 80 resellers, all on WhatsApp groups today.', status: 'audit_sent', created_at: new Date(Date.now() - 4 * 864e5).toISOString() }
+    ],
+    projects: [
+      { id: 2, name: 'Supplements distributor', client_name: 'Sample client', client_email: 'client@example.com', plan: 'Network', stage: 3, monthly_care_cents: 10000, due_cents: 125000 },
+      { id: 1, name: 'MOZLYT', client_name: 'MOZLYT', client_email: 'mozlyt0@gmail.com', plan: 'Empire', stage: 5, monthly_care_cents: 10000, due_cents: 0 }
+    ],
+    requests: [{ id: 1, project_name: 'Supplements distributor', text: 'Please make the shop button bigger on phones.', status: 'open', created_at: new Date().toISOString() }]
+  };
+
+  function call(method, path, body) {
+    if (preview) {
+      if (method !== 'GET') return Promise.resolve({ ok: true });
+      var map = { '/api/admin/overview': sample.overview, '/api/admin/leads': { leads: sample.leads }, '/api/admin/projects': { projects: sample.projects }, '/api/admin/requests': { requests: sample.requests }, '/api/me': { user: { name: 'Mensah', role: 'admin' } } };
+      return Promise.resolve(map[path]);
+    }
+    return LZ.api(method, path, body).catch(function (e) { if (e.status === 401) showLogin(); throw e; });
+  }
+
+  function showLogin() { $('app').hidden = true; $('login').hidden = false; }
+  function showApp(user) {
+    $('login').hidden = true; $('app').hidden = false; $('preview').hidden = !preview;
+    $('who').textContent = user.name;
+    var h = new Date().getHours();
+    $('greet').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    $('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    load();
+  }
+
+  function load() {
+    call('GET', '/api/admin/overview').then(function (o) {
+      $('s-leads').textContent = o.leadsThisMonth; $('s-active').textContent = o.activeProjects;
+      $('s-care').textContent = money(o.monthlyCareCents); $('s-due').textContent = money(o.invoicesDueCents);
+    });
+    call('GET', '/api/admin/leads').then(function (d) {
+      $('leads').innerHTML = d.leads.length ? d.leads.map(function (l) {
+        var wa = l.whatsapp.replace(/[^\d]/g, '');
+        return '<tr><td><strong>' + esc(l.name) + '</strong>' + (l.website ? '<br><a href="' + esc(/^https?:/.test(l.website) ? l.website : 'https://' + l.website) + '" target="_blank" rel="noopener">' + esc(l.website) + '</a>' : '') +
+          '</td><td><a href="https://wa.me/' + wa + '" target="_blank" rel="noopener">' + esc(l.whatsapp) + '</a></td><td class="muted" style="max-width:360px">' + esc(l.message) +
+          '</td><td class="muted">' + when(l.created_at) + '</td><td><select data-lead="' + l.id + '" aria-label="Status for ' + esc(l.name) + '">' +
+          leadStatuses.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === l.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="muted">No requests yet. They will appear here as soon as someone fills in the form.</td></tr>';
+    });
+    call('GET', '/api/admin/projects').then(function (d) {
+      $('projects').innerHTML = d.projects.length ? d.projects.map(function (p) {
+        return '<div class="card" style="background:var(--bg)"><div class="row between"><div><strong style="font-size:16px">' + esc(p.name) + '</strong><div class="muted" style="font-size:13px;margin-top:4px">' + esc(p.client_name) + ' · ' + esc(p.client_email) + ' · ' + esc(p.plan) + ' plan</div></div>' +
+          '<div class="row"><span class="pill ' + (p.due_cents ? '' : 'green') + '">' + (p.due_cents ? money(p.due_cents) + ' due' : 'Nothing due') + '</span>' +
+          '<label style="flex-direction:row;align-items:center;gap:8px">Stage <select data-stage="' + p.id + '">' + LZ.stages.map(function (s, i) { return '<option value="' + (i + 1) + '"' + (i + 1 === p.stage ? ' selected' : '') + '>' + (i + 1) + '. ' + s + '</option>'; }).join('') + '</select></label></div></div>' +
+          '<details style="margin-top:10px"><summary>Post an update or add an invoice</summary><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:10px">' +
+          '<form data-update="' + p.id + '" class="stack"><label>Progress update for the client<textarea name="text" rows="2" required></textarea></label><button class="btn small" type="submit">Post update</button></form>' +
+          '<form data-invoice="' + p.id + '" class="stack"><label>Invoice description<input name="description" required placeholder="Balance on launch"></label><div class="row"><label style="flex:1">Amount<input type="number" name="amount" min="1" step="0.01" required></label><label style="width:110px">Currency<select name="currency"><option>USD</option><option>GHS</option><option>NGN</option></select></label></div><label>Payment link (optional)<input name="payUrl" placeholder="Paystack payment page link"></label><button class="btn small" type="submit">Add invoice</button></form>' +
+          '</div></details></div>';
+      }).join('') : '<p class="muted">No clients yet. Use "New client" when someone pays a deposit.</p>';
+    });
+    call('GET', '/api/admin/requests').then(function (d) {
+      $('requests').innerHTML = d.requests.length ? d.requests.map(function (r) {
+        return '<div><span class="muted" style="font-size:12px">' + when(r.created_at) + ' · ' + esc(r.project_name) + '</span><br>' + esc(r.text) + '</div>';
+      }).join('') : '<p class="muted" style="border:0;padding:0">No change requests yet.</p>';
+    });
+  }
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.lead) call('PATCH', '/api/admin/leads/' + t.dataset.lead, { status: t.value });
+    if (t.dataset.stage) call('PATCH', '/api/admin/projects/' + t.dataset.stage, { stage: +t.value }).then(load);
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target, fd = Object.fromEntries(new FormData(f));
+    if (f.dataset.update) { e.preventDefault(); call('POST', '/api/admin/projects/' + f.dataset.update + '/updates', fd).then(function () { f.reset(); alertOk(f, 'Update posted'); }); }
+    if (f.dataset.invoice) { e.preventDefault(); call('POST', '/api/admin/projects/' + f.dataset.invoice + '/invoices', fd).then(function () { f.reset(); load(); }); }
+  });
+  function alertOk(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 1800); }
+
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-tab]').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.dataset.panel !== b.dataset.tab; });
+    });
+  });
+  $('new-client-btn').addEventListener('click', function () { $('client-form').hidden = !$('client-form').hidden; });
+  $('client-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target;
+    call('POST', '/api/admin/clients', Object.fromEntries(new FormData(f))).then(function () {
+      LZ.setMsg($('client-msg'), 'Client created. Send them their email and temporary password.', 'ok'); f.reset(); load();
+    }).catch(function (err) { LZ.setMsg($('client-msg'), err.message, 'err'); });
+  });
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button'); b.disabled = true;
+    LZ.api('POST', '/api/login', Object.fromEntries(new FormData(f))).then(function (d) {
+      if (d.user.role !== 'admin') throw new Error('This login is for the Lytmoz team. Clients use the client portal.');
+      LZ.setToken(d.token); showApp(d.user);
+    }).catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+  $('logout').addEventListener('click', function () {
+    if (preview) return;
+    LZ.api('POST', '/api/logout', {}).finally(function () { LZ.setToken(''); showLogin(); });
+  });
+
+  if (preview) showApp({ name: 'Mensah' });
+  else if (LZ.getToken()) call('GET', '/api/me').then(function (d) { d.user.role === 'admin' ? showApp(d.user) : showLogin(); }).catch(showLogin);
+  else showLogin();
+})();
+</script>
+</body>
+</html>

@@ -31,7 +31,6 @@
 </div></header>
 
 <main class="wrap stack" style="max-width:1000px;padding-top:36px;padding-bottom:60px;gap:22px">
-<p id="preview" class="banner" hidden>Preview mode: this shows sample data until the backend is connected.</p>
 <div id="empty" class="card" hidden><h1 class="serif" style="font-size:34px">Welcome to Lytmoz.</h1><p class="muted">Your project will appear here as soon as we set it up.</p></div>
 <div id="project" class="stack" style="gap:22px" hidden>
 <div class="stack" style="gap:8px">
@@ -65,28 +64,20 @@
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="assets/api.js"></script>
 <script>
 (function () {
-  var esc = LZ.esc, money = LZ.money, when = LZ.when, preview = !LZ.cfg.api;
+  var sb = LZ.sb, check = LZ.check, esc = LZ.esc, money = LZ.money, when = LZ.when;
   var $ = function (id) { return document.getElementById(id); };
-  var sample = {
-    user: { name: 'Sample client' },
-    project: { name: 'Supplements distributor', plan: 'Network', stage: 3, monthly_care_cents: 10000, preview_url: null },
-    updates: [
-      { text: 'Team sign-up and your HQ dashboard are ready for review.', created_at: new Date().toISOString() },
-      { text: 'Shop design approved, and online payments connected for testing.', created_at: new Date(Date.now() - 7 * 864e5).toISOString() },
-      { text: 'Deposit received, and the build has started.', created_at: new Date(Date.now() - 14 * 864e5).toISOString() }
-    ],
-    invoices: [{ description: 'Balance on launch · Network setup', amount_cents: 125000, currency: 'USD', status: 'due', pay_url: null }]
-  };
+  var projectId = null;
   function showLogin() { $('app').hidden = true; $('login').hidden = false; }
-  function render(d) {
-    $('login').hidden = true; $('app').hidden = false; $('preview').hidden = !preview;
-    $('who').textContent = d.user.name;
-    if (!d.project) { $('empty').hidden = false; $('project').hidden = true; return; }
-    var p = d.project; $('empty').hidden = true; $('project').hidden = false;
+  function render(user, p, updates, invoices) {
+    $('login').hidden = true; $('app').hidden = false;
+    $('who').textContent = user.name;
+    if (!p) { $('empty').hidden = false; $('project').hidden = true; return; }
+    projectId = p.id; $('empty').hidden = true; $('project').hidden = false;
     $('plan').textContent = 'Your project · ' + p.plan + ' plan';
     $('headline').textContent = p.stage >= 5 ? p.name + ' is live and growing.' : p.stage === 4 ? p.name + ' is launching.' : 'Your system is being built.';
     $('stage-label').textContent = 'Stage ' + p.stage + ' of 5';
@@ -95,41 +86,43 @@
       var n = i + 1, st = n < p.stage || p.stage === 5 ? ['Done', '#9FD3AE'] : n === p.stage ? ['In progress', '#E2A97F'] : [n === p.stage + 1 ? 'Next' : 'Later', '#A9A096'];
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
-    $('updates').innerHTML = d.updates.length ? d.updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
+    $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
     if (p.preview_url) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
-    var due = d.invoices.filter(function (i) { return i.status === 'due'; });
-    $('invoices').innerHTML = d.invoices.length ? d.invoices.map(function (i) {
+    $('invoices').innerHTML = invoices.length ? invoices.map(function (i) {
       var isDue = i.status === 'due';
       return '<div class="stack" style="gap:6px;' + (isDue ? '' : 'opacity:.7') + '"><span class="serif" style="font-size:' + (isDue ? '46' : '28') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><span class="muted" style="font-size:14px">' + esc(i.description) + ' · ' + (isDue ? 'Due' : 'Paid') + '</span>' +
-        (isDue ? (i.pay_url ? '<a class="btn" href="' + esc(i.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a>' : '<a class="btn" href="https://wa.me/' + (LZ.cfg.whatsapp || '') + '?text=' + encodeURIComponent('Hello Lytmoz, I would like to pay: ' + i.description) + '" target="_blank" rel="noopener">Ask for a payment link</a>') : '') + '</div>';
+        (isDue ? (i.pay_url && /^https:\/\//.test(i.pay_url) ? '<a class="btn" href="' + esc(i.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a>' : '<a class="btn" href="https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, I would like to pay: ' + i.description) + '" target="_blank" rel="noopener">Ask for a payment link</a>') : '') + '</div>';
     }).join('<hr style="border:0;border-top:1px solid #D8CFC2;width:100%">') : '<p class="muted">No invoices yet.</p>';
     if (p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
   }
-  function load() {
-    if (preview) return render(sample);
-    LZ.api('GET', '/api/portal').then(render).catch(function (e) { if (e.status === 401 || e.status === 403) showLogin(); });
+  function load(user) {
+    return sb.from('projects').select('*').order('id', { ascending: false }).limit(1).then(check).then(function (rows) {
+      var p = rows[0];
+      if (!p) return render(user, null);
+      return Promise.all([
+        sb.from('updates').select('*').eq('project_id', p.id).order('id', { ascending: false }).limit(20).then(check),
+        sb.from('invoices').select('*').eq('project_id', p.id).neq('status', 'void').order('id', { ascending: false }).then(check)
+      ]).then(function (r) { render(user, p, r[0], r[1]); });
+    });
   }
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var f = e.target, b = f.querySelector('button'); b.disabled = true;
-    LZ.api('POST', '/api/login', Object.fromEntries(new FormData(f))).then(function (d) {
-      if (d.user.role !== 'client') throw new Error('This portal is for clients. The Lytmoz team logs in at HQ.');
-      LZ.setToken(d.token); load();
+    var f = e.target, b = f.querySelector('button'), d = Object.fromEntries(new FormData(f)); b.disabled = true;
+    sb.auth.signInWithPassword({ email: d.email.trim(), password: d.password }).then(check).then(LZ.me).then(function (p) {
+      if (!p || p.role !== 'client') { sb.auth.signOut(); throw new Error('This portal is for clients. The Lytmoz team logs in at HQ.'); }
+      return load(p);
     }).catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
   });
   $('request-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var f = e.target;
-    if (preview) { LZ.setMsg($('request-msg'), 'Preview mode: requests are saved once the backend is live.', 'ok'); return; }
-    LZ.api('POST', '/api/portal/requests', Object.fromEntries(new FormData(f))).then(function () {
+    var f = e.target, text = f.text.value.trim();
+    if (!text || !projectId) return;
+    sb.from('change_requests').insert({ project_id: projectId, text: text }).then(check).then(function () {
       f.reset(); LZ.setMsg($('request-msg'), 'Sent. We will get back to you shortly.', 'ok');
     }).catch(function (err) { LZ.setMsg($('request-msg'), err.message, 'err'); });
   });
-  $('logout').addEventListener('click', function () {
-    if (preview) return;
-    LZ.api('POST', '/api/logout', {}).finally(function () { LZ.setToken(''); showLogin(); });
-  });
-  if (preview || LZ.getToken()) load(); else showLogin();
+  $('logout').addEventListener('click', function () { sb.auth.signOut().finally(showLogin); });
+  LZ.me().then(function (p) { p && p.role === 'client' ? load(p) : showLogin(); }).catch(showLogin);
 })();
 </script>
 </body>

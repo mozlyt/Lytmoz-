@@ -1,24 +1,32 @@
-// Shared helpers for the admin dashboard and client portal.
+// Shared helpers for the HQ dashboard and client portal (Supabase).
 (function () {
   var cfg = window.LYTMOZ || {};
-  var KEY = 'lytmoz_token';
-  function getToken() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-  function setToken(t) { try { t ? localStorage.setItem(KEY, t) : localStorage.removeItem(KEY); } catch (e) {} }
+  var sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'lytmoz-auth' }
+  });
 
-  function api(method, path, body) {
-    var h = { 'Content-Type': 'application/json' };
-    var t = getToken();
-    if (t) h.Authorization = 'Bearer ' + t;
-    return fetch(cfg.api + path, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined })
-      .then(function (r) {
-        return r.json().catch(function () { return {}; }).then(function (d) {
-          if (r.status === 401 && path !== '/api/login') { setToken(''); }
-          if (!r.ok) { var e = new Error(d.error || 'Something went wrong'); e.status = r.status; throw e; }
-          return d;
-        });
-      });
+  function check(res) {
+    if (res.error) {
+      var m = res.error.message || 'Something went wrong';
+      if (/Invalid login/i.test(m)) m = 'Wrong email or password';
+      throw new Error(m);
+    }
+    return res.data;
   }
-
+  function fn(body) {
+    return sb.auth.getSession().then(function (s) {
+      var h = { 'Content-Type': 'application/json', apikey: cfg.supabaseKey };
+      if (s.data.session) h.Authorization = 'Bearer ' + s.data.session.access_token;
+      return fetch(cfg.supabaseUrl + '/functions/v1/hq-users', { method: 'POST', headers: h, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Something went wrong'); return d; }); });
+    });
+  }
+  function me() {
+    return sb.auth.getUser().then(function (r) {
+      if (!r.data.user) return null;
+      return sb.from('profiles').select('*').eq('id', r.data.user.id).single().then(function (p) { return p.data || null; });
+    });
+  }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -30,8 +38,7 @@
   }
   function when(iso) {
     if (!iso) return '';
-    var d = new Date(iso.replace(' ', 'T') + (iso.indexOf('Z') < 0 && iso.indexOf('+') < 0 ? 'Z' : ''));
-    var days = Math.floor((Date.now() - d) / 864e5);
+    var d = new Date(iso), days = Math.floor((Date.now() - d) / 864e5);
     if (days <= 0) return 'Today';
     if (days === 1) return 'Yesterday';
     if (days < 7) return days + ' days ago';
@@ -39,6 +46,6 @@
   }
   function setMsg(el, text, kind) { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
 
-  window.LZ = { cfg: cfg, api: api, getToken: getToken, setToken: setToken, esc: esc, money: money, when: when, setMsg: setMsg,
+  window.LZ = { cfg: cfg, sb: sb, check: check, fn: fn, me: me, esc: esc, money: money, when: when, setMsg: setMsg,
     stages: ['Audit', 'Proposal and deposit', 'Build', 'Launch', 'Monthly care'] };
 })();

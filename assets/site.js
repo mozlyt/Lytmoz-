@@ -62,25 +62,25 @@
     submit.disabled = true;
     msg.style.color = '#4A423A';
     msg.textContent = 'Sending…';
-    if (!cfg.api) {
-      // No backend yet: hand the request over to WhatsApp.
+    if (!cfg.supabaseUrl) {
       window.open(waLink(d), '_blank', 'noopener');
       msg.textContent = 'WhatsApp opened with your request ready to send.';
       submit.disabled = false;
       return;
     }
-    fetch(cfg.api + '/api/leads', {
+    fetch(cfg.supabaseUrl + '/rest/v1/leads', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(d)
+      headers: { 'Content-Type': 'application/json', apikey: cfg.supabaseKey, Prefer: 'return=minimal' },
+      body: JSON.stringify({ name: d.name, website: d.website || null, whatsapp: d.whatsapp, message: d.message })
     }).then(function (r) {
-      if (!r.ok) throw new Error('bad');
+      if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || 'bad'); });
       form.reset();
       msg.style.color = '#166534';
       msg.textContent = 'Thank you. We will reply on WhatsApp within 2 working days.';
-    }).catch(function () {
+    }).catch(function (err) {
       msg.style.color = '#9A3412';
-      msg.innerHTML = 'Something went wrong. <a href="' + waLink(d) + '" target="_blank" rel="noopener" style="color:#8A4E28">Send it on WhatsApp instead</a>.';
+      var hint = /check constraint.*whatsapp/i.test(err.message) ? 'Please check your WhatsApp number. ' : /Too many/.test(err.message) ? 'You have sent several requests today. ' : 'Something went wrong. ';
+      msg.innerHTML = hint + '<a href="' + waLink(d) + '" target="_blank" rel="noopener" style="color:#8A4E28">Send it on WhatsApp instead</a>.';
     }).finally(function () { submit.disabled = false; });
   });
 })();

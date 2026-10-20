@@ -1,6 +1,7 @@
-// Site settings. Set `api` once the Cloudflare backend is live, e.g. "https://api.mozlytfit.com".
-// While it is empty, the consultation form sends requests through WhatsApp instead.
+// Site settings. The Supabase publishable key is meant to be public:
+// database security rules decide what each visitor or login can see.
 window.LYTMOZ = {
-  api: "",
+  supabaseUrl: "https://rfcyjjtujrgzneokjfmd.supabase.co",
+  supabaseKey: "sb_publishable_oUnHKZ1NqD1Q7_aKe40Riw_xaMh6e3e",
   whatsapp: "233538729743"
 };

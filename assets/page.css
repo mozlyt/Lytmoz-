@@ -44,7 +44,7 @@ details p{margin:10px 0 0}
 .lz-foot{margin-top:72px;border-top:1px solid #2A2622;background:#0B0A09;color:#A9A096;font-family:Manrope,system-ui,sans-serif}
 .lz-foot a{color:#C9C0B4;text-decoration:none;transition:color .2s}
 .lz-foot a:hover{color:#E2A97F}
-.lz-foot .in{max-width:1240px;margin:0 auto;padding:56px 24px 0;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:40px 32px}
+.lz-foot .in{max-width:1240px;margin:0 auto;padding:56px 24px 0;display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:40px 32px}
 .lz-foot .brand{display:flex;align-items:center;gap:12px;color:#F2EDE4}
 .lz-foot .brand span{font-family:'Instrument Serif',Georgia,serif;font-size:28px;letter-spacing:4px}
 .lz-foot .tag{margin:14px 0 22px;font-size:15px;line-height:1.6;max-width:300px}

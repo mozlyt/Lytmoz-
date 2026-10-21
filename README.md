@@ -29,10 +29,6 @@ Domain List → lytmoz.com → Manage → Advanced DNS. Remove the old records f
 
 When GitHub shows the domain as verified, tick **Enforce HTTPS**.
 
-### Old domain (mozlytfit.com)
-
-In Namecheap, mozlytfit.com uses a permanent **URL Redirect Record** (`@` and `www`) to `https://lytmoz.com`, so old links keep working.
-
 ## 2. Backend (Supabase)
 
 Already set up: see `supabase/README.md`. The site connects through `config.js`.

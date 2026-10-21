@@ -13,11 +13,11 @@ From idea to a system that grows. The Lytmoz website, HQ dashboard and client po
 
 ## 1. Website on GitHub Pages
 
-Settings → Pages → Source: **Deploy from a branch**, branch `main`, folder `/ (root)`. The `CNAME` file points it at `mozlytfit.com`.
+Settings → Pages → Source: **Deploy from a branch**, branch `main`, folder `/ (root)`. The `CNAME` file points it at `lytmoz.com`.
 
-### Namecheap DNS for mozlytfit.com
+### Namecheap DNS for lytmoz.com
 
-Domain List → mozlytfit.com → Manage → Advanced DNS. Remove the old records for `@` and `www`, then add:
+Domain List → lytmoz.com → Manage → Advanced DNS. Remove the old records for `@` and `www`, then add:
 
 | Type | Host | Value |
 |---|---|---|
@@ -28,6 +28,10 @@ Domain List → mozlytfit.com → Manage → Advanced DNS. Remove the old record
 | CNAME | www | mozlyt.github.io. |
 
 When GitHub shows the domain as verified, tick **Enforce HTTPS**.
+
+### Old domain (mozlytfit.com)
+
+In Namecheap, mozlytfit.com uses a permanent **URL Redirect Record** (`@` and `www`) to `https://lytmoz.com`, so old links keep working.
 
 ## 2. Backend (Supabase)
 

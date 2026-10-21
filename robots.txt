@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /portal.html
 
-Sitemap: https://mozlytfit.com/sitemap.xml
+Sitemap: https://lytmoz.com/sitemap.xml

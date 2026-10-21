@@ -4,24 +4,46 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Client portal · Lytmoz</title>
+<title>Client login and free sign-up · Lytmoz</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app.css?v=2">
+<style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 </head>
 <body>
 
 <main id="login" class="login" hidden>
-<form id="login-form" class="card stack">
+<div class="card stack">
 <a class="brand" href="/"><img src="assets/favicon.svg" width="36" height="36" alt=""><span>Lytmoz</span></a>
-<h1 class="serif" style="font-size:38px">Your client portal.</h1>
-<p class="muted" style="margin:0;line-height:1.6">Follow your project, see invoices and request changes. Use the email and password we sent you.</p>
+<h1 class="serif" style="font-size:36px;line-height:1.05" id="auth-title">Your Lytmoz account.</h1>
+<p class="muted" style="margin:0;line-height:1.6">Free to join. Message our team any time, follow your project and see invoices in one place.</p>
+<button id="google" class="btn ghost" type="button"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</button>
+<div class="row" style="gap:10px;color:var(--muted);font-size:12px"><span style="flex:1;border-top:1px solid var(--line)"></span>or with email<span style="flex:1;border-top:1px solid var(--line)"></span></div>
+<div class="tabs" role="tablist">
+<button type="button" role="tab" aria-selected="true" data-auth="signup">Create free account</button>
+<button type="button" role="tab" aria-selected="false" data-auth="login">Log in</button>
+</div>
+<form id="signup-form" class="stack" data-pane="signup">
+<label>Full name<input name="name" autocomplete="name" maxlength="120" required></label>
+<label>Email<input type="email" name="email" autocomplete="email" required></label>
+<label>Password<input type="password" name="password" autocomplete="new-password" minlength="8" required><span class="muted" style="font-weight:400;font-size:12px">At least 8 characters.</span></label>
+<div class="row" style="gap:12px;flex-wrap:nowrap;position:relative;align-items:flex-end">
+<label style="flex:1;min-width:0">WhatsApp <span class="muted" style="font-weight:400">· optional</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+<label style="flex:1;min-width:0">Business <span class="muted" style="font-weight:400">· optional</span><input name="company" autocomplete="organization" maxlength="120"></label>
+<input name="company_site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+</div>
+<p id="signup-msg" class="msg" role="status"></p>
+<button class="btn" type="submit">Create my free account</button>
+</form>
+<form id="login-form" class="stack" data-pane="login" hidden>
 <label>Email<input type="email" name="email" autocomplete="username" required></label>
 <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
 <p id="login-msg" class="msg" role="status"></p>
 <button class="btn" type="submit">Log in</button>
-<p class="muted" style="margin:0;font-size:13px">Not a client yet? <a href="/#audit">Book a free consultation</a>.</p>
+<button id="forgot" class="btn ghost small" type="button" style="align-self:flex-start">Forgot password?</button>
 </form>
+<p class="muted" style="margin:0;font-size:12px;line-height:1.5">By creating an account you agree that we may contact you about your enquiry. We never share your details.</p>
+</div>
 </main>
 
 <div id="app" hidden>
@@ -31,7 +53,7 @@
 </div></header>
 
 <main class="wrap stack" style="max-width:1000px;padding-top:36px;padding-bottom:60px;gap:22px">
-<div id="empty" class="card" hidden><h1 class="serif" style="font-size:34px">Welcome to Lytmoz.</h1><p class="muted">Your project will appear here as soon as we set it up.</p></div>
+<div id="empty" class="card stack" hidden><span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700">Welcome</span><h1 class="serif" style="font-size:clamp(32px,5vw,46px);line-height:1.05">Good to have you, <span id="first"></span>.</h1><p class="muted" style="margin:0;line-height:1.6">Tell us about your idea or your business below, any time. Our team replies here and on WhatsApp. When we start a project together, its progress and invoices will appear on this page.</p><div class="row"><a class="btn ghost small" href="/services/">Explore our services</a><a class="btn ghost small" href="/#pricing">See pricing</a></div></div>
 <div id="project" class="stack" style="gap:22px" hidden>
 <div class="stack" style="gap:8px">
 <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700" id="plan"></span>
@@ -61,21 +83,58 @@
 </form>
 </section>
 </div>
+<section class="card stack" id="messages-card" hidden>
+<div class="row between"><h2 style="font-size:18px">Messages with Lytmoz</h2><a class="muted" style="font-size:13px" id="wa-link" target="_blank" rel="noopener">Prefer WhatsApp?</a></div>
+<div id="thread" class="stack" style="gap:10px;max-height:460px;overflow-y:auto"></div>
+<form id="msg-form" class="stack" style="gap:10px">
+<label>Write to us<textarea name="text" rows="3" maxlength="4000" required placeholder="What would you like to build, fix or grow?"></textarea></label>
+<div class="row"><button class="btn" type="submit">Send message</button><p id="msg-msg" class="msg" role="status"></p></div>
+</form>
+</section>
 </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="assets/api.js"></script>
+<script src="config.js?v=3"></script>
+<script src="assets/api.js?v=2"></script>
 <script>
 (function () {
   var sb = LZ.sb, check = LZ.check, esc = LZ.esc, money = LZ.money, when = LZ.when;
   var $ = function (id) { return document.getElementById(id); };
-  var projectId = null;
+  var projectId = null, me = null;
+  var HOME = location.origin + location.pathname;
+
+  function notify(subject, fields) {
+    if (!LZ.cfg.email) return;
+    fetch('https://formsubmit.co/ajax/' + LZ.cfg.email, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(Object.assign({ _subject: subject, _template: 'table', _captcha: 'false' }, fields))
+    }).catch(function () {});
+  }
+  function setAuth(which) {
+    document.querySelectorAll('[data-auth]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.auth === which ? 'true' : 'false'); });
+    document.querySelectorAll('[data-pane]').forEach(function (f) { f.hidden = f.dataset.pane !== which; });
+    $('auth-title').textContent = which === 'login' ? 'Welcome back.' : 'Your Lytmoz account.';
+  }
+  document.querySelectorAll('[data-auth]').forEach(function (b) { b.addEventListener('click', function () { setAuth(b.dataset.auth); }); });
   function showLogin() { $('app').hidden = true; $('login').hidden = false; }
+
+  function renderThread(rows) {
+    $('thread').innerHTML = rows.length ? rows.map(function (m) {
+      return '<div class="bub ' + (m.from_admin ? 'them' : 'me') + '">' + esc(m.text) + '<small>' + (m.from_admin ? 'Lytmoz · ' : 'You · ') + when(m.created_at) + '</small></div>';
+    }).join('') : '<p class="muted" style="margin:0">No messages yet. Say hello and tell us what you need.</p>';
+    $('thread').scrollTop = $('thread').scrollHeight;
+  }
+  function loadThread() {
+    return sb.from('messages').select('*').eq('client_id', me.id).order('created_at', { ascending: true }).limit(200).then(check).then(renderThread);
+  }
+
   function render(user, p, updates, invoices) {
     $('login').hidden = true; $('app').hidden = false;
-    $('who').textContent = user.name;
+    $('who').textContent = user.name || user.email || '';
+    $('first').textContent = (user.name || 'there').split(' ')[0];
+    $('messages-card').hidden = false;
+    $('wa-link').href = 'https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, this is ' + (user.name || '') + '.');
     if (!p) { $('empty').hidden = false; $('project').hidden = true; return; }
     projectId = p.id; $('empty').hidden = true; $('project').hidden = false;
     $('plan').textContent = 'Your project · ' + p.plan + ' plan';
@@ -87,7 +146,7 @@
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
-    if (p.preview_url) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
+    if (p.preview_url && /^https:\/\//.test(p.preview_url)) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
     $('invoices').innerHTML = invoices.length ? invoices.map(function (i) {
       var isDue = i.status === 'due';
       return '<div class="stack" style="gap:6px;' + (isDue ? '' : 'opacity:.7') + '"><span class="serif" style="font-size:' + (isDue ? '46' : '28') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><span class="muted" style="font-size:14px">' + esc(i.description) + ' · ' + (isDue ? 'Due' : 'Paid') + '</span>' +
@@ -96,23 +155,78 @@
     if (p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
   }
   function load(user) {
+    me = user;
     return sb.from('projects').select('*').order('id', { ascending: false }).limit(1).then(check).then(function (rows) {
       var p = rows[0];
-      if (!p) return render(user, null);
+      if (!p) { render(user, null); return loadThread(); }
       return Promise.all([
         sb.from('updates').select('*').eq('project_id', p.id).order('id', { ascending: false }).limit(20).then(check),
         sb.from('invoices').select('*').eq('project_id', p.id).neq('status', 'void').order('id', { ascending: false }).then(check)
-      ]).then(function (r) { render(user, p, r[0], r[1]); });
+      ]).then(function (r) { render(user, p, r[0], r[1]); return loadThread(); });
     });
   }
+  function enter() {
+    return LZ.me().then(function (p) {
+      if (!p) throw new Error('We could not open your account. Please try again in a moment.');
+      if (p.role !== 'client') { sb.auth.signOut(); throw new Error('This page is for clients. The Lytmoz team logs in at HQ.'); }
+      return load(p);
+    });
+  }
+
+  $('google').addEventListener('click', function () {
+    var b = this; b.disabled = true;
+    sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: HOME } }).then(check).catch(function (err) {
+      b.disabled = false;
+      LZ.setMsg($('signup-msg'), /provider is not enabled|Unsupported provider/i.test(err.message) ? 'Google sign-in is being switched on. Please use email for now.' : err.message, 'err');
+    });
+  });
+
+  $('signup-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button[type="submit"]'), d = Object.fromEntries(new FormData(f));
+    if (String(d.password).length < 8) return LZ.setMsg($('signup-msg'), 'Please use a password of at least 8 characters.', 'err');
+    b.disabled = true; LZ.setMsg($('signup-msg'), 'Creating your account…');
+    var email = d.email.trim().toLowerCase();
+    LZ.fn({ action: 'signup', name: d.name.trim(), email: email, password: d.password, phone: d.phone.trim(), company: d.company.trim(), company_site: d.company_site })
+      .then(function () { return sb.auth.signInWithPassword({ email: email, password: d.password }).then(check); })
+      .then(function () {
+        notify('New Lytmoz sign-up: ' + d.name.trim(), { Name: d.name.trim(), Email: email, Phone: d.phone.trim() || '-', Business: d.company.trim() || '-' });
+        f.reset(); LZ.setMsg($('signup-msg'), ''); return enter();
+      })
+      .catch(function (err) {
+        var m = err.message;
+        if (/already/i.test(m)) { setAuth('login'); $('login-form').email.value = email; LZ.setMsg($('login-msg'), 'You already have an account. Please log in.', 'err'); LZ.setMsg($('signup-msg'), ''); return; }
+        LZ.setMsg($('signup-msg'), m, 'err');
+      })
+      .finally(function () { b.disabled = false; });
+  });
+
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    var f = e.target, b = f.querySelector('button'), d = Object.fromEntries(new FormData(f)); b.disabled = true;
-    sb.auth.signInWithPassword({ email: d.email.trim(), password: d.password }).then(check).then(LZ.me).then(function (p) {
-      if (!p || p.role !== 'client') { sb.auth.signOut(); throw new Error('This portal is for clients. The Lytmoz team logs in at HQ.'); }
-      return load(p);
-    }).catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+    var f = e.target, b = f.querySelector('button[type="submit"]'), d = Object.fromEntries(new FormData(f)); b.disabled = true;
+    sb.auth.signInWithPassword({ email: d.email.trim(), password: d.password }).then(check).then(enter)
+      .catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
   });
+
+  $('forgot').addEventListener('click', function () {
+    var email = $('login-form').email.value.trim();
+    if (!email) return LZ.setMsg($('login-msg'), 'Type your email above, then tap “Forgot password?” again.', 'err');
+    sb.auth.resetPasswordForEmail(email, { redirectTo: HOME + '#reset' }).then(check)
+      .then(function () { LZ.setMsg($('login-msg'), 'If that email has an account, a reset link is on its way.', 'ok'); })
+      .catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); });
+  });
+
+  $('msg-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button'), text = f.text.value.trim();
+    if (!text || !me) return;
+    b.disabled = true;
+    sb.from('messages').insert({ client_id: me.id, text: text.slice(0, 4000) }).then(check).then(function () {
+      notify('New message from ' + (me.name || me.email), { From: me.name || '-', Email: me.email || '-', Phone: me.phone || '-', Message: text, Reply: 'https://lytmoz.com/admin.html' });
+      f.reset(); LZ.setMsg($('msg-msg'), 'Sent. We will reply here soon.', 'ok'); return loadThread();
+    }).catch(function (err) { LZ.setMsg($('msg-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+
   $('request-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var f = e.target, text = f.text.value.trim();
@@ -121,8 +235,20 @@
       f.reset(); LZ.setMsg($('request-msg'), 'Sent. We will get back to you shortly.', 'ok');
     }).catch(function (err) { LZ.setMsg($('request-msg'), err.message, 'err'); });
   });
-  $('logout').addEventListener('click', function () { sb.auth.signOut().finally(showLogin); });
-  LZ.me().then(function (p) { p && p.role === 'client' ? load(p) : showLogin(); }).catch(showLogin);
+  $('logout').addEventListener('click', function () { sb.auth.signOut().finally(function () { setAuth('login'); showLogin(); }); });
+
+  // Password reset link lands here
+  sb.auth.onAuthStateChange(function (ev) {
+    if (ev === 'PASSWORD_RECOVERY') {
+      var pw = prompt('Choose a new password (at least 8 characters):');
+      if (pw && pw.length >= 8) sb.auth.updateUser({ password: pw }).then(check).then(enter).catch(function (err) { alert(err.message); });
+    }
+  });
+  if (/[?&]error_description=/.test(location.search + location.hash)) {
+    var em = decodeURIComponent(((location.search + location.hash).match(/error_description=([^&]+)/) || [])[1] || '').replace(/\+/g, ' ');
+    LZ.setMsg($('signup-msg'), em || 'Sign-in was cancelled.', 'err');
+  }
+  enter().catch(function () { showLogin(); });
 })();
 </script>
 </body>

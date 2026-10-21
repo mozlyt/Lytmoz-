@@ -44,6 +44,8 @@
 <div class="tabs" role="tablist">
 <button role="tab" aria-selected="true" data-tab="leads">Consultations</button>
 <button role="tab" aria-selected="false" data-tab="projects">Clients &amp; projects</button>
+<button role="tab" aria-selected="false" data-tab="messages">Messages <span id="unread" class="pill" style="margin-left:4px;padding:2px 8px" hidden></span></button>
+<button role="tab" aria-selected="false" data-tab="members">Members</button>
 <button role="tab" aria-selected="false" data-tab="requests">Change requests</button>
 </div>
 </div>
@@ -69,7 +71,7 @@
 <form id="client-form" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))" hidden>
 <label>Client name<input name="name" required></label>
 <label>Client email<input type="email" name="email" required></label>
-<label>Temporary password (10+ characters)<input name="password" minlength="10" required></label>
+<label>Temporary password (10+ characters)<input name="password" minlength="10" required><span class="muted" style="font-weight:400;font-size:12px">Ignored if they already signed up. Their project is added to their account.</span></label>
 <label>Project name<input name="projectName" required></label>
 <label>Plan<select name="plan"><option>Launch</option><option selected>Network</option><option>Empire</option></select></label>
 <label>Monthly care (USD)<input type="number" name="monthlyCare" min="0" step="1" value="100"></label>
@@ -79,6 +81,19 @@
 </div>
 </section>
 
+<section data-panel="messages" class="card stack" hidden>
+<div class="row between"><h2 style="font-size:18px">Messages from members</h2><span class="muted" style="font-size:13px">Open a conversation to mark it read</span></div>
+<div id="threads" class="stack"></div>
+</section>
+
+<section data-panel="members" class="card stack" hidden>
+<div class="row between"><h2 style="font-size:18px">Members who signed up</h2><span class="muted" style="font-size:13px" id="member-count"></span></div>
+<div class="table"><table>
+<thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Business</th><th>Joined</th></tr></thead>
+<tbody id="members"></tbody>
+</table></div>
+</section>
+
 <section data-panel="requests" class="card stack" hidden>
 <h2 style="font-size:18px">Change requests from clients</h2>
 <div id="requests" class="feed"></div>
@@ -86,8 +101,8 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="assets/api.js"></script>
+<script src="config.js?v=3"></script>
+<script src="assets/api.js?v=2"></script>
 <script>
 (function () {
   var sb = LZ.sb, check = LZ.check, esc = LZ.esc, money = LZ.money, when = LZ.when;
@@ -141,7 +156,49 @@
         return '<div><span class="muted" style="font-size:12px">' + when(r.created_at) + ' · ' + esc(r.projects && r.projects.name) + '</span><br>' + esc(r.text) + '</div>';
       }).join('') : '<p class="muted" style="border:0;padding:0">No change requests yet.</p>';
     }).catch(fail);
+    loadMessages();
   }
+
+  function loadMessages() {
+    Promise.all([
+      sb.from('messages').select('*').order('created_at', { ascending: true }).limit(2000).then(check),
+      sb.from('profiles').select('id, name, email, phone, company, created_at').eq('role', 'client').order('created_at', { ascending: false }).limit(1000).then(check)
+    ]).then(function (r) {
+      var msgs = r[0], people = r[1], byId = {}, threads = {}, order = [], unread = 0;
+      people.forEach(function (p) { byId[p.id] = p; });
+      msgs.forEach(function (m) {
+        if (!threads[m.client_id]) { threads[m.client_id] = []; }
+        threads[m.client_id].push(m);
+        if (!m.from_admin && !m.read_by_admin) unread++;
+      });
+      order = Object.keys(threads).sort(function (a, b) { var x = threads[a], y = threads[b]; return x[x.length - 1].created_at < y[y.length - 1].created_at ? 1 : -1; });
+      $('unread').textContent = unread; $('unread').hidden = !unread;
+      $('threads').innerHTML = order.length ? order.map(function (id) {
+        var t = threads[id], c = byId[id] || {}, n = t.filter(function (m) { return !m.from_admin && !m.read_by_admin; }).length, last = t[t.length - 1];
+        var wa = (c.phone || '').replace(/[^\d]/g, '').replace(/^0/, '233');
+        return '<details class="card" style="background:var(--bg)" data-thread="' + id + '"' + (n ? '' : '') + '><summary style="display:flex;justify-content:space-between;gap:12px;color:var(--text);font-size:15px"><span><strong>' + esc(c.name || c.email || 'Member') + '</strong> ' + (n ? '<span class="pill">' + n + ' new</span>' : '') +
+          '<br><span class="muted" style="font-weight:400;font-size:13px">' + esc(last.text.slice(0, 90)) + (last.text.length > 90 ? '…' : '') + '</span></span><span class="muted" style="font-weight:400;font-size:12px;white-space:nowrap">' + when(last.created_at) + '</span></summary>' +
+          '<div class="muted" style="font-size:13px;margin:8px 0 12px">' + esc(c.email || '') + (c.phone ? ' · <a href="https://wa.me/' + wa + '" target="_blank" rel="noopener">' + esc(c.phone) + '</a>' : '') + (c.company ? ' · ' + esc(c.company) : '') + '</div>' +
+          '<div class="stack" style="gap:8px">' + t.map(function (m) {
+            return '<div style="align-self:' + (m.from_admin ? 'flex-end' : 'flex-start') + ';max-width:82%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.55;white-space:pre-wrap;background:' + (m.from_admin ? '#2A2017' : '#1E1B18') + ';border:1px solid var(--line2)">' + esc(m.text) + '<div class="muted" style="font-size:11px;margin-top:4px">' + (m.from_admin ? 'You' : esc((c.name || 'Member').split(' ')[0])) + ' · ' + when(m.created_at) + '</div></div>';
+          }).join('') + '</div>' +
+          '<form data-reply="' + id + '" class="stack" style="margin-top:12px;gap:8px"><label>Reply<textarea name="text" rows="2" required></textarea></label><button class="btn small" type="submit" style="align-self:flex-start">Send reply</button></form></details>';
+      }).join('') : '<p class="muted">No messages yet. When a member writes to you, it will show here.</p>';
+      $('member-count').textContent = people.length + ' total';
+      $('members').innerHTML = people.length ? people.map(function (p) {
+        return '<tr><td><strong>' + esc(p.name) + '</strong></td><td><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></td><td>' + esc(p.phone || '-') + '</td><td class="muted">' + esc(p.company || '-') + '</td><td class="muted">' + when(p.created_at) + '</td></tr>';
+      }).join('') : '<tr><td colspan="5" class="muted">No sign-ups yet.</td></tr>';
+    }).catch(fail);
+  }
+  document.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (d.dataset && d.dataset.thread && d.open) {
+      sb.from('messages').update({ read_by_admin: true }).eq('client_id', d.dataset.thread).eq('from_admin', false).eq('read_by_admin', false).then(check).then(function () {
+        var pill = d.querySelector('summary .pill'); if (pill) pill.remove();
+        var u = $('unread'), n = Math.max(0, (+u.textContent || 0) - 1); u.textContent = n; u.hidden = !n;
+      }).catch(fail);
+    }
+  }, true);
 
   document.addEventListener('change', function (e) {
     var t = e.target;
@@ -150,6 +207,13 @@
   });
   document.addEventListener('submit', function (e) {
     var f = e.target, fd = Object.fromEntries(new FormData(f));
+    if (f.dataset.reply) {
+      e.preventDefault();
+      var open = f.closest('details');
+      sb.from('messages').insert({ client_id: f.dataset.reply, text: fd.text.trim(), from_admin: true, read_by_admin: true }).then(check).then(function () {
+        f.reset(); loadMessages(); setTimeout(function () { var d = document.querySelector('[data-thread="' + f.dataset.reply + '"]'); if (d) d.open = true; }, 600);
+      }).catch(function (err) { flash(f, err.message); });
+    }
     if (f.dataset.update) {
       e.preventDefault();
       sb.from('updates').insert({ project_id: +f.dataset.update, text: fd.text.trim() }).then(check).then(function () { f.reset(); flash(f, 'Update posted'); }).catch(function (err) { flash(f, err.message); });

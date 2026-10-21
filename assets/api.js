@@ -46,6 +46,25 @@
   }
   function setMsg(el, text, kind) { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
 
+  // Show / hide button on every password field
+  function addPasswordToggles() {
+    document.querySelectorAll('input[type="password"]').forEach(function (inp) {
+      if (inp.dataset.toggle) return; inp.dataset.toggle = '1';
+      var wrap = document.createElement('span'); wrap.className = 'pw-wrap';
+      inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pw-eye'; b.textContent = 'Show';
+      b.setAttribute('aria-label', 'Show password'); b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function () {
+        var show = inp.type === 'password'; inp.type = show ? 'text' : 'password';
+        b.textContent = show ? 'Hide' : 'Show'; b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); b.setAttribute('aria-pressed', show ? 'true' : 'false');
+        inp.focus();
+      });
+      wrap.appendChild(b);
+      if (inp.form) inp.form.addEventListener('submit', function () { inp.type = 'password'; b.textContent = 'Show'; b.setAttribute('aria-pressed', 'false'); });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addPasswordToggles); else addPasswordToggles();
+
   window.LZ = { cfg: cfg, sb: sb, check: check, fn: fn, me: me, esc: esc, money: money, when: when, setMsg: setMsg,
     stages: ['Audit', 'Proposal and deposit', 'Build', 'Launch', 'Monthly care'] };
 })();

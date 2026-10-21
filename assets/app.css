@@ -58,3 +58,4 @@ td select{padding:7px 10px;font-size:13px;width:auto}
 .tabs button[aria-selected="true"]{background:#1E1B18;color:var(--text);border-color:var(--line2)}
 details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13px;padding:6px 0}
 [hidden]{display:none!important}
+.pw-wrap{position:relative;display:block}.pw-wrap input{padding-right:74px}.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:inherit;font-size:13px;font-weight:700;color:var(--copper);background:transparent;border:0;border-radius:999px;padding:8px 12px;min-height:36px;cursor:pointer}.pw-eye:hover{color:var(--copper2);background:#1E1B18}

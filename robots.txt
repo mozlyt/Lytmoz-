@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /portal.html
+
+Sitemap: https://mozlytfit.com/sitemap.xml

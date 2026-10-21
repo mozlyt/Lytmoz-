@@ -45,6 +45,22 @@ a{color:#C98A5E}a:hover{color:#E2A97F}
 input:focus,textarea:focus{outline:2px solid #C98A5E;outline-offset:1px}
 a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3px}
 [hidden]{display:none!important}
+.lz-foot{border-top:1px solid #2A2622;background:#0B0A09;color:#A9A096;font-family:Manrope,system-ui,sans-serif}
+.lz-foot a{color:#C9C0B4;text-decoration:none;transition:color .2s}
+.lz-foot a:hover{color:#E2A97F}
+.lz-foot .in{max-width:1240px;margin:0 auto;padding:56px 24px 0;display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:40px 32px}
+.lz-foot .brand{display:flex;align-items:center;gap:12px;color:#F2EDE4}
+.lz-foot .brand span{font-family:'Instrument Serif',Georgia,serif;font-size:28px;letter-spacing:4px}
+.lz-foot .tag{margin:14px 0 22px;font-size:15px;line-height:1.6;max-width:300px}
+.lz-foot .soc{display:flex;gap:10px}
+.lz-foot .soc a{width:42px;height:42px;border:1px solid #3A342E;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;color:#C9C0B4}
+.lz-foot .soc a:hover{border-color:#C98A5E;color:#C98A5E}
+.lz-foot h3{margin:4px 0 16px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#C98A5E;font-weight:700}
+.lz-foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;font-size:14px}
+.lz-foot .bar{max-width:1240px;margin:48px auto 0;padding:22px 24px 30px;border-top:1px solid #221F1B;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:13px}
+@media (max-width:860px){.lz-foot .in{grid-template-columns:repeat(2,minmax(0,1fr))}.lz-foot .col-brand{grid-column:1/-1}}
+@media (max-width:480px){.lz-foot .in{grid-template-columns:minmax(0,1fr)}}
+
 </style>
 </head>
 <body>
@@ -323,12 +339,33 @@ a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3p
 </div>
 </section>
 
-<footer style="max-width: 1240px; margin: 0 auto; padding: 40px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: center; color: #A9A096; font-size: 14px">
-<span style="font-family: 'Instrument Serif', serif; font-size: 26px; letter-spacing: 4px; color: #F2EDE4">Lytmoz</span>
-<span>Systems that work while you rest.</span>
-<nav aria-label="Social media" style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px"><a href="https://www.facebook.com/lytmoz" target="_blank" rel="noopener me" style="color:#C9C0B4">Facebook</a> · <a href="https://www.instagram.com/lytm0z" target="_blank" rel="noopener me" style="color:#C9C0B4">Instagram</a> · <a href="https://www.tiktok.com/@lytm0z" target="_blank" rel="noopener me" style="color:#C9C0B4">TikTok</a> · <a href="https://www.linkedin.com/company/lytmoz" target="_blank" rel="noopener me" style="color:#C9C0B4">LinkedIn</a></nav>
-<nav aria-label="Services" style="display: flex; flex-wrap: wrap; gap: 6px 4px; font-size: 13px"><a href="/website-design-accra/" style="color:#C9C0B4">Website design in Accra</a> · <a href="/website-design-lagos/" style="color:#C9C0B4">Website design in Lagos</a> · <a href="/business-systems/" style="color:#C9C0B4">Business systems and dashboards</a> · <a href="/distributor-platforms/" style="color:#C9C0B4">Distributor and subscription platforms</a></nav>
-<span>Websites and business systems · Accra, Ghana · Lagos, Nigeria · <a href="https://wa.me/233538729743" style="color:#C9C0B4">WhatsApp +233 53 872 9743</a> · © 2026 Lytmoz</span>
+<footer class="lz-foot">
+<div class="in">
+<div class="col-brand">
+<a class="brand" href="/"><img src="/assets/favicon.svg" width="34" height="34" alt=""><span>Lytmoz</span></a>
+<p class="tag">Websites and business systems that work while you rest. Built in Accra for Ghana, Nigeria and beyond.</p>
+<nav class="soc" aria-label="Social media"><a href="https://www.facebook.com/lytmoz" target="_blank" rel="noopener me" aria-label="Lytmoz on Facebook"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h2.5V4.5H14c-2.2 0-3.5 1.5-3.5 3.8V10H8v3.5h2.5V20H14v-6.5h2.5L17 10h-3V8.6c0-.4.2-.6.6-.6z" fill="currentColor"/></svg></a><a href="https://www.instagram.com/lytm0z" target="_blank" rel="noopener me" aria-label="Lytmoz on Instagram"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4.5" width="15" height="15" rx="4.2" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="16.6" cy="7.4" r="1.05" fill="currentColor"/></svg></a><a href="https://www.tiktok.com/@lytm0z" target="_blank" rel="noopener me" aria-label="Lytmoz on TikTok"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 4h2.6c.3 1.9 1.6 3.2 3.4 3.4v2.6c-1.3 0-2.5-.4-3.4-1v5.6c0 3-2.3 5.1-5.1 5.1S6.6 17.6 6.6 14.7c0-2.9 2.4-5.1 5.4-4.9v2.7c-1.5-.2-2.7.8-2.7 2.2 0 1.3 1 2.3 2.3 2.3 1.4 0 2.6-1 2.6-2.6V4z" fill="currentColor"/></svg></a><a href="https://www.linkedin.com/company/lytmoz" target="_blank" rel="noopener me" aria-label="Lytmoz on LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="9.5" width="3" height="9.5" fill="currentColor"/><circle cx="6.5" cy="6.3" r="1.7" fill="currentColor"/><path d="M10.5 9.5h2.9v1.4c.5-.9 1.6-1.7 3.2-1.7 2.6 0 3.4 1.6 3.4 4.2V19h-3v-5c0-1.3-.3-2.3-1.6-2.3-1.4 0-1.9 1-1.9 2.4V19h-3V9.5z" fill="currentColor"/></svg></a></nav>
+</div>
+<nav aria-label="Services"><h3>Services</h3><ul>
+<li><a href="/website-design-accra/">Website design in Accra</a></li>
+<li><a href="/website-design-lagos/">Website design in Lagos</a></li>
+<li><a href="/business-systems/">Business systems</a></li>
+<li><a href="/distributor-platforms/">Distributor platforms</a></li>
+</ul></nav>
+<nav aria-label="Company"><h3>Company</h3><ul>
+<li><a href="#work">Our work</a></li>
+<li><a href="#pricing">Pricing</a></li>
+<li><a href="#faq">Questions</a></li>
+<li><a href="/portal.html">Client login</a></li>
+</ul></nav>
+<div><h3>Contact</h3><ul>
+<li><a href="https://wa.me/233538729743" target="_blank" rel="noopener">WhatsApp +233 53 872 9743</a></li>
+<li><a href="mailto:info@lytmoz.com">info@lytmoz.com</a></li>
+<li>Accra, Ghana · Lagos, Nigeria</li>
+<li><a href="#audit">Book a free consultation</a></li>
+</ul></div>
+</div>
+<div class="bar"><span>© 2026 Lytmoz. All rights reserved.</span><span>From idea to a system that grows.</span></div>
 </footer>
 </div>
 <script src="config.js"></script>

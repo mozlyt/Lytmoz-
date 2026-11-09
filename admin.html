@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=7">
+<link rel="stylesheet" href="assets/app.css?v=8">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -125,7 +125,7 @@
 <section data-panel="members" class="card stack" hidden>
 <div class="row between"><h2 style="font-size:18px">Members who signed up</h2><span class="muted" style="font-size:13px" id="member-count"></span></div>
 <div class="table"><table>
-<thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Business</th><th>Joined</th></tr></thead>
+<thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Business</th><th>Prefers</th><th>Joined</th></tr></thead>
 <tbody id="members"></tbody>
 </table></div>
 </section>
@@ -297,7 +297,7 @@
   function loadMessages() {
     Promise.all([
       sb.from('messages').select('*').order('created_at', { ascending: true }).limit(2000).then(check),
-      sb.from('profiles').select('id, name, email, phone, company, created_at').eq('role', 'client').order('created_at', { ascending: false }).limit(1000).then(check)
+      sb.from('profiles').select('id, name, email, phone, company, contact_pref, best_time, created_at').eq('role', 'client').order('created_at', { ascending: false }).limit(1000).then(check)
     ]).then(function (r) {
       var msgs = r[0], people = r[1], byId = {}, threads = {}, order = [], unread = 0;
       people.forEach(function (p) { byId[p.id] = p; });
@@ -321,8 +321,8 @@
       }).join('') : '<p class="muted">No messages yet. When a member writes to you, it will show here.</p>';
       $('member-count').textContent = people.length + ' total';
       $('members').innerHTML = people.length ? people.map(function (p) {
-        return '<tr><td><strong>' + esc(p.name) + '</strong></td><td><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></td><td>' + esc(p.phone || '-') + '</td><td class="muted">' + esc(p.company || '-') + '</td><td class="muted">' + when(p.created_at) + '</td></tr>';
-      }).join('') : '<tr><td colspan="5" class="muted">No sign-ups yet.</td></tr>';
+        return '<tr><td><strong>' + esc(p.name) + '</strong></td><td><a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a></td><td>' + esc(p.phone || '-') + '</td><td class="muted">' + esc(p.company || '-') + '</td><td>' + ({ whatsapp: 'WhatsApp', email: 'Email', call: 'Phone call' }[p.contact_pref] || 'WhatsApp') + (p.best_time ? '<br><span class="muted" style="font-size:12px">' + esc(p.best_time) + '</span>' : '') + '</td><td class="muted">' + when(p.created_at) + '</td></tr>';
+      }).join('') : '<tr><td colspan="6" class="muted">No sign-ups yet.</td></tr>';
     }).catch(fail);
   }
   document.addEventListener('toggle', function (e) {

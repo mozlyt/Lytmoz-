@@ -119,3 +119,7 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .clamp.open{display:block;-webkit-line-clamp:unset}
 .lead-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 @media (max-width:520px){.lead-top{flex-wrap:wrap}.lead-top select{width:100%}}
+.ios-hint{position:fixed;left:16px;right:16px;bottom:16px;z-index:20;max-width:420px;margin:0 auto}
+.ios-hint .card{box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#install-app .ic{width:16px;height:16px}
+@media (display-mode: standalone){.top{padding-top:env(safe-area-inset-top)}}

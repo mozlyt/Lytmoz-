@@ -12,6 +12,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/app.css?v=4">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
+<link rel="manifest" href="/app.webmanifest">
+<meta name="theme-color" content="#0E0D0C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lytmoz">
 </head>
 <body>
 
@@ -43,6 +49,7 @@
 <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
 <p id="login-msg" class="msg" role="status"></p>
 <button class="btn" type="submit">Log in</button>
+<button data-install class="btn ghost small" type="button" hidden style="align-self:flex-start"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4.5v11M7.5 11 12 15.5 16.5 11M4.5 19.5h15"/></svg>Install the app</button>
 <button id="forgot" class="btn ghost small" type="button" style="align-self:flex-start">Forgot password?</button>
 </form>
 <p class="muted" style="margin:0;font-size:12px;line-height:1.5">By creating an account you agree that we may contact you about your enquiry. We never share your details.</p>
@@ -69,7 +76,7 @@
 
 <header class="top"><div class="wrap">
 <a class="brand" href="/"><img src="assets/favicon.svg" width="32" height="32" alt=""><span>Lytmoz</span><span class="tag">CLIENT HQ</span></a>
-<div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Log out</button></div>
+<div class="row"><span id="who" class="muted"></span><button id="install-app" data-install class="btn small" type="button" hidden><svg class="ic" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4.5v11M7.5 11 12 15.5 16.5 11M4.5 19.5h15"/></svg>Install app</button><button id="logout" class="btn ghost small" type="button"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Log out</button></div>
 </div></header>
 
 <div class="wrap hq">
@@ -494,5 +501,7 @@
   enter().catch(function () { showLogin(); });
 })();
 </script>
+<div id="ios-hint" class="ios-hint" role="dialog" aria-label="Install on iPhone" hidden><div class="card stack" style="gap:10px"><strong>Install on your iPhone</strong><p class="muted" style="margin:0;font-size:14px;line-height:1.5">Tap the <b>Share</b> button at the bottom of Safari, then <b>Add to Home Screen</b>.</p><button type="button" class="btn small ghost" id="ios-hint-close" style="align-self:flex-start">Got it</button></div></div>
+<script src="/assets/app-install.js?v=1"></script>
 </body>
 </html>

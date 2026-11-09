@@ -22,7 +22,16 @@
 <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
 <p id="login-msg" class="msg" role="status"></p>
 <button class="btn" type="submit">Log in</button>
+<button id="forgot" class="btn ghost small" type="button" style="align-self:flex-start">Forgot password?</button>
 <button id="setup-toggle" class="btn ghost small" type="button" style="align-self:flex-start">First time? Set up HQ</button>
+</form>
+<form id="newpw-form" class="card stack" hidden>
+<a class="brand" href="/"><img src="assets/favicon.svg" width="36" height="36" alt=""><span>Lytmoz</span><span class="tag">HQ</span></a>
+<h1 class="serif" style="font-size:34px">Choose a new password.</h1>
+<label>New password<input type="password" name="password" autocomplete="new-password" minlength="10" required><span class="muted" style="font-weight:400;font-size:12px">At least 10 characters.</span></label>
+<label>Type it again<input type="password" name="again" autocomplete="new-password" minlength="10" required></label>
+<p id="newpw-msg" class="msg" role="status"></p>
+<button class="btn" type="submit">Save and open HQ</button>
 </form>
 <form id="setup-form" class="card stack" hidden>
 <h2 class="serif" style="font-size:30px">Set up HQ</h2>
@@ -437,6 +446,30 @@
       showApp(p);
     });
   }
+
+  // Forgotten password: email a reset link, then choose a new password here
+  $('forgot').addEventListener('click', function () {
+    var email = $('login-form').email.value.trim();
+    if (!email) return LZ.setMsg($('login-msg'), 'Type your email above, then tap “Forgot password?” again.', 'err');
+    sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }).then(check)
+      .then(function () { LZ.setMsg($('login-msg'), 'If that email has an HQ account, a reset link is on its way. Check your inbox and spam.', 'ok'); })
+      .catch(function (err) { LZ.setMsg($('login-msg'), err.message, 'err'); });
+  });
+  var recovering = /type=recovery/.test(location.hash);
+  function showNewPw() { recovering = true; $('app').hidden = true; $('login').hidden = false; $('login-form').hidden = true; if ($('setup-form')) $('setup-form').hidden = true; $('newpw-form').hidden = false; }
+  sb.auth.onAuthStateChange(function (ev) { if (ev === 'PASSWORD_RECOVERY') showNewPw(); });
+  if (recovering) showNewPw();
+  $('newpw-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, pw = f.password.value;
+    if (pw.length < 10) return LZ.setMsg($('newpw-msg'), 'Please use at least 10 characters.', 'err');
+    if (pw !== f.again.value) return LZ.setMsg($('newpw-msg'), 'The two passwords do not match.', 'err');
+    f.querySelector('button').disabled = true;
+    sb.auth.updateUser({ password: pw }).then(check).then(function () {
+      f.reset(); recovering = false; try { history.replaceState(null, '', location.pathname); } catch (x) {}
+      $('newpw-form').hidden = true; $('login-form').hidden = false; location.reload();
+    }).catch(function (err) { LZ.setMsg($('newpw-msg'), err.message, 'err'); }).finally(function () { f.querySelector('button').disabled = false; });
+  });
   $('login-form').addEventListener('submit', function (e) {
     e.preventDefault();
     var f = e.target, b = f.querySelector('button'), d = Object.fromEntries(new FormData(f)); b.disabled = true;
@@ -451,7 +484,7 @@
   });
   $('logout').addEventListener('click', function () { sb.auth.signOut().finally(showLogin); });
 
-  LZ.me().then(function (p) { p && p.role === 'admin' ? showApp(p) : showLogin(); }).catch(showLogin);
+  LZ.me().then(function (p) { if (recovering) return showNewPw(); p && p.role === 'admin' ? showApp(p) : showLogin(); }).catch(function () { recovering ? showNewPw() : showLogin(); });
 })();
 </script>
 </body>

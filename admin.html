@@ -49,14 +49,17 @@
 <button role="tab" aria-selected="false" data-tab="projects">Clients &amp; projects</button>
 <button role="tab" aria-selected="false" data-tab="messages">Messages <span id="unread" class="pill" style="margin-left:4px;padding:2px 8px" hidden></span></button>
 <button role="tab" aria-selected="false" data-tab="members">Members</button>
+<button role="tab" aria-selected="false" data-tab="subs">Subscriptions</button>
+<button role="tab" aria-selected="false" data-tab="orgs">Businesses</button>
 <button role="tab" aria-selected="false" data-tab="requests">Change requests</button>
+<button role="tab" aria-selected="false" data-tab="activity">Activity</button>
 </div>
 </div>
 
 <section class="grid stats">
 <div class="card stat"><div class="k">Consultation requests this month</div><div class="v" id="s-leads">0</div></div>
 <div class="card stat"><div class="k">Active projects</div><div class="v" id="s-active">0</div></div>
-<div class="card stat"><div class="k">Monthly care income</div><div class="v" id="s-care" style="color:var(--copper)">$0</div></div>
+<div class="card stat"><div class="k">Recurring income / month</div><div class="v" id="s-care" style="color:var(--copper)">$0</div></div>
 <div class="card stat"><div class="k">Invoices due</div><div class="v" id="s-due">$0</div></div>
 </section>
 
@@ -97,6 +100,40 @@
 </table></div>
 </section>
 
+<section data-panel="subs" class="stack" hidden>
+<form id="sub-form" class="card stack">
+<h2 style="font-size:18px">Add a subscription</h2>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 220px">Client<select name="client" required id="sub-client"></select></label>
+<label style="flex:2 1 220px">Project (optional)<select name="project" id="sub-project"><option value="">None</option></select></label>
+</div>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 200px">Plan<input name="plan" required maxlength="120" placeholder="Monthly care"></label>
+<label style="flex:1 1 110px">Amount<input name="amount" type="number" min="0" step="0.01" required></label>
+<label style="flex:1 1 90px">Currency<select name="currency"><option>USD</option><option>GHS</option><option>NGN</option></select></label>
+<label style="flex:1 1 110px">Every<select name="interval"><option value="month">Month</option><option value="year">Year</option></select></label>
+<label style="flex:1 1 150px">Next renewal<input name="renews" type="date"></label>
+</div>
+<button class="btn small" type="submit" style="align-self:flex-start">Add subscription</button>
+</form>
+<div class="card stack"><h2 style="font-size:18px">All subscriptions</h2>
+<div class="table"><table><thead><tr><th>Client</th><th>Plan</th><th>Amount</th><th>Renews</th><th>Status</th></tr></thead><tbody id="subs"></tbody></table></div></div>
+</section>
+
+<section data-panel="orgs" class="stack" hidden>
+<div class="card stack">
+<h2 style="font-size:18px">Businesses</h2>
+<p class="muted" style="margin:0;font-size:14px">Group several logins under one business, for example an owner and their manager. Everyone in a business sees its projects, updates and invoices.</p>
+<form id="org-form" class="row" style="gap:10px;align-items:flex-end"><label style="flex:1 1 240px">New business name<input name="name" required maxlength="160"></label><button class="btn small" type="submit">Create business</button></form>
+</div>
+<div id="orgs" class="stack"></div>
+</section>
+
+<section data-panel="activity" class="card stack" hidden>
+<div class="row between"><h2 style="font-size:18px">Activity log</h2><span class="muted" style="font-size:13px">Last 100 changes</span></div>
+<div class="table"><table><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead><tbody id="activity"></tbody></table></div>
+</section>
+
 <section data-panel="requests" class="card stack" hidden>
 <h2 style="font-size:18px">Change requests from clients</h2>
 <div id="requests" class="feed"></div>
@@ -126,7 +163,7 @@
   function load() {
     sb.rpc('admin_overview').then(check).then(function (o) {
       $('s-leads').textContent = o.leadsThisMonth; $('s-active').textContent = o.activeProjects;
-      $('s-care').textContent = money(o.monthlyCareCents); $('s-due').textContent = money(o.invoicesDueCents);
+      $('s-care').textContent = money((o.recurringCents || 0) + o.monthlyCareCents); $('s-care').title = (o.activeSubscriptions || 0) + ' active subscriptions' + (o.renewalsDue ? ' · ' + o.renewalsDue + ' renewing this week' : ''); $('s-due').textContent = money(o.invoicesDueCents);
     }).catch(fail);
     sb.from('leads').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (leads) {
       $('leads').innerHTML = leads.length ? leads.map(function (l) {
@@ -160,6 +197,7 @@
       }).join('') : '<p class="muted" style="border:0;padding:0">No change requests yet.</p>';
     }).catch(fail);
     loadMessages();
+    loadExtra();
   }
 
   function loadMessages() {
@@ -225,6 +263,66 @@
       e.preventDefault();
       sb.from('invoices').insert({ project_id: +f.dataset.invoice, description: fd.description.trim(), amount_cents: Math.round(Number(fd.amount) * 100), currency: fd.currency, pay_url: fd.payUrl.trim() || null })
         .then(check).then(function () { f.reset(); load(); }).catch(function (err) { flash(f, err.message); });
+    }
+  });
+
+  // Subscriptions, businesses, activity
+  var people = {}, projectsById = {};
+  function loadExtra() {
+    Promise.all([
+      sb.from('profiles').select('id, name, email').order('name').limit(1000).then(check),
+      sb.from('projects').select('id, name, client_id, organization_id').order('id', { ascending: false }).limit(1000).then(check),
+      sb.from('subscriptions').select('*').order('id', { ascending: false }).limit(500).then(check),
+      sb.from('organizations').select('id, name, organization_members(profile_id, role)').order('name').limit(500).then(check),
+      sb.from('activity_logs').select('*').order('id', { ascending: false }).limit(100).then(check)
+    ]).then(function (r) {
+      people = {}; r[0].forEach(function (p) { people[p.id] = p; });
+      projectsById = {}; r[1].forEach(function (p) { projectsById[p.id] = p; });
+      var label = function (id) { var p = people[id]; return p ? (p.name || p.email) : '—'; };
+      var opts = r[0].map(function (p) { return '<option value="' + p.id + '">' + esc((p.name || '') + ' · ' + p.email) + '</option>'; }).join('');
+      $('sub-client').innerHTML = opts;
+      $('sub-project').innerHTML = '<option value="">None</option>' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+      $('subs').innerHTML = r[2].length ? r[2].map(function (x) {
+        var soon = x.status === 'active' && x.renews_on && new Date(x.renews_on) <= new Date(Date.now() + 7 * 864e5);
+        return '<tr><td><strong>' + esc(label(x.client_id)) + '</strong>' + (x.project_id && projectsById[x.project_id] ? '<br><span class="muted" style="font-size:12px">' + esc(projectsById[x.project_id].name) + '</span>' : '') + '</td><td>' + esc(x.plan) + '</td><td>' + money(x.amount_cents, x.currency) + ' / ' + x.billing_interval + '</td><td' + (soon ? ' style="color:var(--copper);font-weight:700"' : ' class="muted"') + '>' + (x.renews_on || '—') + '</td><td><select data-sub="' + x.id + '" aria-label="Status">' +
+          ['active', 'paused', 'cancelled'].map(function (s) { return '<option' + (s === x.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="muted">No subscriptions yet. Add one above when a client starts a monthly plan.</td></tr>';
+      $('orgs').innerHTML = r[3].length ? r[3].map(function (o) {
+        var mem = (o.organization_members || []).map(function (m) { return '<span class="pill">' + esc(label(m.profile_id)) + (m.role === 'owner' ? ' · owner' : '') + '</span>'; }).join(' ') || '<span class="muted">No members yet</span>';
+        var projs = r[1].filter(function (p) { return p.organization_id === o.id; }).map(function (p) { return esc(p.name); }).join(', ') || 'none';
+        return '<div class="card stack" style="gap:10px"><h3 style="margin:0">' + esc(o.name) + '</h3><div class="row" style="gap:6px">' + mem + '</div><p class="muted" style="margin:0;font-size:13px">Projects: ' + projs + '</p>' +
+          '<form data-org-member="' + o.id + '" class="row" style="gap:8px;align-items:flex-end"><label style="flex:2 1 220px">Add member<select name="profile">' + opts + '</select></label><label style="flex:1 1 110px">Role<select name="role"><option value="member">Member</option><option value="owner">Owner</option></select></label><button class="btn small ghost" type="submit">Add</button></form>' +
+          (r[1].length ? '<form data-org-project="' + o.id + '" class="row" style="gap:8px;align-items:flex-end"><label style="flex:2 1 220px">Link a project<select name="project">' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label><button class="btn small ghost" type="submit">Link</button></form>' : '') + '</div>';
+      }).join('') : '<p class="muted card">No businesses yet.</p>';
+      var what = { insert: 'added', update: 'changed', 'delete': 'removed' };
+      $('activity').innerHTML = r[4].length ? r[4].map(function (a) {
+        var d = a.details || {}, txt = a.action === 'update' ? Object.keys(d).map(function (k) { return esc(k) + ': ' + esc(String(d[k].from)) + ' → ' + esc(String(d[k].to)); }).join('; ') : esc(d.name || d.plan || d.description || d.text || '');
+        return '<tr><td class="muted" style="white-space:nowrap">' + when(a.created_at) + '</td><td>' + esc(a.actor ? label(a.actor) : 'System') + '</td><td>' + esc(a.table_name.replace(/_/g, ' ')) + ' ' + (what[a.action] || a.action) + '</td><td class="muted" style="font-size:13px">' + txt.slice(0, 160) + '</td></tr>';
+      }).join('') : '<tr><td colspan="4" class="muted">Changes you make will be recorded here.</td></tr>';
+    }).catch(fail);
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.dataset.sub) sb.from('subscriptions').update({ status: e.target.value }).eq('id', e.target.dataset.sub).then(check).then(function () { load(); }).catch(fail);
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target, fd = Object.fromEntries(new FormData(f));
+    if (f.id === 'sub-form') {
+      e.preventDefault();
+      var proj = fd.project ? projectsById[fd.project] : null;
+      sb.from('subscriptions').insert({ client_id: fd.client, project_id: fd.project ? +fd.project : null, organization_id: proj ? proj.organization_id : null, plan: fd.plan.trim(), amount_cents: Math.round(Number(fd.amount) * 100), currency: fd.currency, billing_interval: fd.interval, renews_on: fd.renews || null })
+        .then(check).then(function () { f.reset(); flash(f, 'Subscription added'); load(); }).catch(function (err) { flash(f, err.message); });
+    }
+    if (f.id === 'org-form') {
+      e.preventDefault();
+      sb.from('organizations').insert({ name: fd.name.trim() }).then(check).then(function () { f.reset(); loadExtra(); }).catch(function (err) { flash(f, err.message); });
+    }
+    if (f.dataset.orgMember) {
+      e.preventDefault();
+      sb.from('organization_members').upsert({ organization_id: +f.dataset.orgMember, profile_id: fd.profile, role: fd.role }).then(check).then(loadExtra).catch(function (err) { flash(f, err.message); });
+    }
+    if (f.dataset.orgProject) {
+      e.preventDefault();
+      sb.from('projects').update({ organization_id: +f.dataset.orgProject }).eq('id', +fd.project).then(check).then(loadExtra).catch(function (err) { flash(f, err.message); });
     }
   });
   function flash(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 2200); }

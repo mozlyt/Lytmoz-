@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=6">
+<link rel="stylesheet" href="assets/app.css?v=7">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -103,6 +103,7 @@
 </section>
 
 <section data-v="projects" class="stack" style="gap:22px" hidden>
+<div id="project-switch" class="chips" role="group" aria-label="Choose a project" hidden></div>
 <p id="no-project" class="card muted" style="margin:0">No project yet. When we start working together, progress and updates appear here.</p>
 <div id="project" class="stack" style="gap:22px" hidden>
 <div class="stack" style="gap:8px">
@@ -241,7 +242,7 @@
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
-    if (p.preview_url && /^https:\/\//.test(p.preview_url)) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
+    var hasLink = !!(p.preview_url && /^https:\/\//.test(p.preview_url)); $('preview-link').hidden = !hasLink; if (hasLink) $('preview-link').href = p.preview_url;
   }
   function renderInvoices(invoices, p) {
     var due = invoices.filter(function (i) { return i.status === 'due'; });
@@ -406,22 +407,36 @@
     });
   }
 
+  var allProjects = [];
+  function openProject(p) {
+    return Promise.all([
+      sb.from('updates').select('*').eq('project_id', p.id).order('id', { ascending: false }).limit(20).then(check),
+      sb.from('invoices').select('*').eq('project_id', p.id).neq('status', 'void').order('id', { ascending: false }).then(check)
+    ]).then(function (r) {
+      render(me, p, r[0], r[1]);
+      document.querySelectorAll('[data-project]').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.project === p.id ? 'true' : 'false'); });
+    });
+  }
   function load(user) {
     me = user;
     return loadTeam().catch(function () {}).then(function () {
-      return sb.from('projects').select('*').order('id', { ascending: false }).limit(1).then(check);
+      return sb.from('projects').select('*').order('id', { ascending: false }).limit(50).then(check);
     }).then(function (rows) {
-      var p = rows[0];
-      return (p ? Promise.all([
-        sb.from('updates').select('*').eq('project_id', p.id).order('id', { ascending: false }).limit(20).then(check),
-        sb.from('invoices').select('*').eq('project_id', p.id).neq('status', 'void').order('id', { ascending: false }).then(check)
-      ]) : Promise.resolve([[], []])).then(function (r) {
-        render(user, p || null, r[0], r[1]);
+      allProjects = rows;
+      $('project-switch').innerHTML = rows.length > 1 ? rows.map(function (p) { return '<button type="button" class="chip" data-project="' + p.id + '" aria-pressed="false">' + esc(p.name) + '<span class="muted"> · Stage ' + p.stage + '</span></button>'; }).join('') : '';
+      $('project-switch').hidden = rows.length < 2;
+      if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
+      return (rows[0] ? openProject(rows[0]) : Promise.resolve(render(user, null, [], []))).then(function () {
+        if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
         show((location.hash || '').slice(1) || 'overview');
         return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
       });
     });
   }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-project]'); if (!b) return;
+    var p = allProjects.filter(function (x) { return x.id === +b.dataset.project; })[0]; if (p) openProject(p);
+  });
   function enter() {
     return LZ.me().then(function (p) {
       if (!p) throw new Error('We could not open your account. Please try again in a moment.');

@@ -126,3 +126,6 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .item select{width:auto;flex:none;max-width:150px}
 .item .btn{flex:none}
 @media (max-width:520px){.item{flex-wrap:wrap}.item .main{flex-basis:calc(100% - 60px)}.item select{margin-left:52px}}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:40px;padding:8px 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--soft);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--panel);color:var(--text);border-color:var(--copper)}

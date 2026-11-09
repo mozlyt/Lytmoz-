@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=9">
+<link rel="stylesheet" href="assets/app.css?v=10">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -129,7 +129,7 @@
 <div class="feed" id="updates"></div>
 <a id="preview-link" class="btn ghost" style="align-self:flex-start" target="_blank" rel="noopener" hidden>Preview my system</a>
 </section>
-<section class="card stack"><h2 style="font-size:18px">Payments</h2><p class="muted" style="margin:0;font-size:14px">Invoices and your plan are in <button type="button" class="linkish" data-go="billing">Billing</button>.</p></section>
+<section class="card stack"><h2 style="font-size:18px">Payments</h2><div id="proj-money"></div><p class="muted" style="margin:0;font-size:14px">Invoices and your plan are in <button type="button" class="linkish" data-go="billing">Billing</button>.</p></section>
 </div>
 <section class="card stack">
 <h2 style="font-size:18px">Request a change</h2>
@@ -175,15 +175,17 @@
 </section>
 
 <section data-v="billing" class="stack" hidden>
-<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div><h1 class="serif h">Billing</h1><p class="muted sub">Invoices, ways to pay, and your payment history.</p></div></div>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div><h1 class="serif h">Billing</h1><p class="muted sub">Invoices, payments and your plan.</p></div></div>
+
+<div class="tiles"><div class="card tile" style="cursor:default"><span class="k">Outstanding</span><span class="v" id="b-out">Nothing due</span></div><div class="card tile" style="cursor:default"><span class="k">Paid to date</span><span class="v" id="b-paid">—</span></div></div>
 
 <section class="card stack"><h2 style="font-size:18px">How billing works</h2>
 <ol class="steps-list">
 <li><strong>Agree the work.</strong> After your consultation we send a proposal with the price and timeline.</li>
 <li><strong>Get your invoice.</strong> It appears here, usually a deposit to start, then the balance at launch.</li>
-<li><strong>Pay your way.</strong> Mobile Money, bank transfer or online, using the details below.</li>
-<li><strong>Tell us you've paid.</strong> Tap <em>I've paid</em> on the invoice and add the transaction ID.</li>
-<li><strong>We confirm.</strong> The invoice turns <em>Paid</em> and your receipt stays in your history.</li>
+<li><strong>Pay your way.</strong> Online by card or Mobile Money, or by a direct Mobile Money or bank transfer. You can pay part of an invoice, such as your deposit.</li>
+<li><strong>Online payments update at once.</strong> For a direct transfer, tap <em>Submit payment reference</em> on the invoice and add the transaction ID so we can match it.</li>
+<li><strong>We verify transfers.</strong> Once the money is in, your balance updates and your receipt is saved in Payment history.</li>
 </ol></section>
 
 <section class="card stack light" id="invoice-card"><h2 style="font-size:18px">Invoices</h2><div id="invoices" class="stack"></div></section>
@@ -192,7 +194,7 @@
 
 <section class="card stack"><h2 style="font-size:18px">Payment history</h2><div id="pay-history"></div></section>
 
-<section class="card stack"><h2 style="font-size:18px">Your plan</h2><div id="subs" class="stack"></div></section>
+<section class="card stack" id="plan-card" hidden><h2 style="font-size:18px">Your plan</h2><div id="subs" class="stack"></div></section>
 
 <form id="billing-form" class="card stack">
 <h2 style="font-size:18px">Billing details</h2>
@@ -293,7 +295,7 @@
 <div class="card stack" style="gap:0">
 <details><summary>How do I follow my project?</summary><p class="muted">Open My projects. You will see the stage, latest updates and a preview link when it is ready.</p></details>
 <details><summary>How do I send my logo, photos or text?</summary><p class="muted">Go to Files &amp; content and upload them. Up to 25 MB per file.</p></details>
-<details><summary>How do I pay an invoice?</summary><p class="muted">Open Billing. Tap Pay securely online, or ask us for a payment link.</p></details>
+<details><summary>How do I pay an invoice?</summary><p class="muted">Open Billing and tap Pay on the invoice. Pay online by card or Mobile Money, or send a transfer and submit the transaction ID. You can pay a deposit first and the balance later.</p></details>
 <details><summary>Can my staff log in too?</summary><p class="muted">Yes. In My team, create your business workspace, then add their emails after they create a free account.</p></details>
 <details><summary>I need something new built.</summary><p class="muted">Use Request a service and we will reply with a quote.</p></details>
 </div>
@@ -308,7 +310,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <script src="assets/api.js?v=3"></script>
 <script>
 (function () {
@@ -360,11 +362,19 @@
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
+    var inv = (invoices || []), cur = inv[0] && inv[0].currency, same = inv.filter(function (i) { return i.currency === cur; });
+    var tot = same.reduce(function (a, i) { return a + i.amount_cents; }, 0), got = same.reduce(function (a, i) { return a + (i.paid_cents || 0); }, 0);
+    $('proj-money').innerHTML = tot ? '<div class="inv-nums" style="margin-top:0"><div><span>Invoiced</span><strong>' + money(tot, cur) + '</strong></div><div><span>Paid</span><strong>' + money(got, cur) + '</strong></div><div><span>Remaining</span><strong>' + money(Math.max(0, tot - got), cur) + '</strong></div></div>' : '';
     var hasLink = !!(p.preview_url && /^https:\/\//.test(p.preview_url)); $('preview-link').hidden = !hasLink; if (hasLink) $('preview-link').href = p.preview_url;
   }
   function renderInvoices() {}
   var payOpts = {}, invoicesAll = [], paymentsAll = [];
   var invNo = function (i) { return 'LZ-' + String(i.id).padStart(4, '0'); };
+  var billTo = {};
+  function bal(i) { return Math.max(0, i.amount_cents - (i.paid_cents || 0)); }
+  function sumBy(rows, f) { var o = {}; rows.forEach(function (r) { var v = f(r); if (v > 0) o[r.currency] = (o[r.currency] || 0) + v; }); return Object.keys(o).map(function (c) { return money(o[c], c); }).join(' + '); }
+  function day(d) { return new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function invById(id) { return invoicesAll.filter(function (i) { return i.id === +id; })[0]; }
   function loadBilling() {
     return Promise.all([
       sb.from('invoices').select('*, projects(name)').neq('status', 'void').order('id', { ascending: false }).limit(100).then(check),
@@ -372,52 +382,124 @@
       sb.from('payment_settings').select('*').eq('id', 1).maybeSingle().then(check),
       sb.from('billing_profiles').select('*').eq('client_id', me.id).maybeSingle().then(check)
     ]).then(function (r) {
-      invoicesAll = r[0]; paymentsAll = r[1]; payOpts = r[2] || {};
+      invoicesAll = r[0]; paymentsAll = r[1]; payOpts = r[2] || {}; billTo = r[3] || {};
       var due = invoicesAll.filter(function (i) { return i.status === 'due'; });
-      var byCur = {}; due.forEach(function (i) { byCur[i.currency] = (byCur[i.currency] || 0) + i.amount_cents; });
-      $('t-due').textContent = Object.keys(byCur).map(function (c) { return money(byCur[c], c); }).join(' + ') || 'Nothing due';
+      var owed = sumBy(due, bal), paid = sumBy(invoicesAll, function (i) { return i.paid_cents || 0; });
+      $('t-due').textContent = owed || 'Nothing due';
+      $('b-out').textContent = owed || 'Nothing due'; $('b-paid').textContent = paid || '—';
       badge('billing', due.length);
       var pendingFor = {}; paymentsAll.forEach(function (x) { if (x.status === 'pending') pendingFor[x.invoice_id] = x; });
+      var today = new Date().toISOString().slice(0, 10);
       $('invoices').innerHTML = invoicesAll.length ? invoicesAll.map(function (i) {
-        var isDue = i.status === 'due', pend = pendingFor[i.id];
-        return '<div class="inv' + (isDue ? '' : ' done') + '"><div class="row between" style="align-items:flex-start;gap:10px"><div><span class="serif" style="font-size:' + (isDue ? '40' : '26') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><div class="muted" style="font-size:14px;margin-top:6px">' + invNo(i) + ' · ' + esc(i.description) + (i.projects ? ' · ' + esc(i.projects.name) : '') + ' · ' + when(i.created_at) + '</div></div>' +
-          '<span class="pill ' + (isDue ? (pend ? 'blue' : '') : 'green') + '">' + (isDue ? (pend ? 'Checking payment' : 'Due') : 'Paid') + '</span></div>' +
-          (isDue && !pend ? '<button type="button" class="btn" data-pay="' + i.id + '" style="margin-top:12px">Pay ' + money(i.amount_cents, i.currency) + '</button><div class="pay-panel" id="pay-' + i.id + '" hidden></div>' : '') +
-          (pend ? '<p class="muted" style="margin:10px 0 0;font-size:14px">You reported a ' + methodName(pend.method) + ' payment' + (pend.reference ? ' (' + esc(pend.reference) + ')' : '') + '. We will confirm it shortly.</p>' : '') + '</div>';
+        var isDue = i.status === 'due', pend = pendingFor[i.id], late = isDue && i.due_on && i.due_on < today;
+        var pill = !isDue ? ['Paid', 'green'] : pend ? ['Checking payment', 'blue'] : late ? ['Overdue', 'red'] : i.paid_cents > 0 ? ['Partially paid', ''] : ['Due', ''];
+        return '<div class="inv' + (isDue ? '' : ' done') + '"><div class="row between" style="align-items:flex-start;gap:10px"><div><strong style="font-size:17px">' + esc(i.description) + '</strong><div class="muted" style="font-size:13.5px;margin-top:4px">' + invNo(i) + (i.projects ? ' · ' + esc(i.projects.name) : '') + ' · ' + when(i.created_at) + (isDue && i.due_on ? ' · due ' + day(i.due_on) : '') + '</div></div>' +
+          '<span class="pill ' + pill[1] + '">' + pill[0] + '</span></div>' +
+          '<div class="inv-nums"><div><span>Invoice total</span><strong>' + money(i.amount_cents, i.currency) + '</strong></div><div><span>Paid</span><strong>' + money(i.paid_cents || 0, i.currency) + '</strong></div><div><span>Balance</span><strong>' + money(bal(i), i.currency) + '</strong></div></div>' +
+          (isDue && !pend ? '<button type="button" class="btn" data-pay="' + i.id + '" style="margin-top:14px">Pay</button><div class="pay-panel" id="pay-' + i.id + '" hidden></div>' : '') +
+          (pend ? '<p class="muted" style="margin:12px 0 0;font-size:14px">We are checking your ' + methodName(pend.method) + ' payment of ' + money(pend.amount_cents, pend.currency) + (pend.reference ? ' (ref ' + esc(pend.reference) + ')' : '') + '. This invoice updates as soon as the money is confirmed.</p>' : '') + '</div>';
       }).join('') : '<p class="muted" style="margin:0">No invoices yet. When we agree your project, your first invoice appears here with a Pay button.</p>';
       $('pay-methods').innerHTML = methodsHtml(null);
       $('pay-history').innerHTML = paymentsAll.length ? paymentsAll.map(function (x) {
-        var inv = invoicesAll.filter(function (i) { return i.id === x.invoice_id; })[0], st = { pending: ['Checking', 'blue'], confirmed: ['Confirmed', 'green'], rejected: ['Not received', 'grey'] }[x.status];
-        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + money(x.amount_cents, x.currency) + ' · ' + methodName(x.method) + '</strong><span>' + (inv ? invNo(inv) + ' · ' : '') + when(x.created_at) + (x.reference ? ' · Ref ' + esc(x.reference) : '') + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span></div>';
+        var inv = invById(x.invoice_id), st = { pending: ['Checking', 'blue'], confirmed: ['Confirmed', 'green'], rejected: ['Not received', 'grey'] }[x.status];
+        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + money(x.amount_cents, x.currency) + ' · ' + methodName(x.method) + '</strong><span>' + (inv ? invNo(inv) + ' ' + esc(inv.description) + ' · ' : '') + when(x.created_at) + (x.reference ? ' · Ref ' + esc(x.reference) : '') + '</span></div>' +
+          (x.status === 'confirmed' ? '<button type="button" class="btn small ghost" data-receipt="' + x.id + '">Receipt</button>' : '') + '<span class="pill ' + st[1] + '">' + st[0] + '</span></div>';
       }).join('') : '<p class="muted" style="margin:0">No payments yet.</p>';
-      var b = r[3] || {}, f = $('billing-form');
+      var b = billTo, f = $('billing-form');
       f.billing_name.value = b.billing_name || me.company || me.name || ''; f.billing_email.value = b.billing_email || me.email || ''; f.phone.value = b.phone || me.phone || ''; f.address.value = b.address || ''; f.tax_id.value = b.tax_id || '';
     });
   }
   function methodName(m) { return { momo: 'Mobile Money', bank: 'Bank transfer', online: 'Online payment', cash: 'Cash' }[m] || m; }
   function copyRow(label, value) { return value ? '<div class="kv"><span>' + label + '</span><strong>' + esc(value) + '</strong><button type="button" class="linkish" data-copy="' + esc(value) + '">Copy</button></div>' : ''; }
+  function canPayOnline(inv) { return !!(LZ.cfg.paystackKey && inv && inv.currency === 'GHS'); }
+  // inv = null lists every option; with an invoice it lists the transfer options for that invoice.
   function methodsHtml(inv) {
     var o = payOpts, ref = inv ? invNo(inv) : 'your invoice number', out = [];
-    if (inv && inv.pay_url && /^https:\/\//.test(inv.pay_url)) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page.</p><a class="btn small" href="' + esc(inv.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a></div>');
-    else if (o.online_pay_url) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page. Enter the amount and use ' + esc(ref) + ' as the reference.</p><a class="btn small" href="' + esc(o.online_pay_url) + '" target="_blank" rel="noopener">Open payment page</a></div>');
-    if (o.momo_number) out.push('<div class="method"><strong>Mobile Money' + (o.momo_network ? ' · ' + esc(o.momo_network) : '') + '</strong>' + copyRow('Number', o.momo_number) + copyRow('Name', o.momo_name) + copyRow('Reference', inv ? ref : '') + '<p class="muted">Use ' + esc(ref) + ' as the reference so we can match your payment.</p></div>');
+    if (!inv && LZ.cfg.paystackKey) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure Paystack page. Open an invoice above and tap Pay. Your invoice updates straight away.</p></div>');
+    else if (inv && !canPayOnline(inv) && inv.pay_url && /^https:\/\//.test(inv.pay_url)) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page.</p><a class="btn small" href="' + esc(inv.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a></div>');
+    else if (!canPayOnline(inv) && o.online_pay_url) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page. Enter the amount and use ' + esc(ref) + ' as the reference.</p><a class="btn small" href="' + esc(o.online_pay_url) + '" target="_blank" rel="noopener">Open payment page</a></div>');
+    if (o.momo_number) out.push('<div class="method"><strong>Mobile Money' + (o.momo_network ? ' · ' + esc(o.momo_network) : '') + '</strong>' + copyRow('Number', o.momo_number) + copyRow('Name', o.momo_name) + copyRow('Reference', inv ? ref : '') + '<p class="muted">Check that the name matches before you send. Use ' + esc(ref) + ' as the reference so we can match your payment.</p></div>');
     if (o.bank_account_number) out.push('<div class="method"><strong>Bank transfer</strong>' + copyRow('Bank', o.bank_name) + copyRow('Account name', o.bank_account_name) + copyRow('Account number', o.bank_account_number) + copyRow('Branch', o.bank_branch) + copyRow('Reference', inv ? ref : '') + '</div>');
     if (o.instructions) out.push('<p class="muted" style="margin:0;font-size:14px;white-space:pre-wrap">' + esc(o.instructions) + '</p>');
-    if (!out.length) out.push('<p class="muted" style="margin:0">Payment details are being set up. Message us in <button type="button" class="linkish" data-go="support">Support</button> or on WhatsApp and we will send them right away.</p>');
+    if (!out.length && !canPayOnline(inv)) out.push('<p class="muted" style="margin:0">Payment details are being set up. Message us in <button type="button" class="linkish" data-go="support">Support</button> or on WhatsApp and we will send them right away.</p>');
     return out.join('');
+  }
+  function amountFor(inv) {
+    var el = document.querySelector('[data-amt="' + inv.id + '"]'), v = Math.round(Number(el && el.value) * 100);
+    if (!(v > 0)) throw new Error('Enter the amount you are paying.');
+    if (v > bal(inv)) throw new Error('That is more than the balance of ' + money(bal(inv), inv.currency) + '.');
+    return v;
+  }
+  function loadPaystack() {
+    return new Promise(function (ok, no) {
+      if (window.PaystackPop) return ok();
+      var t = document.createElement('script'); t.src = 'https://js.paystack.co/v1/inline.js';
+      t.onload = ok; t.onerror = function () { no(new Error('Could not open the payment window. Check your internet and try again.')); };
+      document.head.appendChild(t);
+    });
+  }
+  function payOnline(inv, btn) {
+    var msg = btn.parentNode.querySelector('.msg'), amt;
+    try { amt = amountFor(inv); } catch (err) { return LZ.setMsg(msg, err.message, 'err'); }
+    var ref = 'LZ' + inv.id + '-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
+    btn.disabled = true; LZ.setMsg(msg, 'Opening secure payment…');
+    loadPaystack().then(function () {
+      var done = false;
+      window.PaystackPop.setup({
+        key: LZ.cfg.paystackKey, email: me.email, amount: amt, currency: 'GHS', ref: ref, channels: ['mobile_money', 'card'],
+        metadata: { lytmoz_invoice: inv.id, custom_fields: [{ display_name: 'Paying for', variable_name: 'paying_for', value: 'Lytmoz ' + invNo(inv) + ' · ' + inv.description }, { display_name: 'Client', variable_name: 'client', value: me.name || me.email }] },
+        callback: function () {
+          done = true; LZ.setMsg(msg, 'Payment received. Updating your invoice…');
+          var info = { From: me.name || me.email, Invoice: invNo(inv) + ' · ' + inv.description, Amount: money(amt, inv.currency), Reference: ref };
+          sb.functions.invoke('paystack-verify', { body: { reference: ref, invoice_id: inv.id } })
+            .then(function (r) { return !!(r.data && r.data.confirmed); }, function () { return false; })
+            .then(function (confirmed) {
+              if (confirmed) { notify('Paid online: ' + info.Amount + ' from ' + info.From, Object.assign(info, { Status: 'Confirmed by Paystack' })); return; }
+              // Could not confirm automatically: keep the reference so HQ can check it.
+              return sb.from('payments').insert({ invoice_id: inv.id, client_id: me.id, method: 'online', amount_cents: amt, currency: inv.currency, reference: ref, note: 'Paid on Paystack. Check the reference in Paystack, then confirm.' }).then(check)
+                .then(function () { notify('Online payment to check: ' + info.Amount + ' from ' + info.From, Object.assign(info, { Confirm: 'https://lytmoz.com/admin.html' })); });
+            })
+            .then(loadBilling)
+            .catch(function () { btn.disabled = false; LZ.setMsg(msg, 'Your payment went through, but we could not update the invoice. Please send us this reference: ' + ref, 'err'); });
+        },
+        onClose: function () { if (!done) { btn.disabled = false; LZ.setMsg(msg, 'Payment not completed. Nothing was charged.'); } }
+      }).openIframe();
+    }).catch(function (err) { btn.disabled = false; LZ.setMsg(msg, err.message, 'err'); });
+  }
+  function receipt(id) {
+    var x = paymentsAll.filter(function (p) { return p.id === id; })[0], inv = x && invById(x.invoice_id); if (!x) return;
+    var w = window.open('', '_blank'); if (!w) return;
+    var row = function (k, v) { return v ? '<tr><td>' + k + '</td><td>' + v + '</td></tr>' : ''; };
+    w.document.write('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lytmoz receipt LZR-' + String(x.id).padStart(4, '0') + '</title>' +
+      '<style>body{font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;max-width:560px;margin:40px auto;padding:0 20px;color:#1A1714}h1{font-size:30px;margin:0;letter-spacing:.02em}.m{color:#6B6158;font-size:14px}table{width:100%;border-collapse:collapse;margin:22px 0}td{padding:11px 0;border-bottom:1px solid #E2DAD0;vertical-align:top}td:last-child{text-align:right;font-weight:600}.big td{font-size:20px;border-bottom:2px solid #1A1714}button{font:inherit;padding:10px 18px;border-radius:999px;border:1px solid #1A1714;background:#1A1714;color:#fff}@media print{button{display:none}}</style></head><body>' +
+      '<h1>Lytmoz</h1><p class="m">Payment receipt LZR-' + String(x.id).padStart(4, '0') + '<br>lytmoz.com · ' + esc(LZ.cfg.email || '') + '</p>' +
+      '<p>Received from <strong>' + esc(billTo.billing_name || me.company || me.name || me.email) + '</strong>' + (billTo.address ? '<br><span class="m">' + esc(billTo.address) + '</span>' : '') + (billTo.tax_id ? '<br><span class="m">TIN ' + esc(billTo.tax_id) + '</span>' : '') + '</p><table>' +
+      '<tr class="big"><td>Amount received</td><td>' + money(x.amount_cents, x.currency) + '</td></tr>' +
+      row('Date', day(x.reviewed_at || x.created_at)) + row('Payment for', inv ? invNo(inv) + ' · ' + esc(inv.description) : '') + row('Project', inv && inv.projects ? esc(inv.projects.name) : '') +
+      row('Method', methodName(x.method)) + row('Reference', esc(x.reference || '')) +
+      (inv ? row('Invoice total', money(inv.amount_cents, inv.currency)) + row('Paid so far', money(inv.paid_cents || 0, inv.currency)) + row('Balance today', money(bal(inv), inv.currency)) : '') +
+      '</table><p class="m">Thank you for building with Lytmoz.</p><button onclick="print()">Print or save as PDF</button></body></html>');
+    w.document.close();
   }
   document.addEventListener('click', function (e) {
     var c = e.target.closest('[data-copy]');
     if (c) { (navigator.clipboard ? navigator.clipboard.writeText(c.dataset.copy) : Promise.reject()).then(function () { c.textContent = 'Copied'; setTimeout(function () { c.textContent = 'Copy'; }, 1500); }).catch(function () {}); return; }
+    var rc = e.target.closest('[data-receipt]'); if (rc) { receipt(+rc.dataset.receipt); return; }
+    var ps = e.target.closest('[data-paystack]'); if (ps) { payOnline(invById(ps.dataset.paystack), ps); return; }
     var b = e.target.closest('[data-pay]'); if (!b) return;
-    var inv = invoicesAll.filter(function (i) { return i.id === +b.dataset.pay; })[0], panel = $('pay-' + inv.id);
+    var inv = invById(b.dataset.pay), panel = $('pay-' + inv.id);
     if (!panel.hidden) { panel.hidden = true; return; }
-    panel.innerHTML = '<p style="margin:0 0 4px;font-weight:600">1. Pay ' + money(inv.amount_cents, inv.currency) + ' using any option:</p>' + methodsHtml(inv) +
-      '<form class="stack" data-paid="' + inv.id + '" style="gap:10px;margin-top:6px"><p style="margin:0;font-weight:600">2. Then tell us you\'ve paid:</p>' +
-      '<div class="row" style="gap:10px"><label style="flex:1 1 150px">How did you pay?<select name="method"><option value="momo">Mobile Money</option><option value="bank">Bank transfer</option><option value="online">Online payment</option><option value="cash">Cash</option></select></label>' +
-      '<label style="flex:2 1 200px">Transaction ID<input name="reference" maxlength="120" placeholder="From your MoMo or bank message"></label></div>' +
+    var online = canPayOnline(inv);
+    panel.innerHTML = '<label>Amount you are paying (' + esc(inv.currency) + ')<input type="number" inputmode="decimal" min="1" step="0.01" max="' + bal(inv) / 100 + '" value="' + bal(inv) / 100 + '" data-amt="' + inv.id + '"></label>' +
+      '<p class="muted" style="margin:-6px 0 0;font-size:13px">The balance is ' + money(bal(inv), inv.currency) + '. You can pay part of it now, such as your deposit.</p>' +
+      (online ? '<div class="method"><strong>Pay online now</strong><p class="muted">Card or Mobile Money on a secure Paystack page. Your invoice updates straight away.</p><button type="button" class="btn" data-paystack="' + inv.id + '" style="align-self:flex-start">Pay online</button><p class="msg" role="status"></p></div>' : '') +
+      methodsHtml(inv) +
+      (online && !payOpts.momo_number && !payOpts.bank_account_number ? '' : '<form class="stack" data-paid="' + inv.id + '" style="gap:10px;margin-top:6px"><p style="margin:0;font-weight:600">Paid by direct transfer? Send us the reference.</p>' +
+      '<div class="row" style="gap:10px"><label style="flex:1 1 150px">How did you pay?<select name="method"><option value="momo">Mobile Money</option><option value="bank">Bank transfer</option><option value="cash">Cash</option></select></label>' +
+      '<label style="flex:2 1 200px">Transaction ID<input name="reference" maxlength="120" required placeholder="From your MoMo or bank message"></label></div>' +
       '<label><span>Receipt or screenshot <span class="muted" style="font-weight:400">· optional</span></span><input type="file" name="receipt" accept="image/*,.pdf"></label>' +
-      '<div class="row"><button class="btn" type="submit">I\'ve paid</button><p class="msg" role="status"></p></div></form>';
+      '<div class="row"><button class="btn" type="submit">Submit payment reference</button><p class="msg" role="status"></p></div>' +
+      '<p class="muted" style="margin:0;font-size:13px">We check that the money has arrived before your invoice updates.</p></form>');
     panel.hidden = false;
   });
   document.addEventListener('submit', function (e) {
@@ -430,14 +512,15 @@
     }
     if (f.dataset.paid) {
       e.preventDefault();
-      var inv = invoicesAll.filter(function (i) { return i.id === +f.dataset.paid; })[0], btn = f.querySelector('button[type=submit]'), msg = f.querySelector('.msg'), file = f.receipt.files[0];
+      var inv = invById(f.dataset.paid), btn = f.querySelector('button[type=submit]'), msg = f.querySelector('.msg'), file = f.receipt.files[0], amt;
+      try { amt = amountFor(inv); } catch (err) { return LZ.setMsg(msg, err.message, 'err'); }
       if (file && file.size > 10 * 1048576) return LZ.setMsg(msg, 'The receipt is larger than 10 MB.', 'err');
       btn.disabled = true; LZ.setMsg(msg, 'Sending…');
       var path = file ? me.id + '/receipt-' + Date.now() + '-' + file.name.replace(/[^\w.\- ]+/g, '_').slice(-80) : null;
       (file ? sb.storage.from('client-files').upload(path, file, { contentType: file.type || 'application/octet-stream' }).then(check) : Promise.resolve())
-        .then(function () { return sb.from('payments').insert({ invoice_id: inv.id, client_id: me.id, method: f.method.value, amount_cents: inv.amount_cents, currency: inv.currency, reference: f.reference.value.trim() || null, receipt_path: path }).then(check); })
+        .then(function () { return sb.from('payments').insert({ invoice_id: inv.id, client_id: me.id, method: f.method.value, amount_cents: amt, currency: inv.currency, reference: f.reference.value.trim() || null, receipt_path: path }).then(check); })
         .then(function () {
-          notify('Payment reported: ' + money(inv.amount_cents, inv.currency) + ' from ' + (me.name || me.email), { From: me.name || '-', Invoice: invNo(inv) + ' · ' + inv.description, Amount: money(inv.amount_cents, inv.currency), Method: methodName(f.method.value), Reference: f.reference.value || '-', Confirm: 'https://lytmoz.com/admin.html' });
+          notify('Payment to check: ' + money(amt, inv.currency) + ' from ' + (me.name || me.email), { From: me.name || '-', Invoice: invNo(inv) + ' · ' + inv.description, Amount: money(amt, inv.currency) + ' of ' + money(bal(inv), inv.currency) + ' balance', Method: methodName(f.method.value), Reference: f.reference.value || '-', Confirm: 'https://lytmoz.com/admin.html' });
           return loadBilling();
         }).catch(function (err) { LZ.setMsg(msg, err.message, 'err'); btn.disabled = false; });
     }
@@ -522,7 +605,7 @@
     return sb.from('client_services').select('service, label, account_email, owner, lytmoz_access, status, renews_on').neq('status', 'paused').order('service').then(check).then(function (rows) {
       $('accounts-card').hidden = !rows.length;
       $('accounts').innerHTML = rows.map(function (r) {
-        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.service + (r.label ? ' · ' + r.label : '')) + '</strong><span>' + esc(r.account_email || '') + (r.owner === 'client' ? ' · Owned by you' : ' · Managed by Lytmoz') + (r.renews_on ? ' · renews ' + r.renews_on : '') + '</span></div>' + (r.status === 'handed_over' ? '<span class="pill grey">Handed over</span>' : '') + '</div>';
+        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.service + (r.label ? ' · ' + r.label : '')) + '</strong><span>' + esc(r.account_email || '') + (r.owner === 'client' ? ' · Owned by you' : ' · Managed by Lytmoz') + (r.renews_on ? ' · next payment ' + day(r.renews_on) : '') + '</span></div>' + (r.status === 'handed_over' ? '<span class="pill grey">Handed over</span>' : '') + '</div>';
       }).join('');
     });
   }
@@ -631,6 +714,7 @@
   function loadSubs() {
     return sb.from('subscriptions').select('*').order('id', { ascending: false }).then(check).then(function (rows) {
       var lab = { active: ['Active', 'green'], paused: ['Paused', 'grey'], cancelled: ['Cancelled', 'grey'] };
+      $('plan-card').hidden = !rows.length;
       $('subs').innerHTML = rows.length ? rows.map(function (r) {
         var l = lab[r.status] || [r.status, ''];
         return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + esc(r.plan) + '</strong><span>' + money(r.amount_cents, r.currency) + ' / ' + r.billing_interval + (r.renews_on && r.status === 'active' ? ' · renews ' + r.renews_on : '') + '</span></div><span class="pill ' + l[1] + '">' + l[0] + '</span></div>';

@@ -161,3 +161,12 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .pay-panel label{color:#2A2622}
 .pay-panel .muted{color:#5A5048}
 .pay-panel .kv span{color:#6B6158}
+
+/* Billing: invoice numbers and overdue */
+.inv-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.inv-nums span{display:block;font-size:12px;color:var(--muted)}
+.light .inv-nums span{color:#6B6158}
+.inv-nums strong{font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.inv-nums div:last-child strong{font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1.05;font-weight:400}
+.pill.red{background:#3A1E1E;color:#F0A9A0}
+@media (max-width:420px){.inv-nums strong{font-size:15px}.inv-nums div:last-child strong{font-size:22px}}

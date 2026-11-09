@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=3">
+<link rel="stylesheet" href="assets/app.css?v=4">
 </head>
 <body>
 
@@ -41,19 +41,35 @@
 <div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button">Log out</button></div>
 </div></header>
 
-<main class="wrap stack" style="padding-top:28px;padding-bottom:60px;gap:22px">
-<div class="row between">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-overview" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></symbol>
+<symbol id="i-projects" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M8 12.5h3M8 15.5h6"/></symbol>
+<symbol id="i-sites" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5S14.4 18.1 12 20.5C9.6 18.1 8.4 15.3 8.4 12S9.6 5.9 12 3.5z"/></symbol>
+<symbol id="i-services" viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/><path d="M18.5 15.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></symbol>
+<symbol id="i-files" viewBox="0 0 24 24"><path d="M12 15.5v-11M7.5 9 12 4.5 16.5 9"/><path d="M4.5 14.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/></symbol>
+<symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5c.6-3.3 3-5 6-5s5.4 1.7 6 5"/><circle cx="17" cy="9.5" r="2.6"/><path d="M16.5 14.6c2.4.1 4 1.6 4.5 4.4"/></symbol>
+<symbol id="i-billing" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3 10h18M7 15h4"/></symbol>
+<symbol id="i-support" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 4.5h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3M10 16.5 14.5 12 10 7.5M14.5 12H4.5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17.5 13.5v4a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3.5 13.5 6 5.5h12l2.5 8v4a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 13.5h5l1.5 2.5h4l1.5-2.5h5"/></symbol>
+<symbol id="i-members" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20c.8-3.9 3.7-6 7.5-6s6.7 2.1 7.5 6"/></symbol>
+<symbol id="i-subs" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 0-14.3-4.9L4 8.5M4 4.5v4h4M4 12.5a8 8 0 0 0 14.3 4.9l1.7-1.9M20 19.5v-4h-4"/></symbol>
+<symbol id="i-biz" viewBox="0 0 24 24"><path d="M4.5 20.5v-14a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v14M15.5 9.5h2a2 2 0 0 1 2 2v9M3 20.5h18M8 8.5h4M8 12h4M8 15.5h4"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M4.5 19.5h4l10-10a2.8 2.8 0 0 0-4-4l-10 10z"/><path d="M13.5 6.5l4 4"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M3.5 12h4l2.5-7 4 14 2.5-7h4"/></symbol>
+</defs>
+</svg>
+
+<div class="wrap hq">
+<nav class="hq-nav" role="tablist" aria-label="HQ"><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button></nav>
+<main class="hq-main stack" style="gap:22px">
+<div>
 <div><p class="muted" id="today" style="margin:0 0 4px"></p><h1 class="serif" style="font-size:42px">Good <span id="greet">day</span>.</h1></div>
-<div class="tabs" role="tablist">
-<button role="tab" aria-selected="true" data-tab="leads">Consultations</button>
-<button role="tab" aria-selected="false" data-tab="projects">Clients &amp; projects</button>
-<button role="tab" aria-selected="false" data-tab="messages">Messages <span id="unread" class="pill" style="margin-left:4px;padding:2px 8px" hidden></span></button>
-<button role="tab" aria-selected="false" data-tab="members">Members</button>
-<button role="tab" aria-selected="false" data-tab="subs">Subscriptions</button>
-<button role="tab" aria-selected="false" data-tab="orgs">Businesses</button>
-<button role="tab" aria-selected="false" data-tab="requests">Change requests</button>
-<button role="tab" aria-selected="false" data-tab="activity">Activity</button>
-</div>
+
 </div>
 
 <section class="grid stats">
@@ -134,11 +150,42 @@
 <div class="table"><table><thead><tr><th>When</th><th>Who</th><th>What</th><th>Details</th></tr></thead><tbody id="activity"></tbody></table></div>
 </section>
 
+<section data-panel="svc" class="card stack" hidden>
+<div class="row between"><h2 style="font-size:18px">Service requests</h2><span class="muted" style="font-size:13px">New work clients asked for</span></div>
+<div class="table"><table><thead><tr><th>Client</th><th>Service</th><th>Details</th><th>Budget</th><th>Status</th></tr></thead><tbody id="svc"></tbody></table></div>
+</section>
+
+<section data-panel="sites" class="stack" hidden>
+<form id="site-form" class="card stack">
+<h2 style="font-size:18px">Add a website, app or system</h2>
+<p class="muted" style="margin:0;font-size:14px">It appears in the client's Websites &amp; apps page with its live link.</p>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 220px">Client<select name="client" id="site-client" required></select></label>
+<label style="flex:2 1 220px">Project (optional)<select name="project" id="site-project"><option value="">None</option></select></label>
+</div>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 200px">Name<input name="name" required maxlength="120" placeholder="amafoods.com"></label>
+<label style="flex:2 1 220px">Live link (optional)<input name="url" type="url" pattern="https://.*" placeholder="https://"></label>
+<label style="flex:1 1 140px">Type<select name="kind"><option value="website">Website</option><option value="app">App</option><option value="system">Business system</option></select></label>
+<label style="flex:1 1 130px">Status<select name="status"><option value="live">Live</option><option value="building">Building</option><option value="paused">Paused</option></select></label>
+</div>
+<button class="btn small" type="submit" style="align-self:flex-start">Add</button>
+</form>
+<div class="card stack"><h2 style="font-size:18px">All websites &amp; apps</h2>
+<div class="table"><table><thead><tr><th>Client</th><th>Name</th><th>Type</th><th>Status</th></tr></thead><tbody id="sites"></tbody></table></div></div>
+</section>
+
+<section data-panel="files" class="card stack" hidden>
+<div class="row between"><h2 style="font-size:18px">Files from clients</h2><span class="muted" style="font-size:13px">Logos, photos, text and documents</span></div>
+<div class="table"><table><thead><tr><th>File</th><th>From</th><th>Note</th><th>Sent</th><th></th></tr></thead><tbody id="files"></tbody></table></div>
+</section>
+
 <section data-panel="requests" class="card stack" hidden>
 <h2 style="font-size:18px">Change requests from clients</h2>
 <div id="requests" class="feed"></div>
 </section>
 </main>
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js?v=3"></script>
@@ -162,7 +209,7 @@
 
   function load() {
     sb.rpc('admin_overview').then(check).then(function (o) {
-      $('s-leads').textContent = o.leadsThisMonth; $('s-active').textContent = o.activeProjects;
+      $('s-leads').textContent = o.leadsThisMonth; $('nb-svc').textContent = o.newServiceRequests || 0; $('nb-svc').hidden = !o.newServiceRequests; $('s-active').textContent = o.activeProjects;
       $('s-care').textContent = money((o.recurringCents || 0) + o.monthlyCareCents); $('s-care').title = (o.activeSubscriptions || 0) + ' active subscriptions' + (o.renewalsDue ? ' · ' + o.renewalsDue + ' renewing this week' : ''); $('s-due').textContent = money(o.invoicesDueCents);
     }).catch(fail);
     sb.from('leads').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (leads) {
@@ -280,8 +327,9 @@
       projectsById = {}; r[1].forEach(function (p) { projectsById[p.id] = p; });
       var label = function (id) { var p = people[id]; return p ? (p.name || p.email) : '—'; };
       var opts = r[0].map(function (p) { return '<option value="' + p.id + '">' + esc((p.name || '') + ' · ' + p.email) + '</option>'; }).join('');
-      $('sub-client').innerHTML = opts;
-      $('sub-project').innerHTML = '<option value="">None</option>' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+      $('sub-client').innerHTML = opts; $('site-client').innerHTML = opts;
+      $('sub-project').innerHTML = $('site-project').innerHTML = '<option value="">None</option>' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+      loadWork();
       $('subs').innerHTML = r[2].length ? r[2].map(function (x) {
         var soon = x.status === 'active' && x.renews_on && new Date(x.renews_on) <= new Date(Date.now() + 7 * 864e5);
         return '<tr><td><strong>' + esc(label(x.client_id)) + '</strong>' + (x.project_id && projectsById[x.project_id] ? '<br><span class="muted" style="font-size:12px">' + esc(projectsById[x.project_id].name) + '</span>' : '') + '</td><td>' + esc(x.plan) + '</td><td>' + money(x.amount_cents, x.currency) + ' / ' + x.billing_interval + '</td><td' + (soon ? ' style="color:var(--copper);font-weight:700"' : ' class="muted"') + '>' + (x.renews_on || '—') + '</td><td><select data-sub="' + x.id + '" aria-label="Status">' +
@@ -325,12 +373,53 @@
       sb.from('projects').update({ organization_id: +f.dataset.orgProject }).eq('id', +fd.project).then(check).then(loadExtra).catch(function (err) { flash(f, err.message); });
     }
   });
+
+  // Service requests, sites, files
+  function loadWork() {
+    var label = function (id) { var p = people[id]; return p ? (p.name || p.email) : '—'; };
+    sb.from('service_requests').select('*').order('id', { ascending: false }).limit(300).then(check).then(function (rows) {
+      $('svc').innerHTML = rows.length ? rows.map(function (r) {
+        return '<tr><td><strong>' + esc(label(r.client_id)) + '</strong><br><span class="muted" style="font-size:12px">' + when(r.created_at) + '</span></td><td>' + esc(r.service) + '</td><td style="max-width:340px;white-space:pre-wrap">' + esc(r.details) + '</td><td class="muted">' + esc(r.budget || '—') + '</td><td><select data-svc="' + r.id + '" aria-label="Status">' +
+          [['new','New'],['quoted','Quote sent'],['accepted','In progress'],['done','Done'],['declined','Closed']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === r.status ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="muted">No service requests yet.</td></tr>';
+    }).catch(fail);
+    sb.from('client_sites').select('*').order('id', { ascending: false }).limit(500).then(check).then(function (rows) {
+      $('sites').innerHTML = rows.length ? rows.map(function (r) {
+        return '<tr><td><strong>' + esc(label(r.client_id)) + '</strong></td><td>' + (r.url ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.name) + '</a>' : esc(r.name)) + '</td><td class="muted">' + esc(r.kind) + '</td><td><select data-site="' + r.id + '" aria-label="Status">' +
+          ['live','building','paused'].map(function (o) { return '<option' + (o === r.status ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></td></tr>';
+      }).join('') : '<tr><td colspan="4" class="muted">Nothing added yet.</td></tr>';
+    }).catch(fail);
+    sb.from('client_files').select('*').order('id', { ascending: false }).limit(300).then(check).then(function (rows) {
+      $('files').innerHTML = rows.length ? rows.map(function (r) {
+        var kb = r.size_bytes > 1048576 ? (r.size_bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(r.size_bytes / 1024)) + ' KB';
+        return '<tr><td><strong>' + esc(r.name) + '</strong><br><span class="muted" style="font-size:12px">' + kb + '</span></td><td>' + esc(label(r.uploaded_by)) + '</td><td class="muted">' + esc(r.note || '—') + '</td><td class="muted">' + when(r.created_at) + '</td><td><button type="button" class="btn small ghost" data-open-file="' + esc(r.path) + '">Open</button></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="muted">No files yet.</td></tr>';
+    }).catch(fail);
+  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.svc) sb.from('service_requests').update({ status: t.value }).eq('id', t.dataset.svc).then(check).then(load).catch(fail);
+    if (t.dataset.site) sb.from('client_sites').update({ status: t.value }).eq('id', t.dataset.site).then(check).catch(fail);
+  });
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open-file]'); if (!o) return;
+    var w = window.open('', '_blank');
+    sb.storage.from('client-files').createSignedUrl(o.dataset.openFile, 300).then(check).then(function (r) { if (w) w.location = r.signedUrl; else location.href = r.signedUrl; }).catch(function (err) { if (w) w.close(); alert(err.message); });
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target; if (f.id !== 'site-form') return;
+    e.preventDefault();
+    var fd = Object.fromEntries(new FormData(f)), proj = fd.project ? projectsById[fd.project] : null;
+    sb.from('client_sites').insert({ client_id: fd.client, project_id: proj ? proj.id : null, organization_id: proj ? proj.organization_id : null, name: fd.name.trim(), url: fd.url.trim() || null, kind: fd.kind, status: fd.status })
+      .then(check).then(function () { f.reset(); flash(f, 'Added'); loadWork(); }).catch(function (err) { flash(f, err.message); });
+  });
   function flash(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 2200); }
 
   document.querySelectorAll('[data-tab]').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('[data-tab]').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
       document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.dataset.panel !== b.dataset.tab; });
+      b.scrollIntoView({ block: 'nearest', inline: 'center' });
     });
   });
   $('new-client-btn').addEventListener('click', function () { $('client-form').hidden = !$('client-form').hidden; });

@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=3">
+<link rel="stylesheet" href="assets/app.css?v=4">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 </head>
 <body>
@@ -50,13 +50,53 @@
 </main>
 
 <div id="app" hidden>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-overview" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></symbol>
+<symbol id="i-projects" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M8 12.5h3M8 15.5h6"/></symbol>
+<symbol id="i-sites" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5S14.4 18.1 12 20.5C9.6 18.1 8.4 15.3 8.4 12S9.6 5.9 12 3.5z"/></symbol>
+<symbol id="i-services" viewBox="0 0 24 24"><path d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9z"/><path d="M18.5 15.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></symbol>
+<symbol id="i-files" viewBox="0 0 24 24"><path d="M12 15.5v-11M7.5 9 12 4.5 16.5 9"/><path d="M4.5 14.5v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3"/></symbol>
+<symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5c.6-3.3 3-5 6-5s5.4 1.7 6 5"/><circle cx="17" cy="9.5" r="2.6"/><path d="M16.5 14.6c2.4.1 4 1.6 4.5 4.4"/></symbol>
+<symbol id="i-billing" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3 10h18M7 15h4"/></symbol>
+<symbol id="i-support" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 4.5h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3M10 16.5 14.5 12 10 7.5M14.5 12H4.5"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17.5 13.5v4a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/></symbol>
+</defs>
+</svg>
+
 <header class="top"><div class="wrap">
-<a class="brand" href="/"><img src="assets/favicon.svg" width="32" height="32" alt=""><span>Lytmoz</span></a>
-<div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button">Log out</button></div>
+<a class="brand" href="/"><img src="assets/favicon.svg" width="32" height="32" alt=""><span>Lytmoz</span><span class="tag">CLIENT HQ</span></a>
+<div class="row"><span id="who" class="muted"></span><button id="logout" class="btn ghost small" type="button"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>Log out</button></div>
 </div></header>
 
-<main class="wrap stack" style="max-width:1000px;padding-top:36px;padding-bottom:60px;gap:22px">
-<div id="empty" class="card stack" hidden><span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700">Welcome</span><h1 class="serif" style="font-size:32px;font-size:clamp(32px,5vw,46px);line-height:1.05">Good to have you, <span id="first"></span>.</h1><p class="muted" style="margin:0;line-height:1.6">Tell us about your idea or your business below, any time. Our team replies here and on WhatsApp. When we start a project together, its progress and invoices will appear on this page.</p><div class="row"><a class="btn ghost small" href="/services/">Explore our services</a><a class="btn ghost small" href="/#pricing">See pricing</a></div></div>
+<div class="wrap hq">
+<nav class="hq-nav" aria-label="Client HQ">
+<p class="ws muted" id="ws-name">Your workspace</p>
+<button type="button" class="nav-i" data-view="overview" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-overview"/></svg><span>Overview</span><b class="nb" id="nb-overview" hidden></b></button><button type="button" class="nav-i" data-view="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>My projects</span><b class="nb" id="nb-projects" hidden></b></button><button type="button" class="nav-i" data-view="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites & apps</span><b class="nb" id="nb-sites" hidden></b></button><button type="button" class="nav-i" data-view="services"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Request a service</span><b class="nb" id="nb-services" hidden></b></button><button type="button" class="nav-i" data-view="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Files & content</span><b class="nb" id="nb-files" hidden></b></button><button type="button" class="nav-i" data-view="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><span>My team</span><b class="nb" id="nb-team" hidden></b></button><button type="button" class="nav-i" data-view="billing"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Billing</span><b class="nb" id="nb-billing" hidden></b></button><button type="button" class="nav-i" data-view="support"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Support</span><b class="nb" id="nb-support" hidden></b></button>
+</nav>
+
+<main class="hq-main stack" style="gap:22px">
+
+<section data-v="overview" class="stack" style="gap:22px">
+<div class="stack" style="gap:6px"><span class="eyebrow" id="ov-eyebrow">Overview</span><h1 class="serif" style="font-size:34px;font-size:clamp(34px,5vw,48px);line-height:1.05">Good to have you, <span id="first"></span>.</h1></div>
+<div class="tiles">
+<button type="button" class="card tile" data-go="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span class="k">Project</span><span class="v" id="t-project">No project yet</span></button>
+<button type="button" class="card tile" data-go="billing"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span class="k">Amount due</span><span class="v" id="t-due">$0</span></button>
+<button type="button" class="card tile" data-go="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span class="k">Websites & apps</span><span class="v" id="t-sites">0 live</span></button>
+<button type="button" class="card tile" data-go="support"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span class="k">Messages</span><span class="v" id="t-msgs">Say hello</span></button>
+</div>
+<div id="empty" class="card stack" hidden><p style="margin:0;line-height:1.6;color:var(--soft)">Tell us about your idea or your business any time. Our team replies in <button type="button" class="linkish" data-go="support">Support</button> and on WhatsApp. When we start a project together, its progress and invoices appear here.</p><div class="row"><a class="btn ghost small" href="/services/">Explore our services</a><a class="btn ghost small" href="/#pricing">See pricing</a></div></div>
+<section class="card stack"><h2 style="font-size:18px">Quick actions</h2><div class="row" style="gap:10px">
+<button type="button" class="btn small" data-go="services"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Request a service</button>
+<button type="button" class="btn small ghost" data-go="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg>Send files</button>
+<button type="button" class="btn small ghost" data-go="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg>Add a team member</button></div></section>
+</section>
+
+<section data-v="projects" class="stack" style="gap:22px" hidden>
+<p id="no-project" class="card muted" style="margin:0">No project yet. When we start working together, progress and updates appear here.</p>
 <div id="project" class="stack" style="gap:22px" hidden>
 <div class="stack" style="gap:8px">
 <span style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700" id="plan"></span>
@@ -73,10 +113,7 @@
 <div class="feed" id="updates"></div>
 <a id="preview-link" class="btn ghost" style="align-self:flex-start" target="_blank" rel="noopener" hidden>Preview my system</a>
 </section>
-<section class="card stack light" id="invoice-card">
-<h2 style="font-size:18px">Invoices</h2>
-<div id="invoices" class="stack"></div>
-</section>
+<section class="card stack"><h2 style="font-size:18px">Payments</h2><p class="muted" style="margin:0;font-size:14px">Invoices and your plan are in <button type="button" class="linkish" data-go="billing">Billing</button>.</p></section>
 </div>
 <section class="card stack">
 <h2 style="font-size:18px">Request a change</h2>
@@ -86,7 +123,49 @@
 </form>
 </section>
 </div>
-<section class="card stack" id="messages-card" hidden>
+</section>
+
+<section data-v="sites" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><div><h1 class="serif h">Websites &amp; apps</h1><p class="muted sub">Everything Lytmoz has built and runs for you.</p></div></div>
+<div id="sites" class="stack"></div>
+</section>
+
+<section data-v="services" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><div><h1 class="serif h">Request a service</h1><p class="muted sub">Need maintenance, a new feature or something new? Tell us and we will reply with a quote.</p></div></div>
+<form id="service-form" class="card stack">
+<label>What do you need?<select name="service" required>
+<option>Website maintenance or fix</option><option>New feature or page</option><option>New website</option><option>Mobile app</option><option>Business system or dashboard</option><option>Distributor platform</option><option>Digital marketing and ads</option><option>SEO and Google visibility</option><option>Branding and strategy</option><option>Something else</option></select></label>
+<label>Details<textarea name="details" rows="4" maxlength="4000" required placeholder="What should it do, and by when?"></textarea></label>
+<label><span>Budget <span class="muted" style="font-weight:400">· optional</span></span><input name="budget" maxlength="120" placeholder="e.g. $500 or GHS 6,000"></label>
+<div class="row"><button class="btn" type="submit">Send request</button><p id="service-msg" class="msg" role="status"></p></div>
+</form>
+<section class="card stack"><h2 style="font-size:18px">Your requests</h2><div id="service-list" class="stack"></div></section>
+</section>
+
+<section data-v="files" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><div><h1 class="serif h">Files &amp; content</h1><p class="muted sub">Send your logo, photos, text and documents here instead of WhatsApp. Up to 25 MB per file.</p></div></div>
+<form id="file-form" class="card stack">
+<label class="drop" id="drop"><svg class="ic" aria-hidden="true" style="width:28px;height:28px"><use href="#i-files"/></svg><span><strong>Choose files</strong> or drop them here</span><span class="muted" id="file-pick" style="font-size:13px">Images, PDF, Word, text</span><input type="file" name="files" id="file-input" multiple accept="image/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+<label><span>Note <span class="muted" style="font-weight:400">· optional</span></span><input name="note" maxlength="500" placeholder="e.g. Homepage photos"></label>
+<div class="row"><button class="btn" type="submit">Upload</button><p id="file-msg" class="msg" role="status"></p></div>
+</form>
+<section class="card stack"><h2 style="font-size:18px">Sent files</h2><div id="file-list" class="stack"></div></section>
+</section>
+
+<section data-v="team" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><div><h1 class="serif h">My team</h1><p class="muted sub">Give your staff their own login to follow projects, files and invoices.</p></div></div>
+<div id="team"></div>
+</section>
+
+<section data-v="billing" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div><h1 class="serif h">Billing</h1><p class="muted sub">Your plan, invoices and payments.</p></div></div>
+<section class="card stack"><h2 style="font-size:18px">Your plan</h2><div id="subs" class="stack"></div></section>
+<section class="card stack light" id="invoice-card"><h2 style="font-size:18px">Invoices</h2><div id="invoices" class="stack"></div></section>
+</section>
+
+<section data-v="support" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><div><h1 class="serif h">Support</h1><p class="muted sub">Message the Lytmoz team. We reply here and on WhatsApp.</p></div></div>
+<section class="card stack" id="messages-card">
 <div class="row between"><h2 style="font-size:18px">Messages with Lytmoz</h2><a class="muted" style="font-size:13px" id="wa-link" target="_blank" rel="noopener">Prefer WhatsApp?</a></div>
 <div id="thread" class="stack" style="gap:10px;max-height:460px;overflow-y:auto"></div>
 <form id="msg-form" class="stack" style="gap:10px">
@@ -94,7 +173,10 @@
 <div class="row"><button class="btn" type="submit">Send message</button><p id="msg-msg" class="msg" role="status"></p></div>
 </form>
 </section>
+</section>
+
 </main>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -127,6 +209,7 @@
       return '<div class="bub ' + (m.from_admin ? 'them' : 'me') + '">' + esc(m.text) + '<small>' + (m.from_admin ? 'Lytmoz · ' : 'You · ') + when(m.created_at) + '</small></div>';
     }).join('') : '<p class="muted" style="margin:0">No messages yet. Say hello and tell us what you need.</p>';
     $('thread').scrollTop = $('thread').scrollHeight;
+    var last = rows[rows.length - 1]; $('t-msgs').textContent = !last ? 'Say hello' : last.from_admin ? 'New reply' : 'Sent';
   }
   function loadThread() {
     return sb.from('messages').select('*').eq('client_id', me.id).order('created_at', { ascending: true }).limit(200).then(check).then(renderThread);
@@ -136,10 +219,11 @@
     $('login').hidden = true; $('app').hidden = false;
     $('who').textContent = user.name || user.email || '';
     $('first').textContent = (user.name || 'there').split(' ')[0];
-    $('messages-card').hidden = false;
     $('wa-link').href = 'https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, this is ' + (user.name || '') + '.');
-    if (!p) { $('empty').hidden = false; $('project').hidden = true; return; }
-    projectId = p.id; $('empty').hidden = true; $('project').hidden = false;
+    renderInvoices(invoices || [], p);
+    if (!p) { $('empty').hidden = false; $('project').hidden = true; $('no-project').hidden = false; $('t-project').textContent = 'Not started'; return; }
+    projectId = p.id; $('empty').hidden = true; $('project').hidden = false; $('no-project').hidden = true;
+    $('t-project').textContent = 'Stage ' + p.stage + ' · ' + LZ.stages[p.stage - 1];
     $('plan').textContent = 'Your project · ' + p.plan + ' plan';
     $('headline').textContent = p.stage >= 5 ? p.name + ' is live and growing.' : p.stage === 4 ? p.name + ' is launching.' : 'Your system is being built.';
     $('stage-label').textContent = 'Stage ' + p.stage + ' of 5';
@@ -150,22 +234,175 @@
     }).join('');
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
     if (p.preview_url && /^https:\/\//.test(p.preview_url)) { $('preview-link').href = p.preview_url; $('preview-link').hidden = false; }
+  }
+  function renderInvoices(invoices, p) {
+    var due = invoices.filter(function (i) { return i.status === 'due'; });
+    $('t-due').textContent = due.length ? money(due.reduce(function (a, i) { return a + i.amount_cents; }, 0), due[0].currency) : 'Nothing due';
+    badge('billing', due.length);
     $('invoices').innerHTML = invoices.length ? invoices.map(function (i) {
       var isDue = i.status === 'due';
       return '<div class="stack" style="gap:6px;' + (isDue ? '' : 'opacity:.7') + '"><span class="serif" style="font-size:' + (isDue ? '46' : '28') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><span class="muted" style="font-size:14px">' + esc(i.description) + ' · ' + (isDue ? 'Due' : 'Paid') + '</span>' +
         (isDue ? (i.pay_url && /^https:\/\//.test(i.pay_url) ? '<a class="btn" href="' + esc(i.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a>' : '<a class="btn" href="https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, I would like to pay: ' + i.description) + '" target="_blank" rel="noopener">Ask for a payment link</a>') : '') + '</div>';
     }).join('<hr style="border:0;border-top:1px solid #D8CFC2;width:100%">') : '<p class="muted">No invoices yet.</p>';
-    if (p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
+    if (p && p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
   }
+  function badge(view, n) { var b = $('nb-' + view); if (!b) return; b.textContent = n; b.hidden = !n; }
+  var ICON = function (n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
+  var empty = function (t) { return '<p class="muted" style="margin:0">' + t + '</p>'; };
+
+  // Navigation
+  function show(view) {
+    if (!document.querySelector('[data-v="' + view + '"]')) view = 'overview';
+    document.querySelectorAll('[data-v]').forEach(function (s) { s.hidden = s.dataset.v !== view; });
+    document.querySelectorAll('.nav-i').forEach(function (b) { if (b.dataset.view === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    try { history.replaceState(null, '', '#' + view); } catch (e) {}
+    if (view === 'support') $('thread').scrollTop = $('thread').scrollHeight;
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-view],[data-go]'); if (!t) return;
+    show(t.dataset.view || t.dataset.go);
+    if (t.classList.contains('nav-i')) t.scrollIntoView({ block: 'nearest', inline: 'center' });
+  });
+
+  // Websites & apps
+  function loadSites() {
+    return sb.from('client_sites').select('*').order('id', { ascending: false }).then(check).then(function (rows) {
+      var live = rows.filter(function (r) { return r.status === 'live'; }).length;
+      $('t-sites').textContent = live + ' live';
+      var kinds = { website: 'Website', app: 'App', system: 'Business system' }, pill = { live: 'green', building: '', paused: 'grey' };
+      $('sites').innerHTML = rows.length ? '<div class="card">' + rows.map(function (r) {
+        return '<div class="item">' + ICON(r.kind === 'website' ? 'sites' : 'overview') + '<div class="main"><strong>' + esc(r.name) + '</strong><span>' + kinds[r.kind] + '</span></div><span class="pill ' + pill[r.status] + '">' + esc(r.status[0].toUpperCase() + r.status.slice(1)) + '</span>' +
+          (r.url && /^https:\/\//.test(r.url) ? '<a class="btn small ghost" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + ICON('link') + 'Open</a>' : '') + '</div>';
+      }).join('') + '</div>' : '<div class="card">' + empty('Once we launch your website, app or system, it appears here with its live link.') + '</div>';
+    });
+  }
+
+  // Service requests
+  function loadServices() {
+    return sb.from('service_requests').select('*').order('id', { ascending: false }).limit(50).then(check).then(function (rows) {
+      var label = { 'new': ['Received', ''], quoted: ['Quote sent', 'blue'], accepted: ['In progress', 'blue'], done: ['Done', 'green'], declined: ['Closed', 'grey'] };
+      $('service-list').innerHTML = rows.length ? rows.map(function (r) {
+        var l = label[r.status] || [r.status, ''];
+        return '<div class="item">' + ICON('services') + '<div class="main"><strong>' + esc(r.service) + '</strong><span>' + esc(r.details.slice(0, 90)) + (r.details.length > 90 ? '…' : '') + ' · ' + when(r.created_at) + '</span></div><span class="pill ' + l[1] + '">' + l[0] + '</span></div>';
+      }).join('') : empty('No requests yet.');
+    });
+  }
+  $('service-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button'), d = Object.fromEntries(new FormData(f));
+    b.disabled = true;
+    sb.from('service_requests').insert({ client_id: me.id, service: d.service, details: d.details.trim(), budget: d.budget.trim() || null, organization_id: myOrg ? myOrg.id : null, project_id: projectId })
+      .then(check).then(function () {
+        notify('New service request: ' + d.service, { From: me.name || '-', Email: me.email || '-', Phone: me.phone || '-', Service: d.service, Details: d.details, Budget: d.budget || '-', Reply: 'https://lytmoz.com/admin.html' });
+        f.reset(); LZ.setMsg($('service-msg'), 'Sent. We will reply with a quote soon.', 'ok'); return loadServices();
+      }).catch(function (err) { LZ.setMsg($('service-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+
+  // Files
+  var BUCKET = 'client-files';
+  function size(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+  function loadFiles() {
+    return sb.from('client_files').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (rows) {
+      $('file-list').innerHTML = rows.length ? rows.map(function (r) {
+        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.name) + '</strong><span>' + size(r.size_bytes) + ' · ' + when(r.created_at) + (r.note ? ' · ' + esc(r.note) : '') + '</span></div>' +
+          '<button type="button" class="btn small ghost" data-open-file="' + esc(r.path) + '">Open</button>' + (r.uploaded_by === me.id ? '<button type="button" class="btn small ghost" data-del-file="' + r.id + '" data-path="' + esc(r.path) + '" aria-label="Delete ' + esc(r.name) + '">Delete</button>' : '') + '</div>';
+      }).join('') : empty('Nothing sent yet.');
+    });
+  }
+  $('file-input').addEventListener('change', function () {
+    var n = this.files.length; $('file-pick').textContent = n ? n + (n === 1 ? ' file: ' + this.files[0].name : ' files selected') : 'Images, PDF, Word, text';
+  });
+  ['dragenter', 'dragover'].forEach(function (ev) { $('drop').addEventListener(ev, function () { $('drop').classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { $('drop').addEventListener(ev, function () { $('drop').classList.remove('over'); }); });
+  $('file-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, b = f.querySelector('button'), files = Array.prototype.slice.call($('file-input').files), note = f.note.value.trim();
+    if (!files.length) return LZ.setMsg($('file-msg'), 'Please choose at least one file.', 'err');
+    var big = files.filter(function (x) { return x.size > 25 * 1048576; });
+    if (big.length) return LZ.setMsg($('file-msg'), big[0].name + ' is larger than 25 MB.', 'err');
+    b.disabled = true; LZ.setMsg($('file-msg'), 'Uploading ' + files.length + (files.length === 1 ? ' file…' : ' files…'));
+    Promise.all(files.map(function (file) {
+      var safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-120), path = me.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '-' + safe;
+      return sb.storage.from(BUCKET).upload(path, file, { contentType: file.type || 'application/octet-stream' }).then(check)
+        .then(function () { return sb.from('client_files').insert({ uploaded_by: me.id, project_id: projectId, path: path, name: file.name.slice(0, 200), size_bytes: file.size, note: note || null }).then(check); });
+    })).then(function () {
+      notify('Files received from ' + (me.name || me.email), { From: me.name || '-', Email: me.email || '-', Files: files.map(function (x) { return x.name; }).join(', '), Note: note || '-', View: 'https://lytmoz.com/admin.html' });
+      f.reset(); $('file-pick').textContent = 'Images, PDF, Word, text'; LZ.setMsg($('file-msg'), 'Uploaded. Thank you.', 'ok'); return loadFiles();
+    }).catch(function (err) { LZ.setMsg($('file-msg'), err.message, 'err'); }).finally(function () { b.disabled = false; });
+  });
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open-file]'), d = e.target.closest('[data-del-file]');
+    if (o) { var w = window.open('', '_blank'); sb.storage.from(BUCKET).createSignedUrl(o.dataset.openFile, 300).then(check).then(function (r) { if (w) w.location = r.signedUrl; else location.href = r.signedUrl; }).catch(function (err) { if (w) w.close(); alert(err.message); }); }
+    if (d && confirm('Delete this file? This cannot be undone.')) {
+      sb.storage.from(BUCKET).remove([d.dataset.path]).then(check).then(function () { return sb.from('client_files').delete().eq('id', +d.dataset.delFile).then(check); }).then(loadFiles).catch(function (err) { alert(err.message); });
+    }
+  });
+
+  // Team
+  var myOrg = null;
+  function loadTeam() {
+    return sb.rpc('my_team').then(check).then(function (orgs) {
+      myOrg = (orgs || []).filter(function (o) { return o.myRole === 'owner'; })[0] || (orgs || [])[0] || null;
+      $('ws-name').textContent = myOrg ? myOrg.name : 'Your workspace';
+      $('ov-eyebrow').textContent = myOrg ? myOrg.name + ' · Overview' : 'Overview';
+      if (!myOrg) {
+        $('team').innerHTML = '<form id="biz-form" class="card stack"><h2 style="font-size:18px">Create your business workspace</h2><p class="muted" style="margin:0;font-size:14px">Name your business, then add your staff. Everyone you add sees your projects, files and invoices.</p><label>Business name<input name="name" required maxlength="160" value="' + esc(me.company || '') + '"></label><div class="row"><button class="btn" type="submit">Create workspace</button><p class="msg" id="biz-msg" role="status"></p></div></form>';
+        return;
+      }
+      var owner = myOrg.myRole === 'owner';
+      $('team').innerHTML = '<section class="card stack"><div class="row between"><h2 style="font-size:18px">' + esc(myOrg.name) + '</h2><span class="muted" style="font-size:13px">' + myOrg.members.length + (myOrg.members.length === 1 ? ' person' : ' people') + '</span></div><div>' +
+        myOrg.members.map(function (m) {
+          return '<div class="item">' + ICON('team') + '<div class="main"><strong>' + esc(m.name || m.email) + (m.id === me.id ? ' (you)' : '') + '</strong><span>' + esc(m.email) + '</span></div><span class="pill ' + (m.role === 'owner' ? '' : 'grey') + '">' + (m.role === 'owner' ? 'Owner' : 'Member') + '</span>' +
+            (owner && m.id !== me.id ? '<button type="button" class="btn small ghost" data-remove-member="' + m.id + '" aria-label="Remove ' + esc(m.name || m.email) + '">Remove</button>' : '') + '</div>';
+        }).join('') + '</div></section>' +
+        (owner ? '<form id="member-form" class="card stack"><h2 style="font-size:18px">Add a team member</h2><p class="muted" style="margin:0;font-size:14px">They first create a free account at lytmoz.com/portal.html, then you add their email here.</p><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Their email<input type="email" name="email" required></label><label style="flex:1 1 130px">Role<select name="role"><option value="member">Member</option><option value="owner">Owner</option></select></label><button class="btn" type="submit">' + ICON('plus') + 'Add</button></div><p class="msg" id="member-msg" role="status"></p></form>'
+          : '<p class="muted card" style="margin:0">Only the business owner can add or remove people.</p>');
+    });
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.id === 'biz-form') {
+      e.preventDefault();
+      sb.rpc('create_my_business', { business_name: f.name.value }).then(check).then(function () { return loadTeam(); }).catch(function (err) { LZ.setMsg($('biz-msg'), err.message, 'err'); });
+    }
+    if (f.id === 'member-form') {
+      e.preventDefault();
+      var b = f.querySelector('button'); b.disabled = true;
+      sb.rpc('add_team_member', { org: myOrg.id, member_email: f.email.value.trim(), member_role: f.role.value }).then(check).then(function () { return loadTeam(); })
+        .catch(function (err) { LZ.setMsg($('member-msg'), err.message, 'err'); b.disabled = false; });
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var r = e.target.closest('[data-remove-member]');
+    if (r && confirm('Remove this person from your business? They will lose access to its projects.')) sb.rpc('remove_team_member', { org: myOrg.id, member: r.dataset.removeMember }).then(check).then(loadTeam).catch(function (err) { alert(err.message); });
+  });
+
+  // Subscriptions
+  function loadSubs() {
+    return sb.from('subscriptions').select('*').order('id', { ascending: false }).then(check).then(function (rows) {
+      var lab = { active: ['Active', 'green'], paused: ['Paused', 'grey'], cancelled: ['Cancelled', 'grey'] };
+      $('subs').innerHTML = rows.length ? rows.map(function (r) {
+        var l = lab[r.status] || [r.status, ''];
+        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + esc(r.plan) + '</strong><span>' + money(r.amount_cents, r.currency) + ' / ' + r.billing_interval + (r.renews_on && r.status === 'active' ? ' · renews ' + r.renews_on : '') + '</span></div><span class="pill ' + l[1] + '">' + l[0] + '</span></div>';
+      }).join('') : empty('No monthly plan yet. Care plans start when your project launches.');
+    });
+  }
+
   function load(user) {
     me = user;
-    return sb.from('projects').select('*').order('id', { ascending: false }).limit(1).then(check).then(function (rows) {
+    return loadTeam().catch(function () {}).then(function () {
+      return sb.from('projects').select('*').order('id', { ascending: false }).limit(1).then(check);
+    }).then(function (rows) {
       var p = rows[0];
-      if (!p) { render(user, null); return loadThread(); }
-      return Promise.all([
+      return (p ? Promise.all([
         sb.from('updates').select('*').eq('project_id', p.id).order('id', { ascending: false }).limit(20).then(check),
         sb.from('invoices').select('*').eq('project_id', p.id).neq('status', 'void').order('id', { ascending: false }).then(check)
-      ]).then(function (r) { render(user, p, r[0], r[1]); return loadThread(); });
+      ]) : Promise.resolve([[], []])).then(function (r) {
+        render(user, p || null, r[0], r[1]);
+        show((location.hash || '').slice(1) || 'overview');
+        return Promise.all([loadThread(), loadSites(), loadServices(), loadFiles(), loadSubs()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
+      });
     });
   }
   function enter() {

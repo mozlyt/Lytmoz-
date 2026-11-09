@@ -59,3 +59,49 @@ td select{padding:7px 10px;font-size:13px;width:auto}
 details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13px;padding:6px 0}
 [hidden]{display:none!important}
 .pw-wrap{position:relative;display:block}.pw-wrap input{padding-right:74px}.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-family:inherit;font-size:13px;font-weight:700;color:var(--copper);background:transparent;border:0;border-radius:999px;padding:8px 12px;min-height:36px;cursor:pointer}.pw-eye:hover{color:var(--copper2);background:#1E1B18}
+/* Client HQ shell */
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.btn .ic{width:17px;height:17px;margin-right:2px}
+.hq{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;padding-top:28px;padding-bottom:60px;align-items:start}
+.hq-nav{position:sticky;top:16px;display:flex;flex-direction:column;gap:4px}
+.hq-nav .ws{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 10px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-i{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:transparent;color:var(--soft);font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer}
+.nav-i:hover{background:#1A1816;color:var(--text)}
+.nav-i[aria-current="page"]{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.nav-i[aria-current="page"] .ic{color:var(--copper)}
+.nav-i>span:not(.nb){flex:1}.nav-i .nb{flex:none}
+.nb{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--copper);color:#0E0D0C;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.eyebrow{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--copper);font-weight:700}
+.head{display:flex;gap:14px;align-items:flex-start}
+.head>.ic{width:42px;height:42px;padding:10px;border-radius:12px;background:var(--panel);border:1px solid var(--line2);color:var(--copper)}
+.head .h{font-size:30px;font-size:clamp(30px,4vw,38px);line-height:1.05}
+.head .sub{margin:6px 0 0;font-size:14px;line-height:1.5}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;font:inherit;color:var(--text);cursor:pointer}
+.tile .ic{color:var(--copper);width:22px;height:22px}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile .v{font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1.1}
+.tile:hover{border-color:var(--line2)}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--copper);text-decoration:underline;cursor:pointer}
+.item{display:flex;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0;padding-top:0}
+.item>.ic{width:38px;height:38px;padding:9px;border-radius:10px;background:#1E1B18;color:var(--copper)}
+.item .main{flex:1;min-width:0}
+.item .main strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .main span{font-size:13px;color:var(--muted)}
+.drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:150px;padding:20px;border:1.5px dashed var(--line2);border-radius:16px;text-align:center;color:var(--soft);font-weight:400}
+.drop .ic{color:var(--copper)}
+.drop.over{border-color:var(--copper);background:#1A1612}
+@media (max-width:860px){
+ .hq{grid-template-columns:minmax(0,1fr);gap:18px;padding-top:14px}
+ .hq-nav{position:sticky;top:0;z-index:4;flex-direction:row;overflow-x:auto;gap:6px;margin:0 -20px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--line);scrollbar-width:none}
+ .hq-nav::-webkit-scrollbar{display:none}
+ .hq-nav .ws{display:none}
+ .nav-i{width:auto;flex:none;white-space:nowrap;padding:9px 14px;border-radius:999px;font-size:13px}
+ .top .btn{padding:8px 14px}
+}
+@media (max-width:520px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{padding:16px}.tile .v{font-size:20px}}
+.tabs button .ic{width:17px;height:17px;margin-right:6px;vertical-align:-3px}
+.nav-i[aria-selected="true"]{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.nav-i[aria-selected="true"] .ic{color:var(--copper)}
+.hq-nav .ws+.nav-i{margin-top:0}.hq-nav .nav-i+.ws{margin-top:14px}

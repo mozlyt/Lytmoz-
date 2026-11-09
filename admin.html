@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=8">
+<link rel="stylesheet" href="assets/app.css?v=9">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -82,7 +82,7 @@
 </svg>
 
 <div class="wrap hq">
-<nav class="hq-nav" role="tablist" aria-label="HQ"><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button></nav>
+<nav class="hq-nav" role="tablist" aria-label="HQ"><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="payments"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Payments</span><span id="nb-pay" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button></nav>
 <main class="hq-main stack" style="gap:22px">
 <div>
 <div><p class="muted" id="today" style="margin:0 0 4px"></p><h1 class="serif" style="font-size:42px">Good <span id="greet">day</span>.</h1></div>
@@ -99,6 +99,28 @@
 <section data-panel="leads" class="card stack">
 <div class="row between"><h2 style="font-size:18px">Consultation requests</h2><span class="muted" style="font-size:13px">Newest first</span></div>
 <div id="leads" class="leads"></div>
+</section>
+
+<section data-panel="payments" class="stack" hidden>
+<section class="card stack"><div class="row between"><h2 style="font-size:18px">Payments to check</h2><span class="muted" style="font-size:13px">Confirm once the money is in your MoMo or bank</span></div><div id="payments"></div></section>
+<form id="payset-form" class="card stack">
+<h2 style="font-size:18px">Your payment details</h2>
+<p class="muted" style="margin:0;font-size:14px">Clients see these in Billing when they pay an invoice.</p>
+<div class="row" style="gap:12px">
+<label style="flex:1 1 140px">MoMo network<select name="momo_network"><option value="">—</option><option>MTN MoMo</option><option>Telecel Cash</option><option>AirtelTigo Money</option></select></label>
+<label style="flex:1 1 170px">MoMo number<input name="momo_number" type="tel" maxlength="20" placeholder="0538729743"></label>
+<label style="flex:2 1 200px">Name on MoMo<input name="momo_name" maxlength="120"></label>
+</div>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 180px">Bank<input name="bank_name" maxlength="120"></label>
+<label style="flex:2 1 200px">Account name<input name="bank_account_name" maxlength="120"></label>
+<label style="flex:2 1 180px">Account number<input name="bank_account_number" maxlength="40" inputmode="numeric"></label>
+<label style="flex:1 1 140px">Branch<input name="bank_branch" maxlength="120"></label>
+</div>
+<label><span>Online payment page <span class="muted" style="font-weight:400">· optional, e.g. your Paystack payment page</span></span><input name="online_pay_url" type="url" pattern="https://.*" placeholder="https://paystack.com/pay/lytmoz"></label>
+<label><span>Extra instructions <span class="muted" style="font-weight:400">· optional</span></span><textarea name="instructions" rows="2" maxlength="1000" placeholder="e.g. Payments are confirmed within 24 hours."></textarea></label>
+<button class="btn small" type="submit" style="align-self:flex-start">Save payment details</button>
+</form>
 </section>
 
 <section data-panel="projects" class="stack" hidden>
@@ -252,7 +274,7 @@
 
   function load() {
     sb.rpc('admin_overview').then(check).then(function (o) {
-      $('s-leads').textContent = o.leadsThisMonth; $('nb-svc').textContent = o.newServiceRequests || 0; $('nb-svc').hidden = !o.newServiceRequests; $('nb-infra').textContent = o.infraRenewalsDue || 0; $('nb-infra').hidden = !o.infraRenewalsDue; $('s-active').textContent = o.activeProjects;
+      $('s-leads').textContent = o.leadsThisMonth; $('nb-svc').textContent = o.newServiceRequests || 0; $('nb-svc').hidden = !o.newServiceRequests; $('nb-infra').textContent = o.infraRenewalsDue || 0; $('nb-infra').hidden = !o.infraRenewalsDue; $('nb-pay').textContent = o.pendingPayments || 0; $('nb-pay').hidden = !o.pendingPayments; $('s-active').textContent = o.activeProjects;
       $('s-care').textContent = money((o.recurringCents || 0) + o.monthlyCareCents); $('s-care').title = (o.activeSubscriptions || 0) + ' active subscriptions' + (o.renewalsDue ? ' · ' + o.renewalsDue + ' renewing this week' : ''); $('s-due').textContent = money(o.invoicesDueCents);
     }).catch(fail);
     sb.from('leads').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (leads) {
@@ -376,7 +398,6 @@
       var opts = r[0].map(function (p) { return '<option value="' + p.id + '">' + esc((p.name || '') + ' · ' + p.email) + '</option>'; }).join('');
       $('sub-client').innerHTML = opts; $('site-client').innerHTML = opts; $('infra-client').innerHTML = opts;
       $('sub-project').innerHTML = $('site-project').innerHTML = $('infra-project').innerHTML = '<option value="">None</option>' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
-      loadWork(); loadInfra();
       $('subs').innerHTML = r[2].length ? r[2].map(function (x) {
         var soon = x.status === 'active' && x.renews_on && new Date(x.renews_on) <= new Date(Date.now() + 7 * 864e5);
         return '<tr><td><strong>' + esc(label(x.client_id)) + '</strong>' + (x.project_id && projectsById[x.project_id] ? '<br><span class="muted" style="font-size:12px">' + esc(projectsById[x.project_id].name) + '</span>' : '') + '</td><td>' + esc(x.plan) + '</td><td>' + money(x.amount_cents, x.currency) + ' / ' + x.billing_interval + '</td><td' + (soon ? ' style="color:var(--copper);font-weight:700"' : ' class="muted"') + '>' + (x.renews_on || '—') + '</td><td><select data-sub="' + x.id + '" aria-label="Status">' +
@@ -394,6 +415,7 @@
         var d = a.details || {}, txt = a.action === 'update' ? Object.keys(d).map(function (k) { return esc(k) + ': ' + esc(String(d[k].from)) + ' → ' + esc(String(d[k].to)); }).join('; ') : esc(d.name || d.plan || d.description || d.text || '');
         return '<tr><td class="muted" style="white-space:nowrap">' + when(a.created_at) + '</td><td>' + esc(a.actor ? label(a.actor) : 'System') + '</td><td>' + esc(a.table_name.replace(/_/g, ' ')) + ' ' + (what[a.action] || a.action) + '</td><td class="muted" style="font-size:13px">' + txt.slice(0, 160) + '</td></tr>';
       }).join('') : '<tr><td colspan="4" class="muted">Changes you make will be recorded here.</td></tr>';
+      [loadWork, loadInfra, loadPayments].forEach(function (fn) { try { fn(); } catch (err) { console.error(err); } });
     }).catch(fail);
   }
   document.addEventListener('change', function (e) {
@@ -500,6 +522,37 @@
     sb.from('client_services').insert({ client_id: fd.client, project_id: proj ? proj.id : null, organization_id: proj ? proj.organization_id : null, service: fd.service, label: fd.label.trim() || null,
       account_email: fd.email.trim() || null, owner: fd.owner, lytmoz_access: fd.access, url: fd.url.trim() || null, monthly_cost_cents: Math.round(Number(fd.cost || 0) * 100), currency: fd.currency, renews_on: fd.renews || null, notes: fd.notes.trim() || null })
       .then(check).then(function () { f.reset(); flash(f, 'Saved'); loadInfra(); load(); }).catch(function (err) { flash(f, /notes_check/.test(err.message) ? 'Please remove the password from the notes.' : err.message); });
+  });
+
+  // Payments: confirm what clients report, and set payment details
+  function loadPayments() {
+    var label = function (id) { var p = people[id]; return p ? (p.name || p.email) : '—'; };
+    var M = { momo: 'Mobile Money', bank: 'Bank transfer', online: 'Online', cash: 'Cash' };
+    Promise.all([
+      sb.from('payments').select('*, invoices(id, description, amount_cents, currency)').order('id', { ascending: false }).limit(200).then(check),
+      sb.from('payment_settings').select('*').eq('id', 1).maybeSingle().then(check)
+    ]).then(function (r) {
+      $('payments').innerHTML = r[0].length ? r[0].map(function (x) {
+        var inv = x.invoices || {}, st = { pending: ['To check', ''], confirmed: ['Confirmed', 'green'], rejected: ['Not received', 'grey'] }[x.status];
+        return '<div class="item">' + '<svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div class="main"><strong>' + money(x.amount_cents, x.currency) + ' · ' + esc(label(x.client_id)) + '</strong><span>' + M[x.method] + (x.reference ? ' · Ref ' + esc(x.reference) : ' · no reference') + ' · LZ-' + String(inv.id || 0).padStart(4, '0') + ' ' + esc(inv.description || '') + ' · ' + when(x.created_at) + '</span></div>' +
+          (x.receipt_path ? '<button type="button" class="btn small ghost" data-open-file="' + esc(x.receipt_path) + '">Receipt</button>' : '') +
+          (x.status === 'pending' ? '<button type="button" class="btn small" data-pay-ok="' + x.id + '">Confirm</button><button type="button" class="btn small ghost" data-pay-no="' + x.id + '">Not received</button>' : '<span class="pill ' + st[1] + '">' + st[0] + '</span>') + '</div>';
+      }).join('') : '<p class="muted" style="margin:0">No payments reported yet. When a client taps "I\'ve paid", it appears here for you to confirm.</p>';
+      var o = r[1] || {}, f = $('payset-form');
+      ['momo_network', 'momo_number', 'momo_name', 'bank_name', 'bank_account_name', 'bank_account_number', 'bank_branch', 'online_pay_url', 'instructions'].forEach(function (k) { f[k].value = o[k] || ''; });
+    }).catch(fail);
+  }
+  document.addEventListener('click', function (e) {
+    var ok = e.target.closest('[data-pay-ok]'), no = e.target.closest('[data-pay-no]');
+    if (ok && confirm('Confirm this payment? The invoice will be marked Paid.')) sb.from('payments').update({ status: 'confirmed' }).eq('id', +ok.dataset.payOk).then(check).then(function () { loadPayments(); load(); }).catch(fail);
+    if (no && confirm('Mark as not received? The client will see "Not received" and can report it again.')) sb.from('payments').update({ status: 'rejected' }).eq('id', +no.dataset.payNo).then(check).then(function () { loadPayments(); load(); }).catch(fail);
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target; if (f.id !== 'payset-form') return;
+    e.preventDefault();
+    var d = Object.fromEntries(new FormData(f)), row = { updated_at: new Date().toISOString() };
+    Object.keys(d).forEach(function (k) { row[k] = String(d[k]).trim() || null; });
+    sb.from('payment_settings').update(row).eq('id', 1).then(check).then(function () { flash(f, 'Saved'); }).catch(function (err) { flash(f, /momo_number/.test(err.message) ? 'Please check the MoMo number (digits only).' : err.message); });
   });
   function flash(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 2200); }
 

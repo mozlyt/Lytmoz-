@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=8">
+<link rel="stylesheet" href="assets/app.css?v=9">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -175,9 +175,39 @@
 </section>
 
 <section data-v="billing" class="stack" hidden>
-<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div><h1 class="serif h">Billing</h1><p class="muted sub">Your plan, invoices and payments.</p></div></div>
-<section class="card stack"><h2 style="font-size:18px">Your plan</h2><div id="subs" class="stack"></div></section>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><div><h1 class="serif h">Billing</h1><p class="muted sub">Invoices, ways to pay, and your payment history.</p></div></div>
+
+<section class="card stack"><h2 style="font-size:18px">How billing works</h2>
+<ol class="steps-list">
+<li><strong>Agree the work.</strong> After your consultation we send a proposal with the price and timeline.</li>
+<li><strong>Get your invoice.</strong> It appears here, usually a deposit to start, then the balance at launch.</li>
+<li><strong>Pay your way.</strong> Mobile Money, bank transfer or online, using the details below.</li>
+<li><strong>Tell us you've paid.</strong> Tap <em>I've paid</em> on the invoice and add the transaction ID.</li>
+<li><strong>We confirm.</strong> The invoice turns <em>Paid</em> and your receipt stays in your history.</li>
+</ol></section>
+
 <section class="card stack light" id="invoice-card"><h2 style="font-size:18px">Invoices</h2><div id="invoices" class="stack"></div></section>
+
+<section class="card stack"><h2 style="font-size:18px">Ways to pay</h2><div id="pay-methods" class="stack"></div></section>
+
+<section class="card stack"><h2 style="font-size:18px">Payment history</h2><div id="pay-history"></div></section>
+
+<section class="card stack"><h2 style="font-size:18px">Your plan</h2><div id="subs" class="stack"></div></section>
+
+<form id="billing-form" class="card stack">
+<h2 style="font-size:18px">Billing details</h2>
+<p class="muted" style="margin:0;font-size:14px">The name and contacts we put on your invoices and receipts.</p>
+<div class="row" style="gap:12px">
+<label style="flex:2 1 220px">Bill to (person or business)<input name="billing_name" required maxlength="160"></label>
+<label style="flex:2 1 220px"><span>Email for receipts <span class="muted" style="font-weight:400">· optional</span></span><input name="billing_email" type="email"></label>
+</div>
+<div class="row" style="gap:12px">
+<label style="flex:1 1 180px"><span>Phone <span class="muted" style="font-weight:400">· optional</span></span><input name="phone" type="tel" maxlength="40"></label>
+<label style="flex:2 1 240px"><span>Address <span class="muted" style="font-weight:400">· optional</span></span><input name="address" maxlength="300"></label>
+<label style="flex:1 1 160px"><span>TIN <span class="muted" style="font-weight:400">· optional</span></span><input name="tax_id" maxlength="40"></label>
+</div>
+<div class="row"><button class="btn" type="submit">Save billing details</button><p class="msg" id="billing-msg" role="status"></p></div>
+</form>
 </section>
 
 <section data-v="support" class="stack" hidden>
@@ -318,7 +348,6 @@
     $('who').textContent = user.name || user.email || '';
     $('first').textContent = (user.name || 'there').split(' ')[0];
     $('wa-link').href = 'https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, this is ' + (user.name || '') + '.');
-    renderInvoices(invoices || [], p);
     if (!p) { $('empty').hidden = false; $('project').hidden = true; $('no-project').hidden = false; $('t-project').textContent = 'Not started'; return; }
     projectId = p.id; $('empty').hidden = true; $('project').hidden = false; $('no-project').hidden = true;
     $('t-project').textContent = 'Stage ' + p.stage + ' · ' + LZ.stages[p.stage - 1];
@@ -333,17 +362,86 @@
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
     var hasLink = !!(p.preview_url && /^https:\/\//.test(p.preview_url)); $('preview-link').hidden = !hasLink; if (hasLink) $('preview-link').href = p.preview_url;
   }
-  function renderInvoices(invoices, p) {
-    var due = invoices.filter(function (i) { return i.status === 'due'; });
-    $('t-due').textContent = due.length ? money(due.reduce(function (a, i) { return a + i.amount_cents; }, 0), due[0].currency) : 'Nothing due';
-    badge('billing', due.length);
-    $('invoices').innerHTML = invoices.length ? invoices.map(function (i) {
-      var isDue = i.status === 'due';
-      return '<div class="stack" style="gap:6px;' + (isDue ? '' : 'opacity:.7') + '"><span class="serif" style="font-size:' + (isDue ? '46' : '28') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><span class="muted" style="font-size:14px">' + esc(i.description) + ' · ' + (isDue ? 'Due' : 'Paid') + '</span>' +
-        (isDue ? (i.pay_url && /^https:\/\//.test(i.pay_url) ? '<a class="btn" href="' + esc(i.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a>' : '<a class="btn" href="https://wa.me/' + LZ.cfg.whatsapp + '?text=' + encodeURIComponent('Hello Lytmoz, I would like to pay: ' + i.description) + '" target="_blank" rel="noopener">Ask for a payment link</a>') : '') + '</div>';
-    }).join('<hr style="border:0;border-top:1px solid #D8CFC2;width:100%">') : '<p class="muted">No invoices yet.</p>';
-    if (p && p.monthly_care_cents && p.stage < 5) $('invoices').insertAdjacentHTML('beforeend', '<p class="muted" style="margin:0;font-size:13px">Then ' + money(p.monthly_care_cents) + ' a month for care from launch.</p>');
+  function renderInvoices() {}
+  var payOpts = {}, invoicesAll = [], paymentsAll = [];
+  var invNo = function (i) { return 'LZ-' + String(i.id).padStart(4, '0'); };
+  function loadBilling() {
+    return Promise.all([
+      sb.from('invoices').select('*, projects(name)').neq('status', 'void').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('payments').select('*').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('payment_settings').select('*').eq('id', 1).maybeSingle().then(check),
+      sb.from('billing_profiles').select('*').eq('client_id', me.id).maybeSingle().then(check)
+    ]).then(function (r) {
+      invoicesAll = r[0]; paymentsAll = r[1]; payOpts = r[2] || {};
+      var due = invoicesAll.filter(function (i) { return i.status === 'due'; });
+      var byCur = {}; due.forEach(function (i) { byCur[i.currency] = (byCur[i.currency] || 0) + i.amount_cents; });
+      $('t-due').textContent = Object.keys(byCur).map(function (c) { return money(byCur[c], c); }).join(' + ') || 'Nothing due';
+      badge('billing', due.length);
+      var pendingFor = {}; paymentsAll.forEach(function (x) { if (x.status === 'pending') pendingFor[x.invoice_id] = x; });
+      $('invoices').innerHTML = invoicesAll.length ? invoicesAll.map(function (i) {
+        var isDue = i.status === 'due', pend = pendingFor[i.id];
+        return '<div class="inv' + (isDue ? '' : ' done') + '"><div class="row between" style="align-items:flex-start;gap:10px"><div><span class="serif" style="font-size:' + (isDue ? '40' : '26') + 'px;line-height:1">' + money(i.amount_cents, i.currency) + '</span><div class="muted" style="font-size:14px;margin-top:6px">' + invNo(i) + ' · ' + esc(i.description) + (i.projects ? ' · ' + esc(i.projects.name) : '') + ' · ' + when(i.created_at) + '</div></div>' +
+          '<span class="pill ' + (isDue ? (pend ? 'blue' : '') : 'green') + '">' + (isDue ? (pend ? 'Checking payment' : 'Due') : 'Paid') + '</span></div>' +
+          (isDue && !pend ? '<button type="button" class="btn" data-pay="' + i.id + '" style="margin-top:12px">Pay ' + money(i.amount_cents, i.currency) + '</button><div class="pay-panel" id="pay-' + i.id + '" hidden></div>' : '') +
+          (pend ? '<p class="muted" style="margin:10px 0 0;font-size:14px">You reported a ' + methodName(pend.method) + ' payment' + (pend.reference ? ' (' + esc(pend.reference) + ')' : '') + '. We will confirm it shortly.</p>' : '') + '</div>';
+      }).join('') : '<p class="muted" style="margin:0">No invoices yet. When we agree your project, your first invoice appears here with a Pay button.</p>';
+      $('pay-methods').innerHTML = methodsHtml(null);
+      $('pay-history').innerHTML = paymentsAll.length ? paymentsAll.map(function (x) {
+        var inv = invoicesAll.filter(function (i) { return i.id === x.invoice_id; })[0], st = { pending: ['Checking', 'blue'], confirmed: ['Confirmed', 'green'], rejected: ['Not received', 'grey'] }[x.status];
+        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + money(x.amount_cents, x.currency) + ' · ' + methodName(x.method) + '</strong><span>' + (inv ? invNo(inv) + ' · ' : '') + when(x.created_at) + (x.reference ? ' · Ref ' + esc(x.reference) : '') + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span></div>';
+      }).join('') : '<p class="muted" style="margin:0">No payments yet.</p>';
+      var b = r[3] || {}, f = $('billing-form');
+      f.billing_name.value = b.billing_name || me.company || me.name || ''; f.billing_email.value = b.billing_email || me.email || ''; f.phone.value = b.phone || me.phone || ''; f.address.value = b.address || ''; f.tax_id.value = b.tax_id || '';
+    });
   }
+  function methodName(m) { return { momo: 'Mobile Money', bank: 'Bank transfer', online: 'Online payment', cash: 'Cash' }[m] || m; }
+  function copyRow(label, value) { return value ? '<div class="kv"><span>' + label + '</span><strong>' + esc(value) + '</strong><button type="button" class="linkish" data-copy="' + esc(value) + '">Copy</button></div>' : ''; }
+  function methodsHtml(inv) {
+    var o = payOpts, ref = inv ? invNo(inv) : 'your invoice number', out = [];
+    if (inv && inv.pay_url && /^https:\/\//.test(inv.pay_url)) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page.</p><a class="btn small" href="' + esc(inv.pay_url) + '" target="_blank" rel="noopener">Pay securely online</a></div>');
+    else if (o.online_pay_url) out.push('<div class="method"><strong>Pay online</strong><p class="muted">Card or Mobile Money on a secure page. Enter the amount and use ' + esc(ref) + ' as the reference.</p><a class="btn small" href="' + esc(o.online_pay_url) + '" target="_blank" rel="noopener">Open payment page</a></div>');
+    if (o.momo_number) out.push('<div class="method"><strong>Mobile Money' + (o.momo_network ? ' · ' + esc(o.momo_network) : '') + '</strong>' + copyRow('Number', o.momo_number) + copyRow('Name', o.momo_name) + copyRow('Reference', inv ? ref : '') + '<p class="muted">Use ' + esc(ref) + ' as the reference so we can match your payment.</p></div>');
+    if (o.bank_account_number) out.push('<div class="method"><strong>Bank transfer</strong>' + copyRow('Bank', o.bank_name) + copyRow('Account name', o.bank_account_name) + copyRow('Account number', o.bank_account_number) + copyRow('Branch', o.bank_branch) + copyRow('Reference', inv ? ref : '') + '</div>');
+    if (o.instructions) out.push('<p class="muted" style="margin:0;font-size:14px;white-space:pre-wrap">' + esc(o.instructions) + '</p>');
+    if (!out.length) out.push('<p class="muted" style="margin:0">Payment details are being set up. Message us in <button type="button" class="linkish" data-go="support">Support</button> or on WhatsApp and we will send them right away.</p>');
+    return out.join('');
+  }
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-copy]');
+    if (c) { (navigator.clipboard ? navigator.clipboard.writeText(c.dataset.copy) : Promise.reject()).then(function () { c.textContent = 'Copied'; setTimeout(function () { c.textContent = 'Copy'; }, 1500); }).catch(function () {}); return; }
+    var b = e.target.closest('[data-pay]'); if (!b) return;
+    var inv = invoicesAll.filter(function (i) { return i.id === +b.dataset.pay; })[0], panel = $('pay-' + inv.id);
+    if (!panel.hidden) { panel.hidden = true; return; }
+    panel.innerHTML = '<p style="margin:0 0 4px;font-weight:600">1. Pay ' + money(inv.amount_cents, inv.currency) + ' using any option:</p>' + methodsHtml(inv) +
+      '<form class="stack" data-paid="' + inv.id + '" style="gap:10px;margin-top:6px"><p style="margin:0;font-weight:600">2. Then tell us you\'ve paid:</p>' +
+      '<div class="row" style="gap:10px"><label style="flex:1 1 150px">How did you pay?<select name="method"><option value="momo">Mobile Money</option><option value="bank">Bank transfer</option><option value="online">Online payment</option><option value="cash">Cash</option></select></label>' +
+      '<label style="flex:2 1 200px">Transaction ID<input name="reference" maxlength="120" placeholder="From your MoMo or bank message"></label></div>' +
+      '<label><span>Receipt or screenshot <span class="muted" style="font-weight:400">· optional</span></span><input type="file" name="receipt" accept="image/*,.pdf"></label>' +
+      '<div class="row"><button class="btn" type="submit">I\'ve paid</button><p class="msg" role="status"></p></div></form>';
+    panel.hidden = false;
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.id === 'billing-form') {
+      e.preventDefault();
+      var d = Object.fromEntries(new FormData(f));
+      sb.from('billing_profiles').upsert({ client_id: me.id, billing_name: d.billing_name.trim(), billing_email: d.billing_email.trim() || null, phone: d.phone.trim() || null, address: d.address.trim() || null, tax_id: d.tax_id.trim() || null, updated_at: new Date().toISOString() })
+        .then(check).then(function () { LZ.setMsg($('billing-msg'), 'Saved.', 'ok'); }).catch(function (err) { LZ.setMsg($('billing-msg'), err.message, 'err'); });
+    }
+    if (f.dataset.paid) {
+      e.preventDefault();
+      var inv = invoicesAll.filter(function (i) { return i.id === +f.dataset.paid; })[0], btn = f.querySelector('button[type=submit]'), msg = f.querySelector('.msg'), file = f.receipt.files[0];
+      if (file && file.size > 10 * 1048576) return LZ.setMsg(msg, 'The receipt is larger than 10 MB.', 'err');
+      btn.disabled = true; LZ.setMsg(msg, 'Sending…');
+      var path = file ? me.id + '/receipt-' + Date.now() + '-' + file.name.replace(/[^\w.\- ]+/g, '_').slice(-80) : null;
+      (file ? sb.storage.from('client-files').upload(path, file, { contentType: file.type || 'application/octet-stream' }).then(check) : Promise.resolve())
+        .then(function () { return sb.from('payments').insert({ invoice_id: inv.id, client_id: me.id, method: f.method.value, amount_cents: inv.amount_cents, currency: inv.currency, reference: f.reference.value.trim() || null, receipt_path: path }).then(check); })
+        .then(function () {
+          notify('Payment reported: ' + money(inv.amount_cents, inv.currency) + ' from ' + (me.name || me.email), { From: me.name || '-', Invoice: invNo(inv) + ' · ' + inv.description, Amount: money(inv.amount_cents, inv.currency), Method: methodName(f.method.value), Reference: f.reference.value || '-', Confirm: 'https://lytmoz.com/admin.html' });
+          return loadBilling();
+        }).catch(function (err) { LZ.setMsg(msg, err.message, 'err'); btn.disabled = false; });
+    }
+  });
   function badge(view, n) { var b = $('nb-' + view); if (!b) return; b.textContent = n; b.hidden = !n; }
   var ICON = function (n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
   var empty = function (t) { return '<p class="muted" style="margin:0">' + t + '</p>'; };
@@ -563,7 +661,7 @@
         if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
         fillAccount();
         show((location.hash || '').slice(1) || 'overview');
-        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
+        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs(), loadBilling()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
       });
     });
   }

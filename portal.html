@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=4">
+<link rel="stylesheet" href="assets/app.css?v=6">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -135,6 +135,7 @@
 <section data-v="sites" class="stack" hidden>
 <div class="head"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><div><h1 class="serif h">Websites &amp; apps</h1><p class="muted sub">Everything Lytmoz has built and runs for you.</p></div></div>
 <div id="sites" class="stack"></div>
+<section class="card stack" id="accounts-card" hidden><h2 style="font-size:18px">Your accounts</h2><p class="muted" style="margin:0;font-size:14px">The services your system runs on. They are registered to you, and Lytmoz is given access to manage them.</p><div id="accounts"></div></section>
 </section>
 
 <section data-v="services" class="stack" hidden>
@@ -285,6 +286,15 @@
     });
   }
 
+  function loadAccounts() {
+    return sb.from('client_services').select('service, label, account_email, owner, lytmoz_access, status, renews_on').neq('status', 'paused').order('service').then(check).then(function (rows) {
+      $('accounts-card').hidden = !rows.length;
+      $('accounts').innerHTML = rows.map(function (r) {
+        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.service + (r.label ? ' · ' + r.label : '')) + '</strong><span>' + esc(r.account_email || '') + (r.owner === 'client' ? ' · Owned by you' : ' · Managed by Lytmoz') + (r.renews_on ? ' · renews ' + r.renews_on : '') + '</span></div>' + (r.status === 'handed_over' ? '<span class="pill grey">Handed over</span>' : '') + '</div>';
+      }).join('');
+    });
+  }
+
   // Service requests
   function loadServices() {
     return sb.from('service_requests').select('*').order('id', { ascending: false }).limit(50).then(check).then(function (rows) {
@@ -408,7 +418,7 @@
       ]) : Promise.resolve([[], []])).then(function (r) {
         render(user, p || null, r[0], r[1]);
         show((location.hash || '').slice(1) || 'overview');
-        return Promise.all([loadThread(), loadSites(), loadServices(), loadFiles(), loadSubs()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
+        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
       });
     });
   }

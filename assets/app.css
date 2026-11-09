@@ -123,3 +123,6 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .ios-hint .card{box-shadow:0 12px 40px rgba(0,0,0,.5)}
 #install-app .ic{width:16px;height:16px}
 @media (display-mode: standalone){.top{padding-top:env(safe-area-inset-top)}}
+.item select{width:auto;flex:none;max-width:150px}
+.item .btn{flex:none}
+@media (max-width:520px){.item{flex-wrap:wrap}.item .main{flex-basis:calc(100% - 60px)}.item select{margin-left:52px}}

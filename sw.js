@@ -1,8 +1,8 @@
 // Lytmoz app helper: makes the Client HQ and HQ open fast and survive weak data.
 // Pages: network first, saved copy if offline. Static files: saved copy first.
 // Database and login requests are never stored.
-const CACHE = 'lytmoz-app-v1';
-const SHELL = ['/portal.html', '/admin.html', '/config.js?v=3', '/assets/api.js?v=3', '/assets/app.css?v=5',
+const CACHE = 'lytmoz-app-v2';
+const SHELL = ['/portal.html', '/admin.html', '/config.js?v=3', '/assets/api.js?v=3', '/assets/app.css?v=6',
   '/assets/favicon.svg', '/assets/icon-192.png', '/assets/hq-192.png', '/offline.html'];
 
 self.addEventListener('install', (e) => {

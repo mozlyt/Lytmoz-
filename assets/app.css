@@ -197,3 +197,16 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .oc-mem strong{display:block;font-size:13.5px}.oc-mem span{font-size:12px;color:var(--muted)}
 .tog{flex-direction:row;align-items:center;gap:8px;font-weight:500;min-height:32px}.tog input{width:18px;height:18px;accent-color:var(--copper)}
 body.staff-mode .hq-nav .nav-i:not([data-tab="company"]),body.staff-mode .hq-nav .ws,body.staff-mode .stats{display:none}
+
+/* Organization overview, as in the Stage 1 plan */
+.co-owner{display:flex;gap:22px;align-items:center;border:1.5px solid var(--copper);border-radius:20px;padding:22px 24px;background:linear-gradient(180deg,#1C1915,#151310)}
+.co-crown{flex:none;width:74px;height:74px;border-radius:999px;border:2px solid var(--copper);color:var(--copper);display:inline-flex;align-items:center;justify-content:center}
+.co-crown .ic{width:36px;height:36px}
+.co-link{display:flex;justify-content:center;position:relative;margin:-6px 0}
+.co-link::before{content:"";position:absolute;left:12%;right:12%;top:50%;border-top:1px solid var(--copper);opacity:.55}
+.co-link span{position:relative;background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:8px 22px;font-weight:600}
+.co-assign{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:4px 14px;border-radius:999px;border:1px solid var(--copper);background:transparent;color:var(--text);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.co-assign .ic{width:15px;height:15px;color:var(--copper)}
+.co-chip{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:6px 14px;border-radius:999px;border:0;background:#211E1A;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer}
+.co-chip .ic{width:16px;height:16px;color:var(--copper)}.co-chip b{color:var(--copper)}
+@media (max-width:520px){.co-owner{flex-direction:column;align-items:flex-start;gap:14px;padding:18px}.co-crown{width:58px;height:58px}.co-crown .ic{width:28px;height:28px}}

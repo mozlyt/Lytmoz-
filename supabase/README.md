@@ -40,7 +40,7 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 ## Lytmoz organization (Stage 1: structure and authority)
 
 - **Owner** = a profile with role `admin`. Everyone else who works for Lytmoz is a row in **staff** (added by email with `add_staff`).
-- **departments** (name, purpose, `head`) and **department_members** (person, role in the department). Appointing a head makes them a member automatically. Only the owner appoints heads.
+- **departments** (name, purpose, `head`) and **department_members** (person, `kind`: lead, mentor or member, plus an optional job title). Appointing a head makes them a member automatically. Only the owner appoints heads.
 - **authority_settings.rules** holds what heads and staff may do (`head_manage_members`, `head_edit_department`, `head_see_all`, `staff_see_all`, and `head_assign_work` / `head_review_work` for Stages 2 and 3). The database rules read these, so a switch in HQ → Organization → Authority Settings takes effect immediately.
 - Staff and heads sign in at `admin.html` and see the Organization section only (`my_org_role()` decides). They cannot read clients, projects or billing.
 - Not to be confused with **organizations**, which are client businesses.

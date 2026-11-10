@@ -44,3 +44,11 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **authority_settings.rules** holds what heads and staff may do (`head_manage_members`, `head_edit_department`, `head_see_all`, `staff_see_all`, and `head_assign_work` / `head_review_work` for Stages 2 and 3). The database rules read these, so a switch in HQ → Organization → Authority Settings takes effect immediately.
 - Staff and heads sign in at `admin.html` and see the Organization section only (`my_org_role()` decides). They cannot read clients, projects or billing.
 - Not to be confused with **organizations**, which are client businesses.
+
+## Staff invitations and workspace (Stage 1)
+
+- People join Lytmoz only through **staff_invites** (HQ → People & Roles → Invite a member). Each invitation has a secret 64-character link (`/join.html?t=…`), one email, one department, a role (member, team lead, mentor), optional position and who they report to. It expires after 7 days; HQ can send it again (extends it) or revoke it.
+- `invite_info(token)` shows the invited person what they are accepting. `accept_invite(token)` (signed in, matching email) or the **staff-join** edge function (no account yet) creates the organization membership. New staff get `profiles.role = 'staff'`, never `client`.
+- Department heads can invite into their own department only when Authority Settings → `head_invite` is on (off by default).
+- **dept_posts** is department communication, readable and writable by that department and the owner.
+- Staff and heads sign in at `admin.html` and get their own workspace (Overview, My Work, Submissions, Department, Messages, My Profile). Changes to staff, departments, memberships, invitations and authority are recorded in `activity_logs`.

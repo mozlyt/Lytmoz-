@@ -196,7 +196,9 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .oc-mem{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
 .oc-mem strong{display:block;font-size:13.5px}.oc-mem span{font-size:12px;color:var(--muted)}
 .tog{flex-direction:row;align-items:center;gap:8px;font-weight:500;min-height:32px}.tog input{width:18px;height:18px;accent-color:var(--copper)}
-body.staff-mode .hq-nav .nav-i:not([data-tab="company"]),body.staff-mode .hq-nav .ws,body.staff-mode .stats{display:none}
+body.staff-mode .hq-nav .nav-i:not([data-tab="company"]):not([data-tab="ws"]),body.staff-mode .hq-nav .ws,body.staff-mode .stats{display:none}
+body:not(.staff-mode) .hq-nav .nav-i[data-tab="ws"]{display:none}
+body.staff-mode:not(.is-head) .hq-nav .nav-i[data-tab="company"]:not([data-co-tab="chart"]){display:none}
 
 /* Organization overview, as in the Stage 1 plan */
 .co-owner{display:flex;gap:22px;align-items:center;border:1.5px solid var(--copper);border-radius:20px;padding:22px 24px;background:linear-gradient(180deg,#1C1915,#151310)}
@@ -210,3 +212,10 @@ body.staff-mode .hq-nav .nav-i:not([data-tab="company"]),body.staff-mode .hq-nav
 .co-chip{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:6px 14px;border-radius:999px;border:0;background:#211E1A;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer}
 .co-chip .ic{width:16px;height:16px;color:var(--copper)}.co-chip b{color:var(--copper)}
 @media (max-width:520px){.co-owner{flex-direction:column;align-items:flex-start;gap:14px;padding:18px}.co-crown{width:58px;height:58px}.co-crown .ic{width:28px;height:28px}}
+
+/* Message bubbles (shared) and the staff workspace */
+.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}
+.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+button.tile{text-align:left;font:inherit;color:inherit}
+.join-kv .kv{padding:11px 0;border-bottom:1px solid var(--line);justify-content:space-between}

@@ -189,16 +189,17 @@
 <label style="flex:2 1 220px">Project (optional)<select name="project" id="sub-project"><option value="">None</option></select></label>
 </div>
 <div class="row" style="gap:12px">
-<label style="flex:2 1 200px">Plan<input name="plan" required maxlength="120" placeholder="Monthly care"></label>
+<label style="flex:2 1 200px">Plan name<input name="plan" required maxlength="120" placeholder="Website care and maintenance"></label>
 <label style="flex:1 1 110px">Amount<input name="amount" type="number" min="0" step="0.01" required></label>
-<label style="flex:1 1 90px">Currency<select name="currency"><option>USD</option><option>GHS</option><option>NGN</option></select></label>
+<label style="flex:1 1 90px">Currency<select name="currency"><option>GHS</option><option>USD</option><option>NGN</option></select></label>
 <label style="flex:1 1 110px">Every<select name="interval"><option value="month">Month</option><option value="year">Year</option></select></label>
 <label style="flex:1 1 150px">Next renewal<input name="renews" type="date"></label>
 </div>
+<p class="muted" style="margin:0;font-size:13px">Each client can have several subscriptions at their own agreed prices. Link a project so invoices reach the right client.</p>
 <button class="btn small" type="submit" style="align-self:flex-start">Add subscription</button>
 </form>
 <div class="card stack"><h2 style="font-size:18px">All subscriptions</h2>
-<div class="table"><table><thead><tr><th>Client</th><th>Plan</th><th>Amount</th><th>Renews</th><th>Status</th></tr></thead><tbody id="subs"></tbody></table></div></div>
+<div class="table"><table><thead><tr><th>Client</th><th>Plan</th><th>Amount</th><th>Renews</th><th>Status</th><th>Actions</th></tr></thead><tbody id="subs"></tbody></table></div></div>
 </section>
 
 <section data-panel="orgs" class="stack" hidden>
@@ -275,7 +276,7 @@
   function load() {
     sb.rpc('admin_overview').then(check).then(function (o) {
       $('s-leads').textContent = o.leadsThisMonth; $('nb-svc').textContent = o.newServiceRequests || 0; $('nb-svc').hidden = !o.newServiceRequests; $('nb-infra').textContent = o.infraRenewalsDue || 0; $('nb-infra').hidden = !o.infraRenewalsDue; $('nb-pay').textContent = o.pendingPayments || 0; $('nb-pay').hidden = !o.pendingPayments; $('s-active').textContent = o.activeProjects;
-      $('s-care').textContent = money((o.recurringCents || 0) + o.monthlyCareCents); $('s-care').title = (o.activeSubscriptions || 0) + ' active subscriptions' + (o.renewalsDue ? ' · ' + o.renewalsDue + ' renewing this week' : ''); $('s-due').textContent = Object.keys(o.invoicesDueBy || {}).map(function (c) { return money(o.invoicesDueBy[c], c); }).join(' + ') || money(0);
+      var rec = Object.assign({}, o.recurringBy || {}); if (o.monthlyCareCents) rec.USD = (rec.USD || 0) + o.monthlyCareCents; $('s-care').textContent = Object.keys(rec).map(function (c) { return money(rec[c], c); }).join(' + ') || money(0); $('s-care').title = (o.activeSubscriptions || 0) + ' active subscriptions' + (o.renewalsDue ? ' · ' + o.renewalsDue + ' renewing this week' : ''); $('s-due').textContent = Object.keys(o.invoicesDueBy || {}).map(function (c) { return money(o.invoicesDueBy[c], c); }).join(' + ') || money(0);
     }).catch(fail);
     sb.from('leads').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (leads) {
       $('leads').innerHTML = leads.length ? leads.map(function (l) {
@@ -385,24 +386,28 @@
   // Subscriptions, businesses, activity
   var people = {}, projectsById = {};
   function loadExtra() {
-    Promise.all([
+    sb.rpc('apply_price_changes').then(function () {}, function () {}).then(function () { return Promise.all([
       sb.from('profiles').select('id, name, email').order('name').limit(1000).then(check),
       sb.from('projects').select('id, name, client_id, organization_id').order('id', { ascending: false }).limit(1000).then(check),
       sb.from('subscriptions').select('*').order('id', { ascending: false }).limit(500).then(check),
       sb.from('organizations').select('id, name, organization_members(profile_id, role)').order('name').limit(500).then(check),
       sb.from('activity_logs').select('*').order('id', { ascending: false }).limit(100).then(check)
-    ]).then(function (r) {
+    ]); }).then(function (r) {
       people = {}; r[0].forEach(function (p) { people[p.id] = p; });
       projectsById = {}; r[1].forEach(function (p) { projectsById[p.id] = p; });
       var label = function (id) { var p = people[id]; return p ? (p.name || p.email) : '—'; };
       var opts = r[0].map(function (p) { return '<option value="' + p.id + '">' + esc((p.name || '') + ' · ' + p.email) + '</option>'; }).join('');
       $('sub-client').innerHTML = opts; $('site-client').innerHTML = opts; $('infra-client').innerHTML = opts;
       $('sub-project').innerHTML = $('site-project').innerHTML = $('infra-project').innerHTML = '<option value="">None</option>' + r[1].map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
+      subsAll = r[2];
       $('subs').innerHTML = r[2].length ? r[2].map(function (x) {
         var soon = x.status === 'active' && x.renews_on && new Date(x.renews_on) <= new Date(Date.now() + 7 * 864e5);
-        return '<tr><td><strong>' + esc(label(x.client_id)) + '</strong>' + (x.project_id && projectsById[x.project_id] ? '<br><span class="muted" style="font-size:12px">' + esc(projectsById[x.project_id].name) + '</span>' : '') + '</td><td>' + esc(x.plan) + '</td><td>' + money(x.amount_cents, x.currency) + ' / ' + x.billing_interval + '</td><td' + (soon ? ' style="color:var(--copper);font-weight:700"' : ' class="muted"') + '>' + (x.renews_on || '—') + '</td><td><select data-sub="' + x.id + '" aria-label="Status">' +
-          ['active', 'paused', 'cancelled'].map(function (s) { return '<option' + (s === x.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></td></tr>';
-      }).join('') : '<tr><td colspan="5" class="muted">No subscriptions yet. Add one above when a client starts a monthly plan.</td></tr>';
+        return '<tr><td><strong>' + esc(label(x.client_id)) + '</strong>' + (x.project_id && projectsById[x.project_id] ? '<br><span class="muted" style="font-size:12px">' + esc(projectsById[x.project_id].name) + '</span>' : '') + '</td><td>' + esc(x.plan) + '</td><td>' + money(x.amount_cents, x.currency) + ' / ' + x.billing_interval +
+          (x.next_amount_from ? '<br><span style="font-size:12px;color:var(--copper)">' + money(x.next_amount_cents, x.currency) + ' from ' + dayFmt(x.next_amount_from) + '</span>' : '') + '</td><td' + (soon ? ' style="color:var(--copper);font-weight:700"' : ' class="muted"') + '>' + (x.renews_on ? dayFmt(x.renews_on) : '—') + '</td><td><select data-sub="' + x.id + '" aria-label="Status">' +
+          ['active', 'paused', 'cancelled'].map(function (s) { return '<option' + (s === x.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></td>' +
+          '<td style="white-space:nowrap"><button type="button" class="btn small ghost" data-sub-edit="' + x.id + '">Edit</button> ' + (x.status === 'active' ? '<button type="button" class="btn small ghost" data-sub-bill="' + x.id + '">Create invoice</button>' : '') + '</td></tr>' +
+          '<tr id="sub-ed-' + x.id + '" hidden><td colspan="6" style="padding:0 0 18px"></td></tr>';
+      }).join('') : '<tr><td colspan="6" class="muted">No subscriptions yet. Add one above when a client starts a monthly plan.</td></tr>';
       $('orgs').innerHTML = r[3].length ? r[3].map(function (o) {
         var mem = (o.organization_members || []).map(function (m) { return '<span class="pill">' + esc(label(m.profile_id)) + (m.role === 'owner' ? ' · owner' : '') + '</span>'; }).join(' ') || '<span class="muted">No members yet</span>';
         var projs = r[1].filter(function (p) { return p.organization_id === o.id; }).map(function (p) { return esc(p.name); }).join(', ') || 'none';
@@ -553,6 +558,98 @@
     var d = Object.fromEntries(new FormData(f)), row = { updated_at: new Date().toISOString() };
     Object.keys(d).forEach(function (k) { row[k] = String(d[k]).trim() || null; });
     sb.from('payment_settings').update(row).eq('id', 1).then(check).then(function () { flash(f, 'Saved'); }).catch(function (err) { flash(f, /momo_number/.test(err.message) ? 'Please check the MoMo number (digits only).' : err.message); });
+  });
+  // Subscriptions: edit, price changes, invoices and history
+  var subsAll = [];
+  function dayFmt(d) { return new Date(String(d).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function subById(id) { return subsAll.filter(function (x) { return x.id === +id; })[0]; }
+  function per(x) { return x.billing_interval === 'year' ? 'year' : 'month'; }
+  function subHistory(x, rows) {
+    var who = function (id) { var p = people[id]; return p ? (p.name || p.email) : 'System'; };
+    return rows.map(function (a) {
+      var d = a.details || {}, out = [], m = function (v) { return money(v, x.currency); };
+      if (a.action === 'insert') out.push('Subscription created at ' + m(d.amount_cents) + ' / ' + (d.billing_interval || 'month'));
+      else if (a.action === 'update') {
+        if (d.amount_cents) out.push('Price changed from ' + m(d.amount_cents.from) + ' to ' + m(d.amount_cents.to));
+        if (d.next_amount_cents && d.next_amount_cents.to != null) out.push('Price change scheduled: ' + m(d.next_amount_cents.to) + (d.next_amount_from && d.next_amount_from.to ? ' from ' + dayFmt(d.next_amount_from.to) : ''));
+        else if (d.next_amount_cents && !d.amount_cents) out.push('Scheduled price change cancelled');
+        if (d.plan) out.push('Plan renamed from "' + d.plan.from + '" to "' + d.plan.to + '"');
+        if (d.status) out.push('Status changed from ' + d.status.from + ' to ' + d.status.to);
+        if (d.billing_interval) out.push('Billing changed to every ' + d.billing_interval.to);
+        if (d.renews_on && d.renews_on.to) out.push('Next renewal set to ' + dayFmt(d.renews_on.to));
+        if (d.currency) out.push('Currency changed to ' + d.currency.to);
+        if (d.project_id) out.push('Linked project changed');
+      }
+      return out.length ? '<div class="item" style="padding:9px 0"><div class="main"><strong style="white-space:normal;font-weight:500">' + esc(out.join('. ')) + '</strong><span>' + when(a.created_at) + ' · ' + esc(who(a.actor)) + '</span></div></div>' : '';
+    }).join('') || '<p class="muted" style="margin:0">No changes recorded yet.</p>';
+  }
+  function openSubEditor(x) {
+    var tr = $('sub-ed-' + x.id), td = tr.firstChild;
+    if (!tr.hidden) { tr.hidden = true; return; }
+    var opt = function (v, t, cur) { return '<option value="' + v + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + esc(t) + '</option>'; };
+    td.innerHTML = '<form data-sub-save="' + x.id + '" class="card stack" style="background:var(--bg)"><h3 style="margin:0;font-size:16px">Edit subscription</h3>' +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Plan name<input name="plan" required maxlength="120" value="' + esc(x.plan) + '"></label>' +
+      '<label style="flex:2 1 200px">Project<select name="project">' + opt('', 'None', x.project_id) + Object.keys(projectsById).map(function (k) { return opt(k, projectsById[k].name, x.project_id); }).join('') + '</select></label></div>' +
+      '<div class="row" style="gap:12px"><label style="flex:1 1 120px">Amount<input name="amount" type="number" min="0" step="0.01" required value="' + x.amount_cents / 100 + '"></label>' +
+      '<label style="flex:1 1 90px">Currency<select name="currency">' + ['GHS', 'USD', 'NGN'].map(function (c) { return opt(c, c, x.currency); }).join('') + '</select></label>' +
+      '<label style="flex:1 1 110px">Every<select name="interval">' + opt('month', 'Month', x.billing_interval) + opt('year', 'Year', x.billing_interval) + '</select></label>' +
+      '<label style="flex:1 1 150px">Next renewal<input name="renews" type="date" value="' + esc(x.renews_on || '') + '"></label>' +
+      '<label style="flex:1 1 120px">Status<select name="status">' + ['active', 'paused', 'cancelled'].map(function (v) { return opt(v, v, x.status); }).join('') + '</select></label></div>' +
+      (x.next_amount_from ? '<p style="margin:0;font-size:14px;color:var(--copper)">Scheduled: ' + money(x.next_amount_cents, x.currency) + ' / ' + per(x) + ' from ' + dayFmt(x.next_amount_from) + '. <button type="button" class="linkish" data-sub-unsched="' + x.id + '">Cancel this change</button></p>' : '') +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 220px">If you change the amount, the new price starts<select name="when"><option value="renewal">At the next renewal</option><option value="now">Now</option><option value="date">On a date I choose</option></select></label>' +
+      '<label style="flex:1 1 150px">Start date<input name="from" type="date" disabled></label></div>' +
+      '<label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" name="tell" checked style="width:auto">Tell the client about a price change in their Messages</label>' +
+      '<p class="muted" style="margin:0;font-size:13px">Invoices already created keep their amount. Only future invoices use the new price.</p>' +
+      '<div class="row"><button class="btn small" type="submit">Save changes</button><p class="msg" role="status" style="margin:0"></p></div>' +
+      '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:6px"><div><h4 style="margin:0 0 6px;font-size:14px">Invoices for this subscription</h4><div data-sub-inv><p class="muted" style="margin:0">Loading…</p></div></div><div><h4 style="margin:0 0 6px;font-size:14px">History</h4><div data-sub-hist><p class="muted" style="margin:0">Loading…</p></div></div></div></form>';
+    tr.hidden = false;
+    Promise.all([
+      sb.from('invoices').select('id, description, amount_cents, paid_cents, currency, status, due_on').eq('subscription_id', x.id).order('id', { ascending: false }).limit(36).then(check),
+      sb.from('activity_logs').select('*').eq('table_name', 'subscriptions').eq('record_id', String(x.id)).order('id', { ascending: false }).limit(40).then(check)
+    ]).then(function (r) {
+      td.querySelector('[data-sub-inv]').innerHTML = r[0].length ? r[0].map(function (i) {
+        var st = i.status === 'paid' ? ['Paid', 'green'] : i.status === 'void' ? ['Void', 'grey'] : i.paid_cents > 0 ? ['Partially paid', ''] : ['Due', ''];
+        return '<div class="item" style="padding:9px 0"><div class="main"><strong style="font-weight:500">' + money(i.amount_cents, i.currency) + ' · ' + esc(i.description) + '</strong><span>LZ-' + String(i.id).padStart(4, '0') + (i.due_on ? ' · due ' + dayFmt(i.due_on) : '') + ' · paid ' + money(i.paid_cents || 0, i.currency) + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span></div>';
+      }).join('') : '<p class="muted" style="margin:0">None yet. Use Create invoice when a period is due.</p>';
+      td.querySelector('[data-sub-hist]').innerHTML = subHistory(x, r[1]);
+    }).catch(fail);
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.name === 'when' && e.target.form && e.target.form.dataset.subSave) { e.target.form.from.disabled = e.target.value !== 'date'; e.target.form.from.required = e.target.value === 'date'; }
+  });
+  document.addEventListener('click', function (e) {
+    var ed = e.target.closest('[data-sub-edit]'), bill = e.target.closest('[data-sub-bill]'), un = e.target.closest('[data-sub-unsched]');
+    if (ed) return openSubEditor(subById(ed.dataset.subEdit));
+    if (un && confirm('Cancel the scheduled price change? The current price stays.')) return sb.from('subscriptions').update({ next_amount_cents: null, next_amount_from: null }).eq('id', +un.dataset.subUnsched).then(check).then(function () { load(); }).catch(fail);
+    if (bill) {
+      var x = subById(bill.dataset.subBill), period = x.renews_on || new Date().toISOString().slice(0, 10);
+      if (!x.project_id) return alert('Link this subscription to a project first (Edit), so the invoice reaches the right client.');
+      var price = x.next_amount_from && x.next_amount_from <= period ? x.next_amount_cents : x.amount_cents;
+      if (!confirm('Create an invoice for ' + x.plan + ': ' + money(price, x.currency) + ', due ' + dayFmt(period) + '?\n\nThe client sees it in Billing straight away, and the next renewal moves forward one ' + per(x) + '.')) return;
+      bill.disabled = true;
+      sb.rpc('bill_subscription', { sub: x.id }).then(check).then(function () { load(); }).catch(function (err) { bill.disabled = false; alert(err.message); });
+    }
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target; if (!f.dataset.subSave) return;
+    e.preventDefault();
+    var x = subById(f.dataset.subSave), d = Object.fromEntries(new FormData(f)), msg = f.querySelector('.msg'), today = new Date().toISOString().slice(0, 10);
+    var amt = Math.round(Number(d.amount) * 100), proj = d.project ? projectsById[d.project] : null, note = '';
+    var row = { plan: d.plan.trim(), project_id: d.project ? +d.project : null, organization_id: proj ? proj.organization_id : x.organization_id, currency: d.currency, billing_interval: d.interval, renews_on: d.renews || null, status: d.status };
+    var say = function (t) { msg.textContent = t; };
+    if (!(amt >= 0)) return say('Enter a valid amount.');
+    if (amt !== x.amount_cents) {
+      var start = d.when === 'now' ? today : d.when === 'date' ? d.from : d.renews;
+      if (d.when === 'renewal' && !start) return say('Set the next renewal date, or choose another start for the new price.');
+      if (d.when === 'date' && !start) return say('Choose the date the new price starts.');
+      if (start <= today) { row.amount_cents = amt; row.next_amount_cents = null; row.next_amount_from = null; }
+      else { row.next_amount_cents = amt; row.next_amount_from = start; }
+      note = 'Your ' + row.plan + ' plan changes from ' + money(x.amount_cents, x.currency) + ' to ' + money(amt, d.currency) + ' per ' + d.interval + ', starting ' + (start <= today ? 'today' : dayFmt(start)) + '. Invoices you already have stay the same. Reply here if you have any questions.';
+    }
+    say('Saving…');
+    sb.from('subscriptions').update(row).eq('id', x.id).then(check)
+      .then(function () { if (note && d.tell && x.client_id) return sb.from('messages').insert({ client_id: x.client_id, text: note, from_admin: true, read_by_admin: true }).then(check); })
+      .then(function () { load(); }).catch(function (err) { say(err.message); });
   });
   function flash(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 2200); }
 

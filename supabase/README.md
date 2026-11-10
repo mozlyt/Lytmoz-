@@ -14,3 +14,10 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **payments**: every payment toward an invoice (deposit, milestone, balance). Clients can only add `pending` payments, never more than the balance. HQ confirms transfers in HQ → Payments.
 - **Edge function `paystack-verify`**: after a client pays online in the portal, it asks Paystack whether the money arrived and records a confirmed payment. Needs the secret `PAYSTACK_SECRET_KEY` (Supabase → Edge Functions → Secrets). Without it, online payments still work but wait in HQ → Payments for a manual confirm.
 - The Paystack **public** key is in `config.js`. Online payment shows on GHS invoices.
+
+## Subscriptions
+
+- **subscriptions**: one row per agreed recurring plan. A client can have several, each at its own price.
+- **Price changes**: `next_amount_cents` + `next_amount_from` hold an agreed change that has not started. `apply_price_changes()` (run when HQ opens) moves it into `amount_cents` once the date arrives.
+- **`bill_subscription(sub)`**: HQ → Subscriptions → Create invoice. Raises the invoice for the coming period at the price in force, then moves the renewal forward. Invoices keep their own amount, so later price edits never change them (`invoices.subscription_id` links them back).
+- **History**: every change is recorded in `activity_logs` with who made it; HQ shows it under Edit.

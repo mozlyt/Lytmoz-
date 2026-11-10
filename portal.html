@@ -525,6 +525,10 @@
         }).catch(function (err) { LZ.setMsg(msg, err.message, 'err'); btn.disabled = false; });
     }
   });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-plan-ask]'), t = a && document.querySelector('#msg-form textarea');
+    if (t) { t.value = 'About my ' + a.dataset.planAsk + ' plan: I would like to '; setTimeout(function () { t.focus(); }, 50); }
+  });
   function badge(view, n) { var b = $('nb-' + view); if (!b) return; b.textContent = n; b.hidden = !n; }
   var ICON = function (n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
   var empty = function (t) { return '<p class="muted" style="margin:0">' + t + '</p>'; };
@@ -605,7 +609,7 @@
     return sb.from('client_services').select('service, label, account_email, owner, lytmoz_access, status, renews_on').neq('status', 'paused').order('service').then(check).then(function (rows) {
       $('accounts-card').hidden = !rows.length;
       $('accounts').innerHTML = rows.map(function (r) {
-        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.service + (r.label ? ' · ' + r.label : '')) + '</strong><span>' + esc(r.account_email || '') + (r.owner === 'client' ? ' · Owned by you' : ' · Managed by Lytmoz') + (r.renews_on ? ' · next payment ' + day(r.renews_on) : '') + '</span></div>' + (r.status === 'handed_over' ? '<span class="pill grey">Handed over</span>' : '') + '</div>';
+        return '<div class="item">' + ICON('doc') + '<div class="main"><strong>' + esc(r.service + (r.label ? ' · ' + r.label : '')) + '</strong><span>' + esc(r.account_email || '') + (r.owner === 'client' ? ' · Owned by you' : ' · Managed by Lytmoz') + (r.renews_on ? ' · renews ' + day(r.renews_on) : '') + '</span></div>' + (r.status === 'handed_over' ? '<span class="pill grey">Handed over</span>' : '') + '</div>';
       }).join('');
     });
   }
@@ -717,7 +721,7 @@
       $('plan-card').hidden = !rows.length;
       $('subs').innerHTML = rows.length ? rows.map(function (r) {
         var l = lab[r.status] || [r.status, ''];
-        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + esc(r.plan) + '</strong><span>' + money(r.amount_cents, r.currency) + ' / ' + r.billing_interval + (r.renews_on && r.status === 'active' ? ' · renews ' + r.renews_on : '') + '</span></div><span class="pill ' + l[1] + '">' + l[0] + '</span></div>';
+        return '<div class="item">' + ICON('billing') + '<div class="main"><strong>' + esc(r.plan) + '</strong><span>' + money(r.amount_cents, r.currency) + ' / ' + r.billing_interval + (r.renews_on && r.status === 'active' ? ' · next payment ' + day(r.renews_on) : '') + (r.next_amount_from && r.status !== 'cancelled' ? ' · changes to ' + money(r.next_amount_cents, r.currency) + ' from ' + day(r.next_amount_from) : '') + '</span></div>' + (r.status !== 'cancelled' ? '<button type="button" class="btn small ghost" data-go="support" data-plan-ask="' + esc(r.plan) + '">Request a change</button>' : '') + '<span class="pill ' + l[1] + '">' + l[0] + '</span></div>';
       }).join('') : empty('No monthly plan yet. Care plans start when your project launches.');
     });
   }

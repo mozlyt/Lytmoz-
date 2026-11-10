@@ -684,7 +684,7 @@
   });
   // Settings: every Lytmoz setting in one place. Website wording is edited as a draft, previewed, then published.
   var SET_MENU = [
-    ['org', 'org', 'Organization', 'Contact number and social pages shown across Lytmoz.'],
+    ['org', 'pin', 'Business details', 'Contact number and social pages shown across Lytmoz.'],
     ['web', 'web', 'Website & Public Content', 'The home page and every other public page.'],
     ['services', 'case', 'Services & Expertise', 'Services clients can request and the specialists you work with.'],
     ['consult', 'chat', 'Consultation & Intake', 'How a consultation is done, its levels, and where lawyers come in.'],
@@ -772,7 +772,8 @@
   var NOTE = function (t) { return '<p class="muted" style="margin:0;font-size:13px">' + t + '</p>'; };
   function setRender() {
     var v = setStack[setStack.length - 1], out, page = v.indexOf('page:') === 0 ? SITE_PAGES.filter(function (p) { return p[0] === v.slice(5); })[0] : null;
-    if (v === 'menu') out = '<div class="head">' + IC('gear') + '<div><h2 class="serif" style="font-size:28px;line-height:1.1">Settings</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Everything about how Lytmoz runs and what the public sees.</p></div></div>' + rows(SET_MENU);
+    if (v === 'menu') out = '<div class="head">' + IC('gear') + '<div><h2 class="serif" style="font-size:28px;line-height:1.1">Settings</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Choose what you want to set up.</p></div></div>' + rows([['orgmenu', 'org', 'Organization', 'Everything about how Lytmoz runs and what the public sees.']]);
+    else if (v === 'orgmenu') out = screen('org', 'Organization', 'Everything about how Lytmoz runs and what the public sees.', rows(SET_MENU));
     else if (v === 'web') out = screen('web', 'Website & Public Content', 'Choose a page to edit.', rows([['home', 'home', 'Home page', 'lytmoz.com']].concat(SITE_PAGES.map(function (p) { return ['page:' + p[0], p[1], p[2], 'lytmoz.com' + p[3]]; }))));
     else if (v === 'home') out = screen('home', 'Home page', 'Choose a section to edit.', rows(HOME_SECTIONS));
     else if (v === 'home:hero') out = screen('home', 'Introduction', 'Home page', editor(v));
@@ -781,12 +782,12 @@
     else if (page) out = screen(page[1], page[2], 'lytmoz.com' + page[3], '<div class="card stack" id="set-form">' + fieldsHtml([['p.' + page[0] + '.eyebrow', 'Small label'], ['p.' + page[0] + '.heading', 'Main heading'], ['p.' + page[0] + '.lead', 'Introduction', 1]]) + NOTE('The rest of this page (what you get, pricing cards, questions) is not editable here yet. <a href="' + page[3] + '" target="_blank" rel="noopener">Open the page</a>') + '</div>');
     else if (v === 'consult') out = screen('chat', 'Consultation & Intake', 'How a consultation is explained on the home page.', editor('consult', NOTE('The questions on the consultation form itself (name, WhatsApp, idea) are fixed for now.')) + rows([['tab:leads', 'inbox', 'Consultation requests', 'Open the requests people have sent.']]));
     else if (v === 'pricing') out = screen('tag', 'Public prices', 'The three plans shown on the home page.', editor('pricing', NOTE('Changing a price here only changes what visitors see. Invoices and subscriptions you already created keep their amounts. The short price cards on the separate service pages are not linked yet.')));
-    else if (v === 'org') out = screen('org', 'Organization', 'Used on every public page once published.', editor('org', NOTE('Leave a field empty to keep what the site uses now. The email address for alerts is fixed in the site files for now.')));
+    else if (v === 'org') out = screen('pin', 'Business details', 'Used on every public page once published.', editor('org', NOTE('Leave a field empty to keep what the site uses now. The email address for alerts is fixed in the site files for now.')));
     else if (v === 'services') out = screen('case', 'Services & Expertise', 'What clients can ask for and who you bring in.', editor('services'));
     else if (v === 'flow') out = screen('flow', 'Workflows & Projects', 'How work moves from first contact to monthly care.', info(LZ.stages.map(function (s, i) { return ['Stage ' + (i + 1) + ' · ' + esc(s), 'Shown to clients as their project moves forward.']; })) + NOTE('Stage names are fixed for now.') + rows([['tab:projects', 'projects', 'Clients & projects', 'Move a project between stages, post updates, add invoices.'], ['tab:requests', 'edit', 'Change requests', 'What clients have asked to change.'], ['tab:svc', 'services', 'Service requests', 'New work clients have asked for.']]));
     else if (v === 'billing') out = screen('wallet', 'Billing & Pricing', 'What clients are charged and how they pay.', rows([['pricing', 'tag', 'Public prices', 'The plans and prices shown on the website.'], ['tab:payments', 'billing', 'Payment details', 'Your Mobile Money and bank details, and payments to confirm.'], ['tab:subs', 'subs', 'Subscriptions', 'Recurring plans, price changes and renewals.']]) + info([['Online payment', LZ.cfg.paystackKey ? 'Paystack is connected for card and Mobile Money on GHS invoices.' : 'No online payment key is set.'], ['Invoice currencies', 'GHS, USD and NGN. A client can pay an invoice in parts.']]));
     else if (v === 'team') out = screen('members', 'Team & Permissions', 'Who can sign in and what they can do.', rows([['tab:members', 'members', 'Members', 'Create client logins and see everyone with an account.'], ['tab:orgs', 'biz', 'Businesses', 'Group several logins under one client business.']]) + info([['HQ admin', 'Sees and manages everything in Lytmoz HQ.'], ['Business owner (client)', 'Assigns work, manages their team, sees projects, files and billing.'], ['Business member (client)', 'Does assigned work, joins discussions, sees the business\'s projects, files and billing.']]) + NOTE('Roles are fixed for now. Custom permissions are not built yet.'));
-    else if (v === 'notify') out = screen('bell', 'Notifications & Integrations', 'Where alerts go and what Lytmoz is connected to.', info([['Email alerts to HQ', 'New consultations, messages, service requests and payments are emailed to ' + esc(LZ.cfg.email || 'the address in the site files') + '.'], ['WhatsApp', 'Chat buttons open a conversation with +' + esc(siteWork.text['org.whatsapp'] || LZ.cfg.whatsapp || '') + '. Change it under Organization.'], ['Paystack', LZ.cfg.paystackKey ? 'Connected for online payments. The secret key is kept in Supabase, never in the website.' : 'Not connected.'], ['Supabase', 'Stores accounts, projects, billing and these settings.'], ['Client alerts', 'Clients see updates inside their portal. They are not emailed or sent WhatsApp messages automatically yet.']]) + NOTE('These are shown for reference. They cannot be switched from here yet.'));
+    else if (v === 'notify') out = screen('bell', 'Notifications & Integrations', 'Where alerts go and what Lytmoz is connected to.', info([['Email alerts to HQ', 'New consultations, messages, service requests and payments are emailed to ' + esc(LZ.cfg.email || 'the address in the site files') + '.'], ['WhatsApp', 'Chat buttons open a conversation with +' + esc(siteWork.text['org.whatsapp'] || LZ.cfg.whatsapp || '') + '. Change it under Business details.'], ['Paystack', LZ.cfg.paystackKey ? 'Connected for online payments. The secret key is kept in Supabase, never in the website.' : 'Not connected.'], ['Supabase', 'Stores accounts, projects, billing and these settings.'], ['Client alerts', 'Clients see updates inside their portal. They are not emailed or sent WhatsApp messages automatically yet.']]) + NOTE('These are shown for reference. They cannot be switched from here yet.'));
     else { setStack = ['menu']; return setRender(); }
     $('set-view').innerHTML = out;
     $('set-versions-card').hidden = v !== 'menu';
@@ -809,8 +810,8 @@
   }
   function siteCheck() {
     var wa = siteWork.text['org.whatsapp'] || '';
-    if (wa && !/^\d{9,15}$/.test(wa)) throw new Error('Organization: the WhatsApp number should be digits only with the country code, for example 233538729743.');
-    ['facebook', 'instagram', 'tiktok', 'linkedin'].forEach(function (s) { var u = siteWork.text['org.' + s] || ''; if (u && !/^https:\/\/[^\s"'<>]+$/.test(u)) throw new Error('Organization: the ' + s + ' link should start with https://'); });
+    if (wa && !/^\d{9,15}$/.test(wa)) throw new Error('Business details: the WhatsApp number should be digits only with the country code, for example 233538729743.');
+    ['facebook', 'instagram', 'tiktok', 'linkedin'].forEach(function (s) { var u = siteWork.text['org.' + s] || ''; if (u && !/^https:\/\/[^\s"'<>]+$/.test(u)) throw new Error('Business details: the ' + s + ' link should start with https://'); });
     return siteWork;
   }
   function siteSave() {

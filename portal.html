@@ -837,6 +837,12 @@
   }
   function load(user) {
     me = user;
+    // Services list is set in Lytmoz HQ > Settings
+    sb.rpc('public_site').then(function (r) {
+      var list = r.data && r.data.services, sel = document.querySelector('#service-form select[name="service"], select[name="service"]');
+      if (!sel || !Array.isArray(list) || !list.length) return;
+      sel.textContent = ''; list.forEach(function (x) { var o = document.createElement('option'); o.textContent = x; sel.appendChild(o); });
+    }, function () {});
     return loadTeam().catch(function () {}).then(function () {
       return sb.from('projects').select('*').order('id', { ascending: false }).limit(50).then(check);
     }).then(function (rows) {

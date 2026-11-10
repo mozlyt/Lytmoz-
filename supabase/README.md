@@ -27,3 +27,10 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **team_tasks**: work assigned inside a client's business (title, instructions, assignee, due date, status, optional project). Owners assign, edit and delete. The person assigned can only move the status.
 - **team_posts**: the team discussion. `task_id` empty = general discussion; set = comments on that task.
 - **Privacy**: database rules limit both tables to members of that business. Other businesses cannot see them, and they are not shown in Lytmoz HQ.
+
+## HQ Settings (website wording and services)
+
+- **site_settings** (one row): `draft` is what HQ is editing, `published` is what the public sees. **site_versions** keeps the last 30 published copies.
+- HQ → Settings edits the draft. **Preview** opens `lytmoz.com/?preview=1` (admins only). **Publish** runs `publish_site()`.
+- The homepage reads `public_site()` on load and replaces the text of elements marked `data-lz="key"`, the specialists list and the questions. The text written in `index.html` is the fallback and what HQ shows before anything is published. The portal's "Request a service" list comes from the same published copy.
+- To make another piece of homepage text editable: add `data-lz="some.key"` to its element and add the key to `SITE_GROUPS` in `admin.html`.

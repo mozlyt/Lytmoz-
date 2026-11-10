@@ -32,5 +32,7 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 
 - **site_settings** (one row): `draft` is what HQ is editing, `published` is what the public sees. **site_versions** keeps the last 30 published copies.
 - HQ → Settings edits the draft. **Preview** opens `lytmoz.com/?preview=1` (admins only). **Publish** runs `publish_site()`.
+- HQ → Settings is a menu (Organization, Website & Public Content, Services & Expertise, Consultation & Intake, Workflows & Projects, Billing & Pricing, Team & Permissions, Notifications & Integrations). Website & Public Content lists every public page.
+- Every public page loads `assets/content.js`, which applies the published copy (text marked `data-lz`, the WhatsApp number and social links). Service pages use keys `p.<folder>.eyebrow|heading|lead`.
 - The homepage reads `public_site()` on load and replaces the text of elements marked `data-lz="key"`, the specialists list and the questions. The text written in `index.html` is the fallback and what HQ shows before anything is published. The portal's "Request a service" list comes from the same published copy.
 - To make another piece of homepage text editable: add `data-lz="some.key"` to its element and add the key to `SITE_GROUPS` in `admin.html`.

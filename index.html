@@ -46,6 +46,7 @@ a{color:#C98A5E}a:hover{color:#E2A97F}
 input:focus,textarea:focus{outline:2px solid #C98A5E;outline-offset:1px}
 a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3px}
 [hidden]{display:none!important}
+.lz-cases::-webkit-scrollbar{display:none}.lz-dot{width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.lz-dot::before{content:"";width:9px;height:9px;border-radius:999px;background:#3A342E;transition:width .25s,background .25s}.lz-dot[aria-current="true"]::before{width:26px;background:#C98A5E}
 .lz-foot{border-top:1px solid #2A2622;background:#0B0A09;color:#A9A096;font-family:Manrope,system-ui,sans-serif}
 .lz-foot a{color:#C9C0B4;text-decoration:none;transition:color .2s}
 .lz-foot a:hover{color:#E2A97F}
@@ -245,7 +246,9 @@ a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3p
 </div>
 </section>
 
-<section id="work" style="max-width: 1240px; margin: 0 auto; padding: 72px 24px; display: flex; flex-wrap: wrap; gap: 36px; align-items: center">
+<section id="work" aria-roledescription="carousel" aria-label="Case studies" style="max-width: 1240px; margin: 0 auto; padding: 72px 0; display: flex; flex-direction: column; gap: 28px">
+<div id="lz-cases" class="lz-cases" tabindex="0" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; align-items: center">
+<article class="lz-case" aria-roledescription="slide" aria-label="MOZLYT" style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 36px; align-items: center">
 <div style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: center">
 <a href="https://mozlyt.com" target="_blank" rel="noopener" aria-label="Open mozlyt.com" style="display: block; width: 100%; max-width: 300px; background: #171513; border: 1px solid #3A342E; border-radius: 44px; padding: 12px; box-sizing: border-box; box-shadow: 0 40px 90px rgba(0,0,0,0.5)">
 <div style="border-radius: 34px; overflow: hidden; aspect-ratio: 9 / 16; background: #0E0D0C"><img src="assets/mozlyt-shot.jpg" width="900" height="1514" loading="lazy" decoding="async" alt="MOZLYT wellness platform, built by Lytmoz, shown on a phone" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block"></div>
@@ -263,6 +266,28 @@ a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3p
 </div>
 <a href="https://mozlyt.com" target="_blank" rel="noopener" style="align-self: flex-start; display: inline-flex; gap: 10px; align-items: center; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 14px 24px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Visit mozlyt.com <span aria-hidden="true">›</span></a>
 </div>
+</article>
+<article class="lz-case" aria-roledescription="slide" aria-label="Abina Community Farm" style="flex: 0 0 100%; scroll-snap-align: start; box-sizing: border-box; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 36px; align-items: center">
+<div style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: center">
+<div style="display: block; width: 100%; max-width: 300px; background: #171513; border: 1px solid #3A342E; border-radius: 44px; padding: 12px; box-sizing: border-box; box-shadow: 0 40px 90px rgba(0,0,0,0.5)">
+<div style="border-radius: 34px; overflow: hidden; aspect-ratio: 9 / 16; background: #0E0D0C"><img src="assets/abina-shot.jpg" width="900" height="1600" loading="lazy" decoding="async" alt="Abina Community Farm app, built by Lytmoz, showing a cocoa farmer video story on a phone" style="width: 100%; height: 100%; object-fit: cover; object-position: top; display: block"></div>
+</div>
+</div>
+<div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 22px; min-width: 0">
+<span style="font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #C98A5E; font-weight: 700">Case study · Abina Community Farm <span style="border: 1px solid #3A342E; border-radius: 999px; padding: 4px 10px; margin-left: 6px; font-size: 11px; letter-spacing: 1px; color: #C9C0B4; white-space: nowrap">In build</span></span>
+<h2 style="margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size:36px;font-size:clamp(36px, 4.5vw,56px); line-height: 1.04">A farming community turned into a marketplace.</h2>
+<p style="margin: 0; color: #A9A096; font-size: 16px; line-height: 1.7">Farmers show how they grow and process their harvest in short video stories. Buyers follow a farm, open its shop, or order in bulk from a community collection point, all in one app.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Farmer video stories</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Seller shops</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Bulk orders</span>
+<span style="border: 1px solid #3A342E; border-radius: 999px; padding: 8px 14px; font-size: 13px; color: #C9C0B4">Collection points</span>
+</div>
+<a href="#audit" style="align-self: flex-start; display: inline-flex; gap: 10px; align-items: center; background: #C98A5E; color: #0E0D0C; text-decoration: none; font-weight: 700; font-size: 15px; padding: 14px 24px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Build something like this <span aria-hidden="true">›</span></a>
+</div>
+</article>
+</div>
+<div style="display: flex; justify-content: center; align-items: center; gap: 16px; padding: 0 24px"><button type="button" data-case-prev aria-label="Previous case study" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #3A342E; background: #171513; color: #F2EDE4; font-size: 20px; line-height: 1; cursor: pointer">‹</button><div style="display: flex; gap: 2px; align-items: center"><button type="button" data-case-dot="0" aria-label="Show MOZLYT" aria-current="true" class="lz-dot"></button><button type="button" data-case-dot="1" aria-label="Show Abina Community Farm" aria-current="false" class="lz-dot"></button></div><button type="button" data-case-next aria-label="Next case study" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid #3A342E; background: #171513; color: #F2EDE4; font-size: 20px; line-height: 1; cursor: pointer">›</button></div>
 </section>
 
 <section id="consultation" style="background: #171513; border-top: 1px solid #2A2622">
@@ -397,5 +422,26 @@ a:focus-visible,button:focus-visible{outline:2px solid #C98A5E;outline-offset:3p
 </div>
 <script src="config.js?v=4"></script>
 <script src="assets/site.js?v=3"></script>
+<script>
+(function () {
+  var box = document.getElementById('lz-cases'); if (!box) return;
+  var dots = document.querySelectorAll('[data-case-dot]'), n = box.children.length, timer = null, touched = false;
+  function cur() { return Math.round(box.scrollLeft / Math.max(1, box.clientWidth)); }
+  function go(i) { i = (i + n) % n; box.scrollTo({ left: i * box.clientWidth, behavior: 'smooth' }); }
+  function mark() { var c = cur(); dots.forEach(function (d, i) { d.setAttribute('aria-current', i === c ? 'true' : 'false'); }); }
+  function stop() { touched = true; clearInterval(timer); }
+  box.addEventListener('scroll', mark, { passive: true });
+  ['pointerdown', 'touchstart', 'keydown', 'focusin'].forEach(function (ev) { box.addEventListener(ev, stop, { passive: true }); });
+  document.querySelector('[data-case-prev]').addEventListener('click', function () { stop(); go(cur() - 1); });
+  document.querySelector('[data-case-next]').addEventListener('click', function () { stop(); go(cur() + 1); });
+  dots.forEach(function (d, i) { d.addEventListener('click', function () { stop(); go(i); }); });
+  if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (e) {
+      clearInterval(timer);
+      if (e[0].isIntersecting && !touched) timer = setInterval(function () { go(cur() + 1); }, 6000);
+    }, { threshold: 0.5 }).observe(box);
+  }
+})();
+</script>
 </body>
 </html>

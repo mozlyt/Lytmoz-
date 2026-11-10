@@ -170,3 +170,9 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .inv-nums div:last-child strong{font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1.05;font-weight:400}
 .pill.red{background:#3A1E1E;color:#F0A9A0}
 @media (max-width:420px){.inv-nums strong{font-size:15px}.inv-nums div:last-child strong{font-size:22px}}
+
+/* Team: tasks and discussion */
+.task{padding:16px 0;border-top:1px solid var(--line)}
+.task:first-child{border-top:0;padding-top:0}
+.task.done strong{color:var(--muted);text-decoration:line-through}
+.tthread{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto}

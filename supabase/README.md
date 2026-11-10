@@ -21,3 +21,9 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **Price changes**: `next_amount_cents` + `next_amount_from` hold an agreed change that has not started. `apply_price_changes()` (run when HQ opens) moves it into `amount_cents` once the date arrives.
 - **`bill_subscription(sub)`**: HQ → Subscriptions → Create invoice. Raises the invoice for the coming period at the price in force, then moves the renewal forward. Invoices keep their own amount, so later price edits never change them (`invoices.subscription_id` links them back).
 - **History**: every change is recorded in `activity_logs` with who made it; HQ shows it under Edit.
+
+## Team workplace (client side)
+
+- **team_tasks**: work assigned inside a client's business (title, instructions, assignee, due date, status, optional project). Owners assign, edit and delete. The person assigned can only move the status.
+- **team_posts**: the team discussion. `task_id` empty = general discussion; set = comments on that task.
+- **Privacy**: database rules limit both tables to members of that business. Other businesses cannot see them, and they are not shown in Lytmoz HQ.

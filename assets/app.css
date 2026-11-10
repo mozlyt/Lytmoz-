@@ -176,3 +176,24 @@ details summary{cursor:pointer;color:var(--copper);font-weight:600;font-size:13p
 .task:first-child{border-top:0;padding-top:0}
 .task.done strong{color:var(--muted);text-decoration:line-through}
 .tthread{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto}
+
+/* Organization: avatars, department icon, chart, toggles, staff-only view */
+.av{flex:none;width:34px;height:34px;border-radius:999px;background:#2A2520;border:2px solid var(--panel);color:var(--copper);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.av.more{color:var(--soft)}
+.avs{display:inline-flex}.avs .av+.av{margin-left:-10px}
+.co-ic{flex:none;width:46px;height:46px;border-radius:12px;background:#1E1B18;border:1px solid var(--line2);color:var(--copper);display:inline-flex;align-items:center;justify-content:center}
+.co-ic .ic{width:22px;height:22px}
+.oc{overflow-x:auto}
+.oc-top{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.oc-box{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;border:1px solid var(--line2);border-radius:14px;padding:14px 16px;background:#1A1714;min-width:150px}
+.oc-box.own{border-color:var(--copper)}
+.oc-box strong{font-size:14.5px}.oc-box span{font-size:12px;color:var(--muted)}
+.oc-box .oc-dept{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--copper);font-weight:700;margin-bottom:4px}
+.oc-line{width:1px;height:26px;background:var(--line2);margin:0 auto}.oc-line.short{height:16px}
+.oc-row{display:flex;gap:16px;justify-content:center;align-items:flex-start;flex-wrap:wrap;border-top:1px solid var(--line2);padding-top:18px}
+.oc-col{display:flex;flex-direction:column;align-items:stretch;flex:1 1 180px;max-width:260px}
+.oc-members{display:flex;flex-direction:column;gap:8px}
+.oc-mem{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.oc-mem strong{display:block;font-size:13.5px}.oc-mem span{font-size:12px;color:var(--muted)}
+.tog{flex-direction:row;align-items:center;gap:8px;font-weight:500;min-height:32px}.tog input{width:18px;height:18px;accent-color:var(--copper)}
+body.staff-mode .hq-nav .nav-i:not([data-tab="company"]),body.staff-mode .hq-nav .ws,body.staff-mode .stats{display:none}

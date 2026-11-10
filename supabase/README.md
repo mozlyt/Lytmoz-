@@ -36,3 +36,11 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - Every public page loads `assets/content.js`, which applies the published copy (text marked `data-lz`, the WhatsApp number and social links). Service pages use keys `p.<folder>.eyebrow|heading|lead`.
 - The homepage reads `public_site()` on load and replaces the text of elements marked `data-lz="key"`, the specialists list and the questions. The text written in `index.html` is the fallback and what HQ shows before anything is published. The portal's "Request a service" list comes from the same published copy.
 - To make another piece of homepage text editable: add `data-lz="some.key"` to its element and add the key to `SITE_GROUPS` in `admin.html`.
+
+## Lytmoz organization (Stage 1: structure and authority)
+
+- **Owner** = a profile with role `admin`. Everyone else who works for Lytmoz is a row in **staff** (added by email with `add_staff`).
+- **departments** (name, purpose, `head`) and **department_members** (person, role in the department). Appointing a head makes them a member automatically. Only the owner appoints heads.
+- **authority_settings.rules** holds what heads and staff may do (`head_manage_members`, `head_edit_department`, `head_see_all`, `staff_see_all`, and `head_assign_work` / `head_review_work` for Stages 2 and 3). The database rules read these, so a switch in HQ → Organization → Authority Settings takes effect immediately.
+- Staff and heads sign in at `admin.html` and see the Organization section only (`my_org_role()` decides). They cannot read clients, projects or billing.
+- Not to be confused with **organizations**, which are client businesses.

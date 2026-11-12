@@ -765,7 +765,7 @@
   function renderTeam() {
     if (!myOrg) return;
     var keep = {}; document.querySelectorAll('#team [data-keep]').forEach(function (el) { keep[el.dataset.keep] = el.value; });
-    var owner = myOrg.myRole === 'owner', today = new Date().toISOString().slice(0, 10);
+    var owner = myOrg.myRole === 'owner', manage = owner || myOrg.myRole === 'admin', today = new Date().toISOString().slice(0, 10), ROLE = { owner: 'Owner', admin: 'Administrator', member: 'Member' };
     var openT = teamTasks.filter(function (t) { return t.status !== 'done'; }).sort(function (a, b) { return (a.due_on || '9999') < (b.due_on || '9999') ? -1 : (a.due_on || '9999') > (b.due_on || '9999') ? 1 : b.id - a.id; });
     var doneT = teamTasks.filter(function (t) { return t.status === 'done'; });
     var myOpen = openT.filter(function (t) { return t.assignee === me.id; }).length;
@@ -791,11 +791,11 @@
     } else if (teamTab === 'members') {
       out += '<section class="card stack"><h2 style="font-size:18px">Members</h2><div>' + myOrg.members.map(function (m) {
         var n = openT.filter(function (t) { return t.assignee === m.id; }).length;
-        return '<div class="item">' + ICON('team') + '<div class="main"><strong>' + esc(m.name || m.email) + (m.id === me.id ? ' (you)' : '') + '</strong><span>' + esc(m.email) + ' · ' + (n ? n + ' open task' + (n === 1 ? '' : 's') : 'no open tasks') + '</span></div><span class="pill ' + (m.role === 'owner' ? '' : 'grey') + '">' + (m.role === 'owner' ? 'Owner' : 'Member') + '</span>' +
-          (owner && m.id !== me.id ? '<button type="button" class="btn small ghost" data-remove-member="' + m.id + '" aria-label="Remove ' + esc(m.name || m.email) + '">Remove</button>' : '') + '</div>';
+        return '<div class="item">' + ICON('team') + '<div class="main"><strong>' + esc(m.name || m.email) + (m.id === me.id ? ' (you)' : '') + '</strong><span>' + esc(m.email) + ' · ' + (n ? n + ' open task' + (n === 1 ? '' : 's') : 'no open tasks') + '</span></div>' + (owner && m.id !== me.id ? '<select data-set-role="' + m.id + '" aria-label="Role for ' + esc(m.name || m.email) + '" style="width:auto;flex:none;padding:7px 10px;font-size:13px">' + ['member', 'admin', 'owner'].map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + ROLE[r] + '</option>'; }).join('') + '</select>' : '<span class="pill ' + (m.role === 'member' ? 'grey' : '') + '">' + ROLE[m.role] + '</span>') + '<span hidden></span>' +
+          ((owner && m.id !== me.id) || (!owner && manage && m.role === 'member' && m.id !== me.id) ? '<button type="button" class="btn small ghost" data-remove-member="' + m.id + '" aria-label="Remove ' + esc(m.name || m.email) + '">Remove</button>' : '') + '</div>';
       }).join('') + '</div></section>' +
-        (owner ? '<form id="member-form" class="card stack"><h2 style="font-size:18px">Add a team member</h2><p class="muted" style="margin:0;font-size:14px">They first create a free account at lytmoz.com/portal.html, then you add their email here. Owners can assign work and manage members. Members do the work assigned to them and join discussions.</p><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Their email<input type="email" name="email" required></label><label style="flex:1 1 130px">Role<select name="role"><option value="member">Member</option><option value="owner">Owner</option></select></label><button class="btn" type="submit">' + ICON('plus') + 'Add</button></div><p class="msg" id="member-msg" role="status"></p></form>'
-          : '<p class="muted card" style="margin:0">Only the business owner can add or remove people.</p>');
+        (manage ? '<form id="member-form" class="card stack"><h2 style="font-size:18px">Add a team member</h2><p class="muted" style="margin:0;font-size:14px">They first create a free account at lytmoz.com/portal.html, then you add their email here. <strong>Owners</strong> assign work and manage everyone. <strong>Administrators</strong> add and remove members for you. <strong>Members</strong> do the work assigned to them and join discussions.</p><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Their email<input type="email" name="email" required></label><label style="flex:1 1 130px">Role<select name="role"><option value="member">Member</option>' + (owner ? '<option value="admin">Administrator</option><option value="owner">Owner</option>' : '') + '</select></label><button class="btn" type="submit">' + ICON('plus') + 'Add</button></div><p class="msg" id="member-msg" role="status"></p></form>'
+          : '<p class="muted card" style="margin:0">Only the business owner and administrators can add or remove people.</p>');
     } else {
       var ev = [], title = function (id) { var t = teamTasks.filter(function (x) { return x.id === id; })[0]; return t ? '"' + t.title + '"' : 'a task'; };
       teamTasks.forEach(function (t) {
@@ -838,6 +838,8 @@
     }
   });
   document.addEventListener('change', function (e) {
+    var sr = e.target.dataset && e.target.dataset.setRole;
+    if (sr) return void sb.rpc('set_team_role', { org: myOrg.id, member: sr, role_: e.target.value }).then(check).then(loadTeam).catch(function (err) { alert(err.message); loadTeam(); });
     var s = e.target.dataset && e.target.dataset.taskStatus; if (!s) return;
     sb.from('team_tasks').update({ status: e.target.value }).eq('id', +s).then(check).then(function () { return loadTeamWork(); }).catch(function (err) { alert(err.message); loadTeamWork(); });
   });

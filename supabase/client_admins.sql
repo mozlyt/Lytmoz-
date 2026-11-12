@@ -1,0 +1,5 @@
+-- Applied as migration `client_portal_admins` (12 Nov 2026).
+-- organization_members.role: owner | admin | member. can_manage_org_people(org) = owner or admin.
+-- add_team_member: owners add anyone with any role; administrators add members only and cannot change an owner/admin.
+-- remove_team_member: owners remove anyone (a business keeps at least one owner); administrators remove members (or themselves).
+-- set_team_role(org, member, role): owner only; the last owner cannot be demoted. Assigning team tasks stays with owners.

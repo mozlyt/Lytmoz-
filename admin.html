@@ -1792,8 +1792,17 @@
   var ICN = function (n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
   function initialsOf(n) { return String(n || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
 
+  function barKeys() { // everything currently reachable from the top bar
+    var k = {}; barMenu().forEach(function (b) { if (b.hidden) return; b.items.forEach(function (i) { if (!i[3]) k[i[0]] = 1; }); }); return k;
+  }
+  function inBar(key, k) { return !!(k[key] || (key.indexOf('reports:') === 0 && k.reports)); }
   function buildShell() {
-    var side = NAV.side.map(function (g) {
+    var bk = barKeys(), known = {}; NAV.side.forEach(function (g) { if (g.key) known[g.key] = 1; (g.items || []).forEach(function (i) { known[i[0]] = 1; }); });
+    var more = Object.keys(PUB).filter(function (k) { return !bk[k] && !known[k]; }).map(function (k) { return [k, PUB[k][0], PUB[k][1]]; });
+    var groups = NAV.side.slice(); if (more.length) groups.splice(groups.length - 1, 0, { id: 'more', icon: 'menu', label: 'More', items: more });
+    var side = groups.map(function (g) {
+      if (g.key && inBar(g.key, bk)) return '';
+      if (!g.key) { g = Object.assign({}, g, { items: g.items.filter(function (i) { return !inBar(i[0], bk); }) }); if (!g.items.length) return ''; }
       if (g.key) return '<button type="button" class="sg-h solo" data-go="' + g.key + '">' + ICN(g.icon) + '<span>' + g.label + '</span></button>';
       return '<div class="sg"><button type="button" class="sg-h" data-sg="' + g.id + '" aria-expanded="' + (g.id === 'org') + '">' + ICN(g.icon) + '<span>' + g.label + '</span>' + ICN('chev', 'sg-chev') + '</button>' +
         '<div class="sg-items" id="sg-' + g.id + '"' + (g.id === 'org' ? '' : ' hidden') + '>' + g.items.map(function (i) { return '<button type="button" class="sg-i" data-go="' + i[0] + '">' + ICN(i[1]) + '<span>' + i[2] + '</span></button>'; }).join('') + '</div></div>';

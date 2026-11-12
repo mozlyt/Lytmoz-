@@ -74,3 +74,10 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - New permissions: `reports.view`, `finance.view`, `finance.approve`, `clients.view`, `support.view`, `support.reply`, `consultations.view`, `consultations.manage`, `invites.request`. Staff with them can read the matching client data; confirming payments and changing a consultation's status are limited to those single changes by triggers.
 - `my_workspace()` returns the signed-in person's positions and permissions; HQ builds their menu from it.
 - **Invitations**: only the owner creates `staff_invites`. HR, executives (with `invites.request`) and department heads (own department) create **invite_requests**; the owner runs `decide_invite_request(id, approve, note)`, which creates the invitation link. An accepted invitation with a `position_id` assigns that position.
+
+## Tasks, submissions and reviews (Milestone 2, `supabase/work_milestone2.sql`)
+
+- **work_items**: one task (title, instructions, assignee, assigned_by, reviewer, priority, due date, optional client project). Status: assigned → in_progress → submitted → returned (correction) → submitted → approved, or cancelled. **work_events** is its history (assigned, started, submitted with note and link, returned with the correction, approved, comments).
+- Changes only through RPCs: `work_assign(...)` and `work_act(item, act, note, link)` with act = start, submit, approve, return, cancel, comment. Nobody can approve their own work; a return needs a note; a submission needs a note or a link.
+- `supervises(person, 'work.assign' | 'work.review')` decides who may direct whom: the owner; executives (level 1–2) with the permission; department heads for their department when Authority Settings allows (`head_assign_work`, `head_review_work`); whoever a member reports to; team leaders for their team. `my_directs()` lists the people you can assign to.
+- HQ: owner → Projects & Tasks → Staff tasks (bell shows work to review). Staff → My Tasks, Submissions, and Team Work for people who assign or review.

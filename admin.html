@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=18">
+<link rel="stylesheet" href="assets/app.css?v=19">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -363,7 +363,7 @@
     document.body.classList.add('owner-mode');
     if (!$('side-nav').firstChild) buildShell();
     $('me-name').textContent = p.name; $('me-av').textContent = initialsOf(p.name);
-    loadHqMenu(); refreshInvReqN();
+    loadHqMenu(); refreshInvReqN(); loadWork();
     if (!hqChat && window.LZChat) hqChat = LZChat.mount($('hq-chat-root'), { me: p, isAdmin: true, onUnread: function (n) { chatUnread = n; paintBadges(); } });
     $('who').textContent = p.name;
     var h = new Date().getHours();
@@ -945,8 +945,8 @@
     ['Add and remove members of their own department', 'head_manage_members', null],
     ['Issue invitation links (heads and HR can ask the owner instead)', null, null],
     ['See every department and the organization chart', 'head_see_all', 'staff_see_all'],
-    ['Assign duties in their department', 'head_assign_work', null, 'Stage 2'],
-    ['Review submitted work', 'head_review_work', null, 'Stage 3']
+    ['Assign duties in their department', 'head_assign_work', null],
+    ['Review submitted work', 'head_review_work', null]
   ];
   function coP(id) { return co.people.filter(function (p) { return p.id === id; })[0]; }
   function coName(id) { var p = coP(id); return p ? p.name : 'Not appointed'; }
@@ -967,7 +967,7 @@
       sb.from('staff_invites').select('*').order('id', { ascending: false }).limit(60).then(check), sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check),
       sb.from('positions').select('*').order('level').order('id').then(check, function () { return []; }), sb.from('invite_requests').select('*').order('id', { ascending: false }).limit(100).then(check, function () { return []; }),
       coOwner() ? Promise.resolve(null) : sb.rpc('my_workspace').then(check, function () { return null; }), sb.from('org_permissions').select('*').order('key').then(check, function () { return []; })
-    ]).then(function (r) { co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); renderWs(); })
+    ]).then(function (r) { co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); renderWs(); loadWork(); })
       .catch(function (err) { $('co-view').innerHTML = $('ws-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
   }
   function deptCard(d) {
@@ -996,6 +996,7 @@
         : '<p class="muted" style="margin:0;font-size:13.5px">Everyone at Lytmoz is already in this department.' + (coOwner() ? ' Add more people under People & Roles.' : '') + '</p>') : '') + '</div>';
   }
   function renderCompany() {
+    if (co.tab === 'tasks') { $('co-title').textContent = 'Staff tasks'; $('co-sub').textContent = 'Assign work, follow it and review what your staff submit.'; $('co-view').innerHTML = co.loaded ? wkTeamHtml() : '<p class="muted">Loading…</p>'; return; }
     if (STRUCT_TABS[co.tab]) return renderStruct();
     var owner = coOwner(), staff = co.people.filter(function (p) { return p.level !== 'owner' }), owners = co.people.filter(function (p) { return p.level === 'owner'; });
     var headed = co.depts.filter(function (d) { return d.head; }).length, placed = {}; co.members.forEach(function (m) { placed[m.profile_id] = 1; });
@@ -1136,7 +1137,7 @@
     if (!$('ws-view') || !co.me) return;
     var mine = wsDepts(), first = String(co.me.name || '').trim().split(/\s+/)[0], h = new Date().getHours(), out = '';
     if (ws.dept === null || !mine.some(function (d) { return d.id === ws.dept; })) ws.dept = mine.length ? mine[0].id : null;
-    var TITLES = { overview: 'My Workspace', work: 'My Tasks', submissions: 'Submissions', department: 'Department', messages: 'Department Room', profile: 'My Profile', meetings: 'Meetings', documents: 'Documents' };
+    var TITLES = { overview: 'My Workspace', work: 'My Tasks', submissions: 'Submissions', department: 'Department', messages: 'Department Room', profile: 'My Profile', meetings: 'Meetings', documents: 'Documents', team: 'Team Work' };
     var wsSec = document.querySelector('[data-panel="ws"]'); if (wsSec) wsSec.classList.toggle('ws-home', ws.tab === 'overview');
     $('ws-title').textContent = TITLES[ws.tab] || (BLOCKS[ws.tab.slice(2)] || [0, 'My Workspace'])[1];
     var names = mine.map(function (d) { return d.name; }), where = !mine.length ? 'You are not in a department yet. The owner will place you in one.' : (mine.some(function (d) { return d.head === co.me.id; }) && mine.length === 1 ? 'You lead the ' : 'You are in the ') + (names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] + ' departments' : names[0] + ' department');
@@ -1150,9 +1151,11 @@
     } else if (ws.tab.indexOf('b:') === 0) {
       out = '<p class="muted">Loading…</p>';
     } else if (ws.tab === 'work') {
-      out = wsEmpty('case', 'No duties yet', 'Work assigned to you by your department head, mentor or the owner will be listed here with its priority, due date and who assigned it. Work assignment opens in Stage 2.');
+      out = wkMineHtml();
     } else if (ws.tab === 'submissions') {
-      out = wsEmpty('doc', 'Nothing submitted yet', 'Work you submit for review will be listed here, with what is awaiting review, approved, or returned for correction. Submissions open with Stage 2 and review with Stage 3.');
+      out = wkSubsHtml();
+    } else if (ws.tab === 'team') {
+      out = wkTeamHtml();
     } else if (ws.tab === 'department') {
       out = mine.length ? mine.map(function (d) {
         var mem = coMembers(d), sup = wsSupervisor(d);
@@ -1244,6 +1247,7 @@
     var html = myBlocks().filter(function (b) { return ['work', 'dept', 'org'].indexOf(b) < 0; }).map(function (b) {
       return '<button type="button" class="nav-i ws-b" role="tab" aria-selected="' + (ws.tab === 'b:' + b) + '" data-tab="ws" data-ws-tab="b:' + b + '">' + IC(BLOCKS[b][0]) + '<span>' + BLOCKS[b][1] + '</span></button>';
     }).join('');
+    if (hasPerm('work.assign') || hasPerm('work.review')) html = '<button type="button" class="nav-i ws-b" role="tab" aria-selected="' + (ws.tab === 'team') + '" data-tab="ws" data-ws-tab="team">' + IC('team') + '<span>Team Work</span><span class="nb" hidden></span></button>' + html;
     anchor.insertAdjacentHTML('afterend', html);
   }
   function posLines(s) { return String(s || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
@@ -1503,9 +1507,8 @@
     var first = String(co.me.name || '').trim().split(/\s+/)[0], h = new Date().getHours(), c = wsClock(), f = wsFocus(), ps = ws.me ? ws.me.positions : [];
     var d0 = mine[0], sup = d0 ? wsSupervisor(d0) : null, role = d0 ? wsRole(d0) : '';
     var title = ps.length ? ps.map(function (p) { return p.title; }).join(' · ') : (coP(co.me.id) || {}).title || 'Lytmoz staff';
-    var quick = [['work', 'case', 'My Tasks', '0'], [f.k ? 'b:' + f.k : 'work', f.icon, f.tile, ''], ['messages', 'chat', 'Team Chat', posts.length ? String(Math.min(posts.length, 99)) : ''], ['meetings', 'activity', 'Meetings', ''], ['documents', 'doc', 'Documents', '']];
-    var tasks = '<div class="wsx-tabs" role="tablist"><button type="button" role="tab" aria-selected="true">Pending (0)</button><button type="button" role="tab" aria-selected="false">In Progress (0)</button><button type="button" role="tab" aria-selected="false">Completed (0)</button></div>' +
-      '<div class="wsx-empty">' + IC('case') + '<p>No tasks yet. When ' + esc(sup && sup.p.id !== co.me.id ? sup.p.name : 'your supervisor') + ' assigns you work, it appears here with its due date.</p></div>';
+    var wc = wkCounts(), quick = [['work', 'case', 'My Tasks', wk.loaded ? String(wc.todo + wc.doing) : ''], [f.k ? 'b:' + f.k : 'work', f.icon, f.tile, ''], ['messages', 'chat', 'Team Chat', posts.length ? String(Math.min(posts.length, 99)) : ''], ['meetings', 'activity', 'Meetings', ''], ['documents', 'doc', 'Documents', '']];
+    var tasks = wkOverviewCard();
     var chat = (posts.slice(0, 3).map(function (p) { return '<div class="wsx-msg">' + avatar(p.author) + '<div><strong>' + esc(p.author === co.me.id ? 'You' : coName(p.author)) + ' <small>· ' + when(p.created_at) + '</small></strong><span>' + esc(p.text) + '</span></div></div>'; }).join('') || '<div class="wsx-empty">' + IC('chat') + '<p>No messages yet. Say hello to your department.</p></div>') +
       (mine.length ? '<form id="ws-post-form" class="wsx-send"><input name="text" maxlength="4000" required placeholder="Type a message…" aria-label="Message your department"><button type="submit" class="wsx-go" aria-label="Send">' + IC('send') + '</button><p class="msg" role="status" hidden></p></form>' : '');
     var cal = wsWeek() + '<div class="wsx-empty" style="padding-top:14px">' + IC('activity') + '<p>No meetings scheduled this week.</p></div>';
@@ -1558,6 +1561,139 @@
     put(none('projects', 'No projects assigned to you yet.'));
   }
 
+  // ===== Milestone 2: tasks, submissions, corrections and approvals =====
+  var wk = { items: [], ev: [], directs: [], projects: [], loaded: false, open: null, tab: 'todo', ttab: 'review', busy: null };
+  var WSTAT = { assigned: ['To do', ''], in_progress: ['In progress', 'blue'], submitted: ['Awaiting review', ''], returned: ['Needs correction', 'red'], approved: ['Approved', 'green'], cancelled: ['Cancelled', 'grey'] };
+  var WPRI = { low: ['Low', 'grey'], normal: ['Normal', 'grey'], high: ['High', ''], urgent: ['Urgent', 'red'] };
+  var WEV = { assigned: 'assigned this task', started: 'started work', submitted: 'submitted the work', returned: 'returned it for correction', approved: 'approved the work', comment: 'commented', cancelled: 'cancelled the task' };
+  function wkMine() { return wk.items.filter(function (w) { return w.assignee === co.me.id; }); }
+  function wkTeam() { return wk.items.filter(function (w) { return w.assignee !== co.me.id; }); }
+  function wkReviewable(w) { return w.status === 'submitted' && w.assignee !== co.me.id; }
+  function wkCanTeam() { return coOwner() || hasPerm('work.assign') || hasPerm('work.review') || wk.items.some(function (w) { return w.assigned_by === co.me.id; }); }
+  function wkActive(w) { return ['assigned', 'in_progress', 'returned'].indexOf(w.status) >= 0; }
+  function wkCounts() { var m = wkMine(); return { todo: m.filter(function (w) { return w.status === 'assigned' || w.status === 'returned'; }).length, doing: m.filter(function (w) { return w.status === 'in_progress'; }).length, sent: m.filter(function (w) { return w.status === 'submitted'; }).length, done: m.filter(function (w) { return w.status === 'approved'; }).length, review: wkTeam().filter(wkReviewable).length }; }
+  function wkDue(w) {
+    if (!w.due_on) return '';
+    var today = new Date(); today.setHours(0, 0, 0, 0); var d = new Date(w.due_on + 'T00:00:00'), diff = Math.round((d - today) / 864e5), done = w.status === 'approved' || w.status === 'cancelled';
+    var label = diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : diff < 0 ? (done ? dayFmt(w.due_on) : 'Overdue · ' + dayFmt(w.due_on)) : dayFmt(w.due_on);
+    return '<span class="wk-due' + (!done && diff < 0 ? ' late' : !done && diff <= 1 ? ' soon' : '') + '">' + label + '</span>';
+  }
+  function loadWork() {
+    if (wk.busy) return wk.busy;
+    var canAssign = coOwner() || hasPerm('work.assign');
+    wk.busy = Promise.all([
+      sb.from('work_items').select('*').order('id', { ascending: false }).limit(500).then(check),
+      sb.from('work_events').select('*').order('id').limit(5000).then(check),
+      canAssign ? sb.rpc('my_directs').then(check, function () { return []; }) : Promise.resolve([]),
+      canAssign && (coOwner() || hasPerm('clients.view')) ? sb.from('projects').select('id, name').order('id', { ascending: false }).limit(300).then(check, function () { return []; }) : Promise.resolve([])
+    ]).then(function (r) {
+      wk.items = r[0] || []; wk.ev = r[1] || []; wk.directs = r[2] || []; wk.projects = r[3] || []; wk.loaded = true; wk.busy = null;
+      wkPaint();
+    }).catch(function (err) { wk.busy = null; console.error(err); });
+    return wk.busy;
+  }
+  function wkPaint() { // redraw whatever is on screen that shows work
+    if (coOwner()) { wkReviewN = wkCounts().review; paintBadges(); if (co.tab === 'tasks' && co.loaded) renderCompany(); return; }
+    var c = wkCounts(), nb = function (tab, n) { var b = document.querySelector('.hq-nav .nav-i[data-ws-tab="' + tab + '"]'); if (!b) return; var s = b.querySelector('.nb'); if (!s) { s = document.createElement('span'); s.className = 'nb'; b.appendChild(s); } s.textContent = n; s.hidden = !n; };
+    nb('work', c.todo); nb('team', c.review);
+    if (['overview', 'work', 'submissions', 'team'].indexOf(ws.tab) >= 0) renderWs();
+  }
+  var wkReviewN = 0;
+  function wkTimeline(w) {
+    var evs = wk.ev.filter(function (e) { return e.item_id === w.id; });
+    return '<ol class="wk-tl">' + evs.map(function (e) {
+      return '<li class="k-' + e.kind + '"><strong>' + esc(e.actor === co.me.id ? 'You' : coName(e.actor)) + '</strong> ' + WEV[e.kind] + ' <small>· ' + when(e.created_at) + '</small>' +
+        (e.text && e.kind !== 'assigned' ? '<p>' + esc(e.text) + '</p>' : '') + (e.link ? '<a href="' + esc(e.link) + '" target="_blank" rel="noopener">' + IC('link') + esc(e.link.replace(/^https?:\/\//, '').slice(0, 60)) + '</a>' : '') + '</li>';
+    }).join('') + '</ol>';
+  }
+  function wkCard(w, mode) {
+    var open = wk.open === w.id, st = WSTAT[w.status], pr = WPRI[w.priority], proj = (wk.projects.filter(function (p) { return p.id === w.project_id; })[0] || {}).name;
+    var meta = mode === 'mine' ? 'From ' + esc(w.assigned_by === co.me.id ? 'you' : coName(w.assigned_by)) : 'For ' + esc(coName(w.assignee)) + (w.assigned_by !== co.me.id ? ' · from ' + esc(coName(w.assigned_by)) : '');
+    var last = wk.ev.filter(function (e) { return e.item_id === w.id && e.kind === 'returned'; }).pop();
+    var body = '';
+    if (open) {
+      var acts = '', live = w.status !== 'approved' && w.status !== 'cancelled';
+      if (mode === 'mine' && live) {
+        if (w.status === 'assigned' || w.status === 'returned') acts += '<button type="button" class="btn small ghost" data-wk-act="start" data-id="' + w.id + '">' + (w.status === 'returned' ? 'Start the correction' : 'Start work') + '</button>';
+        if (w.status !== 'submitted') acts += '<form class="stack wk-form" data-wk-form="submit" data-id="' + w.id + '"><label>' + (w.status === 'returned' ? 'What did you correct?' : 'What did you do?') + '<textarea name="note" rows="3" maxlength="4000" placeholder="Describe the finished work."></textarea></label><label><span>Link to the work <span class="muted" style="font-weight:400">· optional</span></span><input name="link" type="url" maxlength="500" placeholder="https://"></label><div class="row"><button class="btn small" type="submit">Submit for review</button><p class="msg" role="status" style="margin:0"></p></div></form>';
+        else acts += '<p class="muted" style="margin:0;font-size:13.5px">Submitted. Waiting for ' + esc(coName(w.reviewer || w.assigned_by)) + ' to review it.</p>';
+      }
+      if (mode === 'team' && wkReviewable(w)) acts += '<div class="row" style="gap:10px"><button type="button" class="btn small" data-wk-act="approve" data-id="' + w.id + '">Approve</button></div><form class="stack wk-form" data-wk-form="return" data-id="' + w.id + '"><label>Or return it for correction<textarea name="note" rows="2" maxlength="4000" placeholder="Say exactly what needs to change."></textarea></label><div class="row"><button class="btn small ghost" type="submit">Return for correction</button><p class="msg" role="status" style="margin:0"></p></div></form>';
+      if (live) acts += '<form class="row wk-form" data-wk-form="comment" data-id="' + w.id + '" style="gap:8px;align-items:flex-end"><label style="flex:1 1 220px">Comment<input name="note" maxlength="4000" placeholder="Ask a question or give an update"></label><button class="btn small ghost" type="submit">Send</button><p class="msg" role="status" style="margin:0;flex-basis:100%"></p></form>';
+      if (mode === 'team' && live && (coOwner() || w.assigned_by === co.me.id)) acts += '<button type="button" class="linkish" data-wk-act="cancel" data-id="' + w.id + '" style="color:var(--muted);align-self:flex-start">Cancel this task</button>';
+      body = '<div class="wk-body">' + (w.instructions ? '<div class="wk-ins"><small>Instructions</small><p>' + esc(w.instructions) + '</p></div>' : '') + wkTimeline(w) + '<div class="stack" style="gap:12px">' + acts + '</div></div>';
+    }
+    return '<div class="wk' + (open ? ' open' : '') + '"><button type="button" class="wk-h" data-wk-open="' + w.id + '" aria-expanded="' + open + '"><span class="wk-dot s-' + w.status + '"></span><span class="wk-t"><strong>' + esc(w.title) + '</strong><small>' + meta + (proj ? ' · ' + esc(proj) : '') + (w.status === 'returned' && last && last.text && !open ? ' · “' + esc(last.text.slice(0, 80)) + '”' : '') + '</small></span>' +
+      '<span class="wk-pills">' + (w.priority !== 'normal' ? '<span class="pill ' + pr[1] + '">' + pr[0] + '</span>' : '') + '<span class="pill ' + st[1] + '">' + st[0] + '</span>' + wkDue(w) + '</span></button>' + body + '</div>';
+  }
+  function wkTabs(key, list, cur) { return '<div class="tabs" role="tablist">' + list.map(function (t) { return '<button type="button" role="tab" ' + key + '="' + t[0] + '" aria-selected="' + (cur === t[0]) + '">' + t[1] + ' (' + t[2] + ')</button>'; }).join('') + '</div>'; }
+  function wkMineHtml() {
+    if (!wk.loaded) { loadWork(); return '<p class="muted">Loading…</p>'; }
+    var m = wkMine(), groups = { todo: m.filter(function (w) { return w.status === 'assigned' || w.status === 'returned'; }), doing: m.filter(function (w) { return w.status === 'in_progress'; }), sent: m.filter(function (w) { return w.status === 'submitted'; }), done: m.filter(function (w) { return w.status === 'approved' || w.status === 'cancelled'; }) };
+    var list = groups[wk.tab] || groups.todo;
+    return wkTabs('data-wk-tab', [['todo', 'To do', groups.todo.length], ['doing', 'In progress', groups.doing.length], ['sent', 'Submitted', groups.sent.length], ['done', 'Completed', groups.done.length]], wk.tab) +
+      '<div class="stack" style="gap:10px">' + (list.map(function (w) { return wkCard(w, 'mine'); }).join('') || wsEmpty('case', wk.tab === 'todo' ? 'Nothing to do right now' : 'Nothing here', wk.tab === 'todo' ? 'When someone assigns you work it appears here with its due date. Open a task to start it, ask a question or submit your work.' : 'Tasks move here as you work on them.')) + '</div>';
+  }
+  function wkSubsHtml() {
+    if (!wk.loaded) { loadWork(); return '<p class="muted">Loading…</p>'; }
+    var m = wkMine().filter(function (w) { return ['submitted', 'returned', 'approved'].indexOf(w.status) >= 0; }).sort(function (a, b) { return String(b.updated_at).localeCompare(String(a.updated_at)); });
+    return '<div class="card row" style="gap:12px;flex-wrap:nowrap;align-items:flex-start"><span style="color:var(--copper);display:inline-flex;margin-top:2px">' + IC('info') + '</span><p style="margin:0;font-size:14.5px;line-height:1.6">Work you submit is internal. It is only delivered or published after your reviewer approves it. Returned work comes back to <strong>My Tasks</strong> with the correction needed.</p></div>' +
+      '<div class="stack" style="gap:10px">' + (m.map(function (w) { return wkCard(w, 'mine'); }).join('') || wsEmpty('doc', 'Nothing submitted yet', 'Open a task in My Tasks and use "Submit for review" when it is done.')) + '</div>';
+  }
+  function wkTeamHtml() {
+    if (!wk.loaded) { loadWork(); return '<p class="muted">Loading…</p>'; }
+    var t = wkTeam(), g = { review: t.filter(wkReviewable), active: t.filter(wkActive), done: t.filter(function (w) { return w.status === 'approved' || w.status === 'cancelled'; }) };
+    var form = wk.directs.length ? '<form id="wk-assign" class="card stack"><h2 style="font-size:18px">Assign work</h2>' +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 240px">Task<input name="title" required maxlength="160" placeholder="Reconcile October payments"></label><label style="flex:1 1 200px">Assign to<select name="who">' + wk.directs.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + (d.title ? ' · ' + esc(d.title) : '') + '</option>'; }).join('') + '</select></label></div>' +
+      '<label><span>Instructions <span class="muted" style="font-weight:400">· what done looks like</span></span><textarea name="ins" rows="3" maxlength="4000"></textarea></label>' +
+      '<div class="row" style="gap:12px"><label style="flex:1 1 150px">Due date<input type="date" name="due" min="' + new Date().toISOString().slice(0, 10) + '"></label><label style="flex:1 1 150px">Priority<select name="pri"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="low">Low</option></select></label>' +
+      (wk.projects.length ? '<label style="flex:2 1 200px"><span>Client project <span class="muted" style="font-weight:400">· optional</span></span><select name="proj"><option value="">None</option>' + wk.projects.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
+      '<div class="row"><button class="btn" type="submit">Assign task</button><p class="msg" role="status" style="margin:0"></p></div></form>'
+      : '<div class="card"><p class="muted" style="margin:0;font-size:14px">' + (coOwner() ? 'Invite staff under Members & Staff to assign them work.' : 'Nobody reports to you yet, so there is nobody to assign work to. You can still review work you are asked to review.') + '</p></div>';
+    var cur = g[wk.ttab] ? wk.ttab : 'review';
+    return form + wkTabs('data-wk-ttab', [['review', 'To review', g.review.length], ['active', 'In progress', g.active.length], ['done', 'Done', g.done.length]], cur) +
+      '<div class="stack" style="gap:10px">' + (g[cur].map(function (w) { return wkCard(w, 'team'); }).join('') || wsEmpty('case', cur === 'review' ? 'Nothing to review' : 'Nothing here', cur === 'review' ? 'Work your team submits appears here. Approve it, or return it with what needs correcting.' : 'Tasks you assign appear here as they move along.')) + '</div>';
+  }
+  function wkOverviewCard() {
+    if (!wk.loaded) return '<div class="wsx-empty">' + IC('case') + '<p>Loading your tasks…</p></div>';
+    var c = wkCounts(), list = wkMine().filter(function (w) { return wkActive(w) || w.status === 'submitted'; }).slice(0, 5);
+    return '<div class="wsx-tabs" role="tablist"><button type="button" role="tab" aria-selected="true">Pending (' + c.todo + ')</button><button type="button" role="tab" aria-selected="false" data-wk-goto="doing">In Progress (' + c.doing + ')</button><button type="button" role="tab" aria-selected="false" data-wk-goto="done">Completed (' + c.done + ')</button></div>' +
+      (list.map(function (w) { return '<button type="button" class="wsx-task" data-wk-goto="' + (w.status === 'in_progress' ? 'doing' : w.status === 'submitted' ? 'sent' : 'todo') + '" data-wk-id="' + w.id + '"><span class="wk-dot s-' + w.status + '"></span><span>' + esc(w.title) + '</span>' + (wkDue(w) || '<span class="pill ' + WSTAT[w.status][1] + '">' + WSTAT[w.status][0] + '</span>') + '</button>'; }).join('') ||
+        '<div class="wsx-empty">' + IC('case') + '<p>No tasks yet. When your supervisor assigns you work, it appears here with its due date.</p></div>') +
+      (c.review ? '<button type="button" class="btn small" data-ws-go="team" style="align-self:flex-start">' + c.review + ' to review from your team</button>' : '');
+  }
+  function wkAfter(f, p) {
+    return p.then(check).then(loadWork).catch(function (err) { if (f) { var b = f.querySelector('button[type=submit]'); if (b) b.disabled = false; var m = f.querySelector('.msg'); if (m) LZ.setMsg(m, err.message, 'err'); } else alert(err.message); });
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target, x;
+    if (f.id === 'wk-assign') {
+      e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
+      return void wkAfter(f, sb.rpc('work_assign', { assignee_: f.who.value, title_: f.title.value.trim(), instructions_: f.ins.value.trim() || null, due_: f.due.value || null, priority_: f.pri.value, project_: f.proj && f.proj.value ? +f.proj.value : null }).then(function (r) { if (!r.error) { wk.ttab = 'active'; wk.open = r.data; } return r; }));
+    }
+    if ((x = f.dataset.wkForm)) {
+      e.preventDefault(); var note = f.note ? f.note.value.trim() : '', link = f.link ? f.link.value.trim() : '';
+      if (x === 'submit' && !note && !link) return LZ.setMsg(f.querySelector('.msg'), 'Describe what you did or add a link to the work.', 'err');
+      if (x !== 'submit' && !note) return LZ.setMsg(f.querySelector('.msg'), x === 'return' ? 'Say what needs correcting.' : 'Write a comment first.', 'err');
+      f.querySelector('button[type=submit]').disabled = true;
+      return void wkAfter(f, sb.rpc('work_act', { item: +f.dataset.id, act: x, note: note || null, link_: link || null }).then(function (r) { if (!r.error && x === 'submit') wk.tab = 'sent'; if (!r.error && x === 'return') wk.ttab = 'active'; return r; }));
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-wk-open]'))) { var id = +x.dataset.wkOpen; wk.open = wk.open === id ? null : id; return wkPaint(); }
+    if ((x = t.closest('[data-wk-tab]'))) { wk.tab = x.dataset.wkTab; wk.open = null; return renderWs(); }
+    if ((x = t.closest('[data-wk-ttab]'))) { wk.ttab = x.dataset.wkTtab; wk.open = null; return coOwner() ? renderCompany() : renderWs(); }
+    if ((x = t.closest('[data-wk-goto]'))) { wk.tab = x.dataset.wkGoto; wk.open = x.dataset.wkId ? +x.dataset.wkId : null; return wsGo('work'); }
+    if ((x = t.closest('[data-wk-act]'))) {
+      var a = x.dataset.wkAct;
+      if (a === 'approve' && !confirm('Approve this work? It is marked complete.')) return;
+      if (a === 'cancel' && !confirm('Cancel this task? The person is told it is no longer needed.')) return;
+      x.disabled = true;
+      return void wkAfter(null, sb.rpc('work_act', { item: +x.dataset.id, act: a }).then(function (r) { if (!r.error && a === 'start') wk.tab = 'doing'; if (!r.error && a === 'approve') wk.ttab = 'done'; return r; }));
+    }
+  });
+
   // ===== Owner HQ layout: sidebar, top bar, dashboard, reports, help, governance pages =====
   var NAV = {
     side: [
@@ -1572,6 +1708,7 @@
         ['co:people', 'members', 'Members & Staff', 'Invite and manage everyone who works for Lytmoz.'],
         ['co:authority', 'shield', 'Roles & Permissions', 'What each level is allowed to do.']] },
       { id: 'work', icon: 'projects', label: 'Projects & Tasks', items: [
+        ['co:tasks', 'case', 'Staff tasks', 'Assign work to your staff and review what they submit.'],
         ['projects', 'projects', 'Clients & projects', 'Every client project, its stage, updates and invoices.'],
         ['svc', 'services', 'Service requests', 'New work clients have asked for.'],
         ['requests', 'edit', 'Change requests', 'Changes clients want on their projects.'],
@@ -1686,7 +1823,7 @@
     if ((x = t.closest('[data-go]')) && !t.closest('[data-panel="company"] form')) { e.preventDefault(); goTo(x.dataset.go); return; }
     if ((x = t.closest('[data-sg]'))) { var box = $('sg-' + x.dataset.sg), open = box.hidden; box.hidden = !open; x.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
     if ((x = t.closest('[data-dd]'))) { var g = barMenu().filter(function (b) { return b.id === x.dataset.dd; })[0], cnt = badgeCounts(); ddOpen(x, ddItems(g.items.filter(function (i) { return !i[3]; }).map(function (i) { return [i[0], i[1], i[2], '', cnt[i[0]] || 0]; }))); return; }
-    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['co:people', 'members', 'Invitation requests to approve', '', invReqN], ['chat', 'chat', 'Unread chats', '', chatUnread], ['messages', 'support', 'Unread support messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
+    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['co:tasks', 'case', 'Staff work to review', '', wkReviewN], ['co:people', 'members', 'Invitation requests to approve', '', invReqN], ['chat', 'chat', 'Unread chats', '', chatUnread], ['messages', 'support', 'Unread support messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
     if (t.closest('#me-btn')) { ddOpen($('me-btn'), '<div class="dd-me"><span class="av">' + esc(initialsOf(co.me && co.me.name)) + '</span><div><strong>' + esc(co.me ? co.me.name : '') + '</strong><span>' + esc(co.me ? co.me.email || 'Owner' : '') + ' · Owner</span></div></div>' + ddItems([['co:owner', 'crown', 'Owner / Founder'], ['settings', 'gear', 'Settings'], ['help', 'help', 'How HQ works']]) + (!$('install-app').hidden ? '<button type="button" class="dd-i" id="dd-install">' + ICN('phone') + '<span>Install the HQ app</span></button>' : '') + '<button type="button" class="dd-i" id="dd-logout">' + ICN('logout') + '<span>Log out</span></button>'); return; }
     if (t.closest('#dd-install')) { ddClose(); $('install-app').click(); return; }
     if (t.closest('#dd-logout') || t.closest('#side-logout')) { ddClose(); $('logout').click(); return; }
@@ -1874,7 +2011,7 @@
   });
   setInterval(function () { if (document.body.classList.contains('owner-mode') && document.visibilityState === 'visible') dashLoad(); }, 60000);
 
-  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0, 'co:people': invReqN }; }
+  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0, 'co:people': invReqN, 'co:tasks': wkReviewN }; }
   function paintBadges() {
     var cnt = badgeCounts(), total = 0; Object.keys(cnt).forEach(function (k) { total += cnt[k]; });
     document.querySelectorAll('#bar-menu [data-bkeys]').forEach(function (b) {

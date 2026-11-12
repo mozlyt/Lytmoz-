@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=26">
+<link rel="stylesheet" href="assets/app.css?v=27">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -973,8 +973,10 @@
       sb.from('staff_invites').select('*').order('id', { ascending: false }).limit(60).then(check), sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check),
       sb.from('positions').select('*').order('level').order('id').then(check, function () { return []; }), sb.from('invite_requests').select('*').order('id', { ascending: false }).limit(100).then(check, function () { return []; }),
       coOwner() ? Promise.resolve(null) : sb.rpc('my_workspace').then(check, function () { return null; }), sb.from('org_permissions').select('*').order('key').then(check, function () { return []; }),
-      sb.from('position_assignments').select('position_id, profile_id, ends_on').then(check, function () { return []; })
-    ]).then(function (r) { co.asg = r[10] || []; co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); seatSync(); renderWs(); loadWork(); roomLoad(); roomLive(); if (!coOwner()) mountStaffChat(); })
+      sb.from('position_assignments').select('position_id, profile_id, ends_on').then(check, function () { return []; }),
+      sb.rpc('org_directory').then(check, function () { return []; }), sb.from('teams').select('id, name, department_id, leader, is_active').order('name').then(check, function () { return []; }),
+      coOwner() ? sb.from('permission_grants').select('permission, position_id, department_id, profile_id, deny').then(check, function () { return []; }) : Promise.resolve([])
+    ]).then(function (r) { co.asg = r[10] || []; co.dir = r[11] || []; co.teams = r[12] || []; co.grants = r[13] || []; co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); seatSync(); renderWs(); loadWork(); roomLoad(); roomLive(); if (!coOwner()) mountStaffChat(); })
       .catch(function (err) { $('co-view').innerHTML = $('ws-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
   }
   function deptCard(d) {
@@ -996,10 +998,10 @@
         '<div class="row"><button class="btn small" type="submit">Save</button>' + (coOwner() ? '<button type="button" class="linkish" data-co-del="' + d.id + '" style="color:var(--muted)">Delete department</button>' : '') + '<p class="msg" role="status" style="margin:0"></p></div></form>' : '') +
       '<div><h3 style="margin:0 0 4px;font-size:14px">Members</h3>' + (mem.length ? mem.map(function (m) {
         var p = coP(m.profile_id) || { name: 'Unknown', email: '' };
-        return '<div class="item">' + avatar(m.profile_id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(m.role_title || p.title || 'Member') + '</span></div>' + (m.profile_id === d.head ? '<span class="pill blue">Head</span>' : canM ? '<select data-co-kind="' + d.id + ':' + m.profile_id + '" aria-label="Role in department" style="width:auto;flex:none;padding:8px 10px;font-size:13px">' + Object.keys(CO_KIND).map(function (k) { return '<option value="' + k + '"' + (k === (m.kind || 'member') ? ' selected' : '') + '>' + CO_KIND[k] + '</option>'; }).join('') + '</select>' : '<span class="pill ' + ((m.kind || 'member') === 'member' ? 'grey' : '') + '">' + CO_KIND[m.kind || 'member'] + '</span>') +
+        return '<div class="item">' + avatar(m.profile_id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(m.role_title || p.title || 'Member') + '</span></div>' + (m.profile_id === d.head ? '<span class="pill blue">Head</span>' : canM ? '<select data-co-kind="' + d.id + ':' + m.profile_id + '" aria-label="Responsibility in department" style="width:auto;flex:none;padding:8px 10px;font-size:13px">' + Object.keys(CO_KIND).map(function (k) { return '<option value="' + k + '"' + (k === (m.kind || 'member') ? ' selected' : '') + '>' + CO_KIND[k] + '</option>'; }).join('') + '</select>' : '<span class="pill ' + ((m.kind || 'member') === 'member' ? 'grey' : '') + '">' + CO_KIND[m.kind || 'member'] + '</span>') +
           (canM && m.profile_id !== d.head && m.profile_id !== co.me.id ? '<button type="button" class="btn small ghost" data-co-unmember="' + d.id + ':' + m.profile_id + '">Remove</button>' : '') + '</div>';
       }).join('') : '<p class="muted" style="margin:0">Nobody in this department yet.</p>') + '</div>' +
-      (canM ? (free.length ? '<form data-co-member="' + d.id + '" class="row" style="gap:10px;align-items:flex-end"><label style="flex:2 1 180px">Add a member<select name="profile">' + free.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label><label style="flex:1 1 120px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label><label style="flex:2 1 160px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Developer"></label><button class="btn small" type="submit">Add</button></form>'
+      (canM ? (free.length ? '<form data-co-member="' + d.id + '" class="row" style="gap:10px;align-items:flex-end"><label style="flex:2 1 180px">Add a member<select name="profile">' + free.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label><label style="flex:1 1 120px">Responsibility<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label><label style="flex:2 1 160px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Developer"></label><button class="btn small" type="submit">Add</button></form>'
         : '<p class="muted" style="margin:0;font-size:13.5px">Everyone at Lytmoz is already in this department.' + (coOwner() ? ' Add more people under People & Roles.' : '') + '</p>') : '') + '</div>';
   }
   function renderCompany() {
@@ -1014,7 +1016,7 @@
     var loose = staff.filter(function (p) { return !placed[p.id]; });
     var tab = function (k, label) { return '<button type="button" role="tab" data-co-tab="' + k + '" aria-selected="' + (co.tab === k) + '">' + label + '</button>'; };
     var myDepts = co.depts.filter(function (d) { return d.head === co.me.id; });
-    var TITLES = { overview: ['Organization', 'Stage 1 · Organization structure and authority'], departments: ['Departments', 'Create, edit and manage departments.'], people: ['People & Roles', 'Add staff, assign positions and manage membership.'], chart: ['Organization Chart', 'Who reports to whom.'], authority: ['Authority Settings', 'What the owner, department heads and staff can do.'] };
+    var TITLES = { overview: ['Organization', 'Stage 1 · Organization structure and authority'], departments: ['Departments', 'Create, edit and manage departments.'], people: ['People & Membership', 'Invite people, manage everyone at Lytmoz and follow every invitation.'], chart: ['Organization Chart', 'Who reports to whom.'], authority: ['Authority Settings', 'What the owner, department heads and staff can do.'] };
     $('co-title').textContent = TITLES[co.tab][0]; $('co-sub').textContent = TITLES[co.tab][1];
     var out = '';
     if (co.tab === 'overview') {
@@ -1034,12 +1036,7 @@
         '<div class="row"><button class="btn" type="submit">Create department</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '') +
         (co.depts.map(deptFull).join('') || '<p class="muted card" style="margin:0">No departments yet.</p>');
     } else if (co.tab === 'people') {
-      out += ownerRequests() + invitePanel() + requestPanel() +
-        '<section class="card stack"><h2 style="font-size:18px">Everyone at Lytmoz</h2><div>' + co.people.map(function (p) {
-          var ds = co.members.filter(function (m) { return m.profile_id === p.id; }).map(function (m) { var d = co.depts.filter(function (x) { return x.id === m.department_id; })[0]; return d ? d.name : ''; }).filter(Boolean);
-          return '<div class="item" style="flex-wrap:wrap">' + avatar(p.id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(p.email) + ' · ' + esc(p.level === 'owner' ? 'Overall authority' : (p.title || 'No position set')) + (p.level !== 'owner' ? ' · ' + (ds.length ? esc(ds.join(', ')) : 'no department') : '') + '</span></div>' + levelPill(p) +
-            (owner && p.level !== 'owner' ? '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Job title</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '">Remove</button>' : '') + '</div>';
-        }).join('') + '</div></section>';
+      out += peopleCentre();
     } else if (co.tab === 'chart') {
       out += '<div class="card oc"><div class="oc-top">' + owners.map(function (p) { return '<div class="oc-box own">' + avatar(p.id) + '<strong>' + esc(p.name) + '</strong><span>Owner</span></div>'; }).join('') + '</div>' +
         (co.depts.length ? '<div class="oc-line"></div><div class="oc-row">' + co.depts.map(function (d) {
@@ -1109,27 +1106,148 @@
       '<input readonly value="' + esc(inviteLink(i)) + '" onclick="this.select()" aria-label="Invitation link">' +
       '<div class="row" style="gap:10px"><button type="button" class="btn small" data-inv-copy="' + i.id + '">Copy link</button><a class="btn small ghost" href="mailto:' + encodeURIComponent(i.email) + '?subject=' + encodeURIComponent('Your invitation to join Lytmoz') + '&body=' + encodeURIComponent(inviteText(i)) + '">Send by email</a><a class="btn small ghost" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(inviteText(i)) + '">Send on WhatsApp</a></div></div>';
   }
+  // ===== People & Membership: invite, directory with profiles, invitation management =====
+  var EXTRA_RESP = ['Mentors new members', 'Project coordinator', 'Trainer', 'Health, safety & compliance focal person'];
+  function dirP(id) { return (co.dir || []).filter(function (p) { return p.id === id; })[0]; }
+  function lvlName(n) { return n === 0 ? 'Owner · overall authority' : LEVEL_NAMES[n] || 'Position not set yet'; }
+  function personLine(p) {
+    if (p.owner) return 'Owner · Overall authority';
+    var pos = (p.positions || []).map(function (x) { return x.title + (x.acting ? ' (acting)' : ''); }).join(', ') || p.title || 'Position not set yet';
+    var where = (p.departments || []).map(function (d) { return d.name + (d.head ? ' (head)' : ''); }).join(', ') || ((p.positions || []).some(function (x) { return x.level <= 2; }) ? 'Above the departments' : 'No department');
+    return pos + ' · ' + where;
+  }
+  function stPill(p) { return p.owner ? '<span class="pill">Owner</span>' : p.status === 'suspended' ? '<span class="pill red">Suspended</span>' : '<span class="pill green">Active</span>'; }
+  function peopleOpts(sel, none) { return '<option value="">' + none + '</option>' + (co.dir || []).filter(function (p) { return p.status === 'active'; }).map(function (p) { return '<option value="' + p.id + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.name) + (p.owner ? ' (Owner)' : '') + '</option>'; }).join(''); }
+  function deptOpts(sel, none) { return (none ? '<option value="">' + none + '</option>' : '') + co.depts.filter(function (d) { return d.is_active !== false; }).map(function (d) { return '<option value="' + d.id + '"' + (d.id === sel ? ' selected' : '') + '>' + esc(d.name) + '</option>'; }).join(''); }
+  function teamOpts(dept, sel) { var ts = (co.teams || []).filter(function (t) { return t.is_active !== false && (!dept || t.department_id === dept); }); return '<option value="">No team</option>' + ts.map(function (t) { return '<option value="' + t.id + '"' + (t.id === sel ? ' selected' : '') + '>' + esc(t.name) + '</option>'; }).join(''); }
+  function permLabel(k) { var r = (co.perms || []).filter(function (x) { return x.key === k; })[0]; return r && r.description ? r.description : k; }
+  function autoManager(p, dept) { // who the person would report to by default
+    if (p && p.reports_to_position_id) { var hp = seatPos(p.reports_to_position_id), h = hp ? seatHolders(hp) : []; if (h.length) return { id: h[0].profile_id, why: hp.title }; }
+    var d = co.depts.filter(function (x) { return x.id === dept; })[0];
+    if (d && d.head) return { id: d.head, why: 'Head of ' + d.name };
+    var own = (co.dir || []).filter(function (x) { return x.owner; })[0];
+    return own ? { id: own.id, why: 'Owner' } : null;
+  }
+  function peopleCentre() {
+    co.ptab = co.ptab || 'dir';
+    var pend = co.invites.filter(function (i) { return i.status === 'pending'; }).length;
+    var tabs = '<div class="tabs" role="tablist">' + [['invite', 'Invite a member'], ['dir', 'Organizational directory'], ['inv', 'Invitations' + (pend ? ' (' + pend + ')' : '')]].map(function (t) { return '<button type="button" role="tab" data-pc-tab="' + t[0] + '" aria-selected="' + (co.ptab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>';
+    if (co.prof) return profileView(co.prof);
+    if (co.ptab === 'invite') return tabs + ownerRequests() + requestPanel() + invitePanel();
+    if (co.ptab === 'inv') return tabs + invitationsView();
+    return tabs + ownerRequests() + directoryView(false);
+  }
+  function directoryView(readOnly) {
+    var all = co.dir || [], f = co.df = co.df || { q: '', dept: '', pos: '', lvl: '', st: '' }, q = f.q.toLowerCase();
+    var list = all.filter(function (p) {
+      if (q && (p.name + ' ' + personLine(p) + ' ' + (p.email || '')).toLowerCase().indexOf(q) < 0) return false;
+      if (f.dept && !(p.departments || []).some(function (d) { return String(d.id) === f.dept; })) return false;
+      if (f.pos && !(p.positions || []).some(function (x) { return String(x.id) === f.pos; })) return false;
+      if (f.lvl && String(p.rank) !== f.lvl) return false;
+      if (f.st && (p.owner ? 'active' : p.status) !== f.st) return false;
+      return true;
+    });
+    var active = all.filter(function (p) { return p.owner || p.status === 'active'; }), susp = all.length - active.length;
+    var sel = function (name, label, opts) { return '<label class="dir-f"><span class="sr-only">' + label + '</span><select data-df="' + name + '" aria-label="' + label + '">' + opts + '</select></label>'; };
+    var o = function (v, t, cur) { return '<option value="' + v + '"' + (String(cur) === String(v) ? ' selected' : '') + '>' + esc(t) + '</option>'; };
+    var usedPos = {}; all.forEach(function (p) { (p.positions || []).forEach(function (x) { usedPos[x.id] = x.title; }); });
+    return '<div class="tiles"><div class="card tile"><span class="k">Active members</span><span class="v">' + active.length + '</span></div><div class="card tile"><span class="k">Board & executives</span><span class="v">' + all.filter(function (p) { return !p.owner && p.rank <= 2; }).length + '</span></div><div class="card tile"><span class="k">Other staff</span><span class="v">' + all.filter(function (p) { return !p.owner && p.rank > 2; }).length + '</span></div><div class="card tile"><span class="k">Departments</span><span class="v">' + co.depts.length + '</span></div>' + (susp ? '<div class="card tile"><span class="k">Suspended</span><span class="v">' + susp + '</span></div>' : '') + '</div>' +
+      '<section class="card stack" style="gap:12px"><div class="dir-bar"><label class="dir-q"><span class="sr-only">Search people</span><input type="search" data-df="q" value="' + esc(f.q) + '" placeholder="Search people, positions, departments" autocomplete="off"></label>' +
+      sel('dept', 'Department', o('', 'All departments', f.dept) + co.depts.map(function (d) { return o(d.id, d.name, f.dept); }).join('')) +
+      sel('pos', 'Position', o('', 'All positions', f.pos) + Object.keys(usedPos).map(function (k) { return o(k, usedPos[k], f.pos); }).join('')) +
+      sel('lvl', 'Level', o('', 'All levels', f.lvl) + [0, 1, 2, 3, 4, 5, 9].map(function (l) { return o(l, l === 9 ? 'Position not set yet' : l === 0 ? 'Owner' : LEVEL_NAMES[l], f.lvl); }).join('')) +
+      sel('st', 'Status', o('', 'Any status', f.st) + o('active', 'Active', f.st) + o('suspended', 'Suspended', f.st)) + '</div>' +
+      '<p class="muted" style="margin:0;font-size:13px">' + list.length + ' of ' + all.length + (all.length === 1 ? ' person' : ' people') + '. People appear here once they accept their invitation.' + (readOnly ? '' : ' Click a person to open their profile.') + '</p><div>' +
+      (list.map(function (p) {
+        return '<button type="button" class="item dir-row" data-person="' + p.id + '">' + avatar(p.id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(personLine(p)) + ((p.teams || []).length ? ' · ' + esc(p.teams.map(function (t) { return t.name + (t.lead ? ' (lead)' : ''); }).join(', ')) : '') + '</span></div>' + stPill(p) + '</button>';
+      }).join('') || '<p class="muted" style="margin:0">Nobody matches these filters.</p>') + '</div></section>';
+  }
+  function profileView(id) {
+    var p = dirP(id), owner = coOwner();
+    if (!p) { co.prof = null; return peopleCentre(); }
+    var x = co.profData && co.profData.id === id ? co.profData : null;
+    if (!x && (owner || id === co.me.id)) { co.profData = { id: id, loading: true }; sb.rpc('member_profile', { person: id }).then(check).then(function (d) { d.id = id; co.profData = d; if (co.prof === id) renderCompany(); }).catch(function (err) { co.profData = { id: id, err: err.message }; if (co.prof === id) renderCompany(); }); x = co.profData; }
+    var info = function (rows) { return '<dl class="pf-dl">' + rows.filter(function (r) { return r[1]; }).map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>'; };
+    var out = '<div class="row between"><button type="button" class="linkish" data-pc-back>' + IC('arrow') + 'All people</button></div>' +
+      '<section class="card pf-head"><span class="av av-lg">' + esc(initials(p.name)) + '</span><div style="min-width:0;flex:1"><h2 style="font-size:22px;overflow-wrap:anywhere">' + esc(p.name) + '</h2><p class="muted" style="margin:4px 0 0">' + esc(personLine(p)) + '</p>' + (p.status === 'suspended' && p.status_note ? '<p class="msg err" style="margin:8px 0 0">Suspended: ' + esc(p.status_note) + '</p>' : '') + '</div>' + stPill(p) + '</section>';
+    if (p.owner) return out + '<section class="card stack">' + info([['Email', esc(p.email || '')], ['Phone', esc(p.phone || '')], ['Authority', 'Overall authority over Lytmoz']]) + NOTE('The owner is not an employee position. Ownership is protected: nobody can remove, downgrade or transfer it from HQ.') + '</section>';
+    var today = new Date().toISOString().slice(0, 10);
+    out += '<div class="pf-grid"><section class="card stack"><h3 class="set-sec" style="margin:0">Personal information</h3>' + info([['Email', p.email ? esc(p.email) : '<span class="muted">Only the owner sees this</span>'], ['Phone', esc(p.phone || '') || '<span class="muted">Not given</span>'], ['Member since', dayFmt(p.joined)], ['Status', p.status === 'suspended' ? 'Suspended' : 'Active']]) + '</section>' +
+      '<section class="card stack"><h3 class="set-sec" style="margin:0">Placement</h3>' + info([
+        ['Position', (p.positions || []).map(function (a) { return esc(a.title) + (a.acting ? ' <span class="pill">Acting until ' + dayFmt(a.ends_on) + '</span>' : ''); }).join('<br>') || '<span class="muted">Not set yet</span>'],
+        ['Level', esc(lvlName(p.rank))], ['Job title', esc(p.title || '')],
+        ['Department', (p.departments || []).map(function (d) { return esc(d.name) + (d.head ? ' (head)' : ''); }).join(', ') || '<span class="muted">' + (p.rank <= 2 ? 'Above the departments' : 'None') + '</span>'],
+        ['Team', (p.teams || []).map(function (t) { return esc(t.name) + (t.lead ? ' (team lead)' : ''); }).join(', ') || '<span class="muted">None</span>'],
+        ['Reports to', p.reports_to ? esc(p.reports_to.name) : '<span class="muted">' + (p.rank <= 2 ? 'The owner' : 'Not set') + '</span>'],
+        ['Mentor', p.mentor ? esc(p.mentor.name) : '<span class="muted">None</span>'],
+        ['Also responsible for', esc((p.responsibilities || []).join(', '))]]) + '</section>';
+    if (x) {
+      if (x.loading) out += '<section class="card"><p class="muted" style="margin:0">Loading workspace, permissions and history…</p></section>';
+      else if (x.err) out += '<section class="card"><p class="msg err" style="margin:0">' + esc(x.err) + '</p></section>';
+      else {
+        out += '<section class="card stack"><h3 class="set-sec" style="margin:0">Workspace</h3>' + (p.status === 'suspended' ? NOTE('Paused while suspended.') : '') + '<div class="row" style="gap:6px">' + ['duties', 'work', 'dept'].concat(x.blocks.filter(function (b) { return ['duties', 'work', 'dept'].indexOf(b) < 0; })).map(function (b) { return BLOCKS[b] ? '<span class="pill grey">' + esc(BLOCKS[b][1]) + '</span>' : ''; }).join('') + '</div>' +
+          '<h3 class="set-sec" style="margin:8px 0 0">Permissions</h3>' + (x.permissions.length ? '<ul class="pf-list">' + x.permissions.map(function (k) { return '<li>' + esc(permLabel(k)) + '</li>'; }).join('') + '</ul>' : NOTE('No extra permissions. They can see their own work and department.')) + NOTE('Comes from their positions, department and any personal adjustments in the Position Catalogue.') + '</section>' +
+          '<section class="card stack pf-wide"><h3 class="set-sec" style="margin:0">Membership history</h3><ol class="pf-tl">' + x.changes.map(function (c) {
+            var t = { joined: 'Joined Lytmoz', promoted: 'Promoted', changed: 'Position changed', transferred: 'Transferred', acting: 'Acting position', added: 'Position added', removed: 'Position removed', suspended: 'Suspended', reactivated: 'Reactivated', relationships: 'Reporting and mentoring updated' }[c.kind] || c.kind;
+            var d = [c.from_position && c.position ? esc(c.from_position) + ' → ' + esc(c.position) : c.position ? esc(c.position) : '', c.department ? (c.from_department ? esc(c.from_department) + ' → ' : '') + esc(c.department) : '', c.ends_on ? 'until ' + dayFmt(c.ends_on) : '', c.note ? '“' + esc(c.note) + '”' : ''].filter(Boolean).join(' · ');
+            return '<li><strong>' + t + '</strong>' + (d ? '<span>' + d + '</span>' : '') + '<small>' + (c.effective_on && c.effective_on !== String(c.created_at).slice(0, 10) ? 'Effective ' + dayFmt(c.effective_on) + ' · ' : '') + when(c.created_at) + (c.by ? ' · by ' + esc(c.by) : '') + '</small></li>';
+          }).join('') + x.assignments.filter(function (a) { return a.ends_on && a.ends_on < today; }).map(function (a) { return '<li><strong>Held ' + esc(a.title) + (a.acting ? ' (acting)' : '') + '</strong><small>' + dayFmt(a.starts_on) + ' – ' + dayFmt(a.ends_on) + '</small></li>'; }).join('') + '</ol>' + (x.changes.length ? '' : NOTE('History starts from today; earlier changes were not recorded.')) + '</section>';
+      }
+    }
+    out += '</div>';
+    if (owner) {
+      var held = (p.positions || []), posAll = (co.pos || []).filter(function (q) { return !AUTO_POS[q.code] && q.is_active !== false; });
+      var posSel = function (list) { return [1, 2, 3, 4, 5].map(function (l) { var g = list.filter(function (q) { return q.level === l; }); return g.length ? '<optgroup label="' + LEVEL_NAMES[l] + '">' + g.map(function (q) { var h = seatHolders(q).filter(function (a) { return a.profile_id !== p.id; }), full = q.max_holders && h.length >= q.max_holders; return '<option value="' + q.id + '"' + (full ? ' disabled' : '') + '>' + esc(q.title) + (full ? ' (held by ' + esc(coName(h[0].profile_id)) + ')' : '') + '</option>'; }).join('') + '</optgroup>' : ''; }).join(''); };
+      var resp = p.responsibilities || [];
+      out += '<section class="card stack"><h3 class="set-sec" style="margin:0">Change position or department</h3><form id="pc-change" data-person="' + p.id + '" class="stack" style="gap:12px">' +
+        '<label>What is changing<select name="kind" id="pc-kind"><option value="change">Promote or change position</option><option value="transfer">Transfer to another department</option><option value="acting">Acting position (temporary)</option><option value="add">Add another position</option>' + (held.length ? '<option value="remove">Remove a position (they stay at Lytmoz)</option>' : '') + '</select></label>' +
+        '<div class="row" style="gap:12px"><label style="flex:2 1 220px" data-pc-f="pos">New position<select name="pos"><option value="" disabled selected>Choose a position…</option>' + posSel(posAll) + '</select></label>' +
+        '<label style="flex:2 1 220px" data-pc-f="held" hidden>Position to remove<select name="held">' + held.map(function (a) { return '<option value="' + a.id + '">' + esc(a.title) + (a.acting ? ' (acting)' : '') + '</option>'; }).join('') + '</select></label>' +
+        '<label style="flex:2 1 200px" data-pc-f="dept"><span>Department <span class="muted" style="font-weight:400" data-pc-opt>· optional</span></span><select name="dept">' + deptOpts(null, 'Keep their department') + '</select></label></div>' +
+        '<div class="row" style="gap:12px"><label style="flex:1 1 150px">Effective from<input type="date" name="eff" value="' + today + '" required></label><label style="flex:1 1 150px" data-pc-f="until" hidden>Acting until<input type="date" name="until"></label><label style="flex:2 1 220px"><span>Reason <span class="muted" style="font-weight:400">· kept in their history</span></span><input name="note" maxlength="500" placeholder="Promoted after the quarterly review"></label></div>' +
+        '<div class="row"><button class="btn small" type="submit">Record the change</button><p class="msg" role="status" style="margin:0"></p></div>' + NOTE('Their workspace and permissions follow the new position from the effective date. Nothing is deleted: earlier positions stay in their history.') + '</form></section>' +
+        '<section class="card stack"><h3 class="set-sec" style="margin:0">Reporting, mentor and responsibilities</h3><form id="pc-links" data-person="' + p.id + '" class="stack" style="gap:12px"><div class="row" style="gap:12px"><label style="flex:1 1 200px">Reports to<select name="reports">' + peopleOpts(p.reports_to && p.reports_to.id, 'Nobody set').replace('<option value="' + p.id + '"', '<option disabled value="' + p.id + '"') + '</select></label><label style="flex:1 1 200px"><span>Mentor <span class="muted" style="font-weight:400">· guidance, not supervision</span></span><select name="mentor">' + peopleOpts(p.mentor && p.mentor.id, 'No mentor').replace('<option value="' + p.id + '"', '<option disabled value="' + p.id + '"') + '</select></label></div>' +
+        '<fieldset class="pc-resp"><legend>Additional responsibilities</legend>' + EXTRA_RESP.concat(resp.filter(function (r) { return EXTRA_RESP.indexOf(r) < 0; })).map(function (r) { return '<label class="cat-ck"><input type="checkbox" name="resp" value="' + esc(r) + '"' + (resp.indexOf(r) >= 0 ? ' checked' : '') + '><span>' + esc(r) + '</span></label>'; }).join('') + '</fieldset>' +
+        '<div class="row"><button class="btn small" type="submit">Save</button><p class="msg" role="status" style="margin:0"></p></div></form></section>' +
+        '<section class="card stack"><h3 class="set-sec" style="margin:0">Membership</h3><div class="row" style="gap:10px">' + (p.status === 'suspended' ? '<button type="button" class="btn small" data-pc-status="1">Reactivate</button>' : '<button type="button" class="btn small ghost" data-pc-status="0">Suspend</button>') + '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Job title</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '" style="color:#F0A9A0">Remove from Lytmoz</button></div>' +
+        NOTE('Suspending pauses their HQ access and workspace but keeps their positions, department and history, so you can reactivate them later. Removing ends their positions and access for good; their account and history stay.') + '</section>';
+    }
+    return out;
+  }
+  function invitationsView() {
+    var now = Date.now(), exp = function (i) { return i.status === 'pending' && new Date(i.expires_at).getTime() < now; };
+    var groups = { pending: co.invites.filter(function (i) { return i.status === 'pending' && !exp(i); }), accepted: co.invites.filter(function (i) { return i.status === 'accepted'; }), expired: co.invites.filter(exp), revoked: co.invites.filter(function (i) { return i.status === 'revoked'; }) };
+    co.itab = co.itab || 'pending';
+    var shown = co.invites.filter(function (i) { return i.id === co.shareInvite; })[0];
+    return (shown ? inviteShare(shown) : '') + '<div class="itabs" role="tablist">' + [['pending', 'Pending'], ['accepted', 'Accepted'], ['expired', 'Expired'], ['revoked', 'Revoked']].map(function (t) { return '<button type="button" role="tab" data-it="' + t[0] + '" aria-selected="' + (co.itab === t[0]) + '">' + t[1] + ' <b>' + groups[t[0]].length + '</b></button>'; }).join('') + '</div>' +
+      '<section class="card stack" style="gap:0">' + (groups[co.itab].map(function (i) {
+        var d = co.depts.filter(function (x) { return x.id === i.department_id; })[0], who = i.accepted_by && dirP(i.accepted_by);
+        var line = esc(i.email) + ' · ' + esc(posTitle(i.position_id) || 'Position not set yet') + (d ? ' · ' + esc(d.name) : '') + ' · ' +
+          (co.itab === 'accepted' ? 'joined ' + dayFmt(i.accepted_at) : co.itab === 'pending' ? 'expires ' + dayFmt(i.expires_at) : co.itab === 'expired' ? 'expired ' + dayFmt(i.expires_at) : 'invited ' + dayFmt(i.created_at)) +
+          (i.resend_count ? ' · sent again ' + i.resend_count + (i.resend_count === 1 ? ' time' : ' times') : '') + ' · by ' + esc(coName(i.invited_by));
+        var act = co.itab === 'pending' ? '<button type="button" class="btn small ghost" data-inv-show="' + i.id + '">Share</button><button type="button" class="btn small ghost" data-inv-resend="' + i.id + '">Send again</button><button type="button" class="btn small ghost" data-inv-revoke="' + i.id + '">Revoke</button>'
+          : co.itab === 'expired' ? '<button type="button" class="btn small ghost" data-inv-resend="' + i.id + '">Renew and send again</button><button type="button" class="btn small ghost" data-inv-revoke="' + i.id + '">Close</button>'
+          : co.itab === 'accepted' ? (who ? '<button type="button" class="btn small ghost" data-person="' + who.id + '">View profile</button>' : '<span class="muted" style="font-size:13px">No longer at Lytmoz</span>') : '';
+        return '<div class="item" style="flex-wrap:wrap"><div class="main"><strong>' + esc(i.name) + '</strong><span>' + line + '</span></div>' + act + '</div>';
+      }).join('') || '<p class="muted" style="margin:0">' + { pending: 'No invitations waiting.', accepted: 'Nobody has accepted an invitation yet.', expired: 'No expired invitations.', revoked: 'No revoked invitations.' }[co.itab] + '</p>') + '</section>' +
+      NOTE('An invitation is not a membership: people appear in the directory only after they accept. One open invitation per email; sending again renews the same link instead of making a new one. Revoked and expired invitations stay here as history.');
+  }
   function invitePanel() {
     if (!coCanInvite()) return '';
-    var depts = coOwner() ? co.depts : co.depts.filter(function (d) { return d.head === co.me.id; });
-    if (!depts.length) return '<div class="card"><p class="muted" style="margin:0">Create a department first, then invite people into it.</p></div>';
-    var now = Date.now(), shown = co.invites.filter(function (i) { return i.id === co.shareInvite; })[0];
-    return '<form id="co-invite-form" class="card stack"><h2 style="font-size:18px">Invite a member</h2><p class="muted" style="margin:0;font-size:14px">People join Lytmoz by invitation only. They become organization members, not clients, and get a workspace for their department.</p>' +
-      '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
-      '<label><span>Joining as <span class="muted" style="font-weight:400">· the position decides their workspace and permissions</span></span><select name="position" id="inv-pos" required>' + seatOptions() + '</select></label><p class="msg" id="inv-warn" role="status" style="margin:0" hidden></p>' +
-      '<div class="row" id="inv-dept-row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label>' +
-      '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label>' +
-      '<label style="flex:2 1 180px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Marketing officer"></label></div>' +
-      '<p class="muted" id="inv-lead-note" style="margin:0;font-size:13.5px" hidden>Board and executive positions sit above the departments, so there is no department to choose. They report to you.</p>' +
-      '<label>Reporting to<select name="reports"><option value="">The department head</option>' + co.people.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + (p.level === 'owner' ? ' (Owner)' : '') + '</option>'; }).join('') + '</select></label>' +
-      '<div class="row"><button class="btn" type="submit">Issue invitation</button><p class="msg" role="status" style="margin:0"></p></div></form>' +
-      (shown ? inviteShare(shown) : '') +
-      (co.invites.length ? '<section class="card stack"><h2 style="font-size:18px">Invitations</h2><div>' + co.invites.slice(0, 30).map(function (i) {
-        var d = co.depts.filter(function (x) { return x.id === i.department_id; })[0], expired = i.status === 'pending' && new Date(i.expires_at).getTime() < now;
-        var st = i.status === 'accepted' ? ['Accepted', 'green'] : i.status === 'revoked' ? ['Revoked', 'grey'] : expired ? ['Expired', 'red'] : ['Pending', ''];
-        return '<div class="item" style="flex-wrap:wrap"><div class="main"><strong>' + esc(i.name) + '</strong><span>' + esc(i.email) + ' · ' + (d ? esc(d.name) + ' · ' + CO_KIND[i.kind] : esc(posTitle(i.position_id) || 'Leadership')) + ' · ' + (i.status === 'accepted' ? 'joined ' + dayFmt(i.accepted_at) : i.status === 'pending' ? (expired ? 'expired ' : 'expires ') + dayFmt(i.expires_at) : 'invited ' + dayFmt(i.created_at)) + ' · by ' + esc(coName(i.invited_by)) + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span>' +
-          (i.status === 'pending' ? (expired ? '' : '<button type="button" class="btn small ghost" data-inv-show="' + i.id + '">Share</button>') + '<button type="button" class="btn small ghost" data-inv-resend="' + i.id + '">Send again</button><button type="button" class="btn small ghost" data-inv-revoke="' + i.id + '">Revoke</button>' : '') + '</div>';
-      }).join('') + '</div></section>' : '');
+    if (!co.depts.length) return '<div class="card"><p class="muted" style="margin:0">Create a department first, then invite people into it.</p></div>';
+    var sec = function (n, t) { return '<h3 class="inv-sec"><span>' + n + '</span>' + t + '</h3>'; };
+    return '<form id="co-invite-form" class="card stack" style="gap:14px"><div><h2 style="font-size:18px">Invite a member</h2><p class="muted" style="margin:4px 0 0;font-size:14px">People join Lytmoz by invitation only, as organization members, not clients. The position you choose sets their level, department, workspace and permissions; you can adjust this person\'s placement without changing the position for everyone.</p></div>' +
+      sec(1, 'Personal information') + '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label><label style="flex:1 1 160px"><span>Phone <span class="muted" style="font-weight:400">· optional</span></span><input type="tel" name="phone" maxlength="40" placeholder="024 000 0000"></label></div>' +
+      sec(2, 'Organizational placement') + '<label>Position<select name="position" id="inv-pos" required>' + seatOptions() + '</select></label><p class="msg" id="inv-warn" role="status" style="margin:0" hidden></p>' +
+      '<p class="muted" id="inv-lead-note" style="margin:0;font-size:13.5px" hidden>Board and executive positions sit above the departments, so there is no department or team to choose.</p>' +
+      '<div class="row" id="inv-dept-row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department" id="inv-dept">' + deptOpts(null, 'No department yet') + '</select></label><label style="flex:2 1 180px">Team<select name="team" id="inv-team">' + teamOpts(null) + '</select></label>' +
+      '<label style="flex:2 1 180px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Senior accountant"></label></div>' +
+      '<label>Reporting manager<select name="reports" id="inv-rep"></select></label>' +
+      sec(3, 'Working relationship') + '<div class="row" style="gap:12px"><label style="flex:1 1 180px">Team responsibility<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option></select></label><label style="flex:2 1 220px"><span>Mentor <span class="muted" style="font-weight:400">· guidance, not supervision</span></span><select name="mentor">' + peopleOpts(null, 'No mentor') + '</select></label></div>' +
+      '<fieldset class="pc-resp"><legend>Additional responsibilities <span class="muted" style="font-weight:400">· optional; they do not change the position</span></legend>' + EXTRA_RESP.map(function (r) { return '<label class="cat-ck"><input type="checkbox" name="resp" value="' + esc(r) + '"><span>' + esc(r) + '</span></label>'; }).join('') + '</fieldset>' +
+      sec(4, 'Invitation') + '<div id="inv-preview" class="inv-prev"><p class="muted" style="margin:0">Choose a position to see what this person will get.</p></div>' +
+      '<p class="muted" style="margin:0;font-size:13px">The link works for ' + ((os && os.invite_days) || 7) + ' days. Track it, send it again or revoke it under Invitations.</p>' +
+      '<div class="row"><button class="btn" type="submit">Create invitation</button><p class="msg" role="status" style="margin:0"></p></div></form>';
   }
 
   // Worker workspace: what a member of staff sees when they sign in
@@ -1210,10 +1328,15 @@
       f.querySelector('button').disabled = true;
       sb.from('dept_posts').insert({ department_id: ws.dept, text: text }).then(check).then(loadCompany).catch(function (err) { coErr(f, err); });
     } else if (f.id === 'co-invite-form') {
-      e.preventDefault(); f.querySelector('button').disabled = true;
-      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: seatLead(f.position.value) ? null : +f.department.value, kind: seatLead(f.position.value) ? 'member' : f.kind.value, title: (seatLead(f.position.value) ? '' : f.title.value.trim()) || posTitle(+f.position.value) || null, reports_to: f.reports.value || null, invited_by: co.me.id, position_id: +f.position.value || null }).select().single().then(check)
-        .then(function (row) { co.shareInvite = row.id; return loadCompany(); })
-        .catch(function (err) { coErr(f, /staff_invites_one_pending/.test(err.message) ? new Error('That person already has a pending invitation for this. Use Send again below.') : err); });
+      e.preventDefault();
+      var lead = seatLead(f.position.value), pp = seatPos(f.position.value), auto = autoManager(pp, lead ? null : (+f.department.value || null));
+      var resp = Array.prototype.filter.call(f.querySelectorAll('[name=resp]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+      f.querySelector('button[type=submit]').disabled = true;
+      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), phone: f.phone.value.trim() || null, department_id: lead ? null : (+f.department.value || null), team_id: lead ? null : (+f.team.value || null),
+        kind: f.kind.value === 'lead' ? 'lead' : resp.indexOf('Mentors new members') >= 0 ? 'mentor' : 'member', title: f.title.value.trim() || posTitle(+f.position.value) || null,
+        reports_to: f.reports.value || (auto ? auto.id : null), mentor: f.mentor.value || null, responsibilities: resp, invited_by: co.me.id, position_id: +f.position.value || null }).select().single().then(check)
+        .then(function (row) { co.shareInvite = row.id; co.ptab = 'inv'; co.itab = 'pending'; return loadCompany(); })
+        .catch(function (err) { coErr(f, /staff_invites_one/.test(err.message) ? new Error('That person already has an open invitation. Use Send again under Invitations.') : err); });
     }
   });
   document.addEventListener('click', function (e) {
@@ -1224,8 +1347,8 @@
     if ((x = t.closest('[data-ws-dept]'))) { ws.dept = +x.dataset.wsDept; return renderWs(); }
     var inv = function (id) { return co.invites.filter(function (i) { return i.id === +id; })[0]; };
     if ((x = t.closest('[data-inv-copy]'))) { var link = inviteLink(inv(x.dataset.invCopy)); return void (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { x.textContent = 'Copied'; setTimeout(function () { x.textContent = 'Copy link'; }, 1500); }).catch(function () { prompt('Copy this link', link); }); }
-    if ((x = t.closest('[data-inv-show]'))) { co.shareInvite = +x.dataset.invShow; renderCompany(); var c = $('co-invite-form'); if (c) c.scrollIntoView({ block: 'end' }); return; }
-    if ((x = t.closest('[data-inv-resend]'))) return void sb.from('staff_invites').update({ expires_at: new Date(Date.now() + ((os && os.invite_days) || 7) * 864e5).toISOString() }).eq('id', +x.dataset.invResend).then(check).then(function () { co.shareInvite = +x.dataset.invResend; return loadCompany(); }).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-inv-show]'))) { co.shareInvite = +x.dataset.invShow; renderCompany(); var c = $('co-invite-form'); window.scrollTo(0, 0); return; }
+    if ((x = t.closest('[data-inv-resend]'))) return void sb.rpc('invite_resend', { inv: +x.dataset.invResend }).then(check).then(function () { co.shareInvite = +x.dataset.invResend; co.itab = 'pending'; return loadCompany(); }).catch(function (err) { alert(err.message); });
     if ((x = t.closest('[data-inv-revoke]')) && confirm('Revoke this invitation? The link will stop working.')) return void sb.from('staff_invites').update({ status: 'revoked' }).eq('id', +x.dataset.invRevoke).then(check).then(function () { co.shareInvite = null; return loadCompany(); }).catch(function (err) { alert(err.message); });
   });
   // Keep department messages fresh while the workspace is open, without disturbing someone who is typing.
@@ -1379,7 +1502,7 @@
           can ? '<select data-wsl="' + l.id + '" aria-label="Status for ' + esc(l.name) + '" style="width:auto;flex:none">' + leadStatuses.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === l.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select>' : '<span class="pill grey">' + esc((leadStatuses.filter(function (s) { return s[0] === l.status; })[0] || [0, l.status])[1]) + '</span>');
       }), 'No consultation requests yet.'));
     }).catch(bad);
-    if (k === 'people') return put(requestPanel() + '<section class="card stack"><h2 style="font-size:18px">Everyone at Lytmoz</h2><div>' + co.people.map(function (p) { return '<div class="item">' + avatar(p.id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(p.level === 'owner' ? 'Owner' : (p.title || 'Staff')) + '</span></div>' + levelPill(p) + '</div>'; }).join('') + '</div></section>');
+    if (k === 'people') return put(co.prof ? profileView(co.prof) : requestPanel() + directoryView(true));
     put(wsEmpty('info', 'Nothing here yet', 'This section is not available.'));
   }
 
@@ -1399,13 +1522,67 @@
   }
   function seatSync() {
     var f = $('co-invite-form'); if (!f) return;
-    var p = seatPos(f.position.value), lead = !!(p && p.level <= 2), h = p ? seatHolders(p) : [], warn = $('inv-warn');
+    var p = seatPos(f.position.value), lead = !!(p && p.level <= 2), h = p ? seatHolders(p) : [], warn = $('inv-warn'), full = !!(p && p.max_holders && h.length >= p.max_holders);
     $('inv-dept-row').hidden = lead; $('inv-lead-note').hidden = !lead;
-    if (p && p.department_id && !lead) f.department.value = String(p.department_id);
-    if (p && p.max_holders && h.length >= p.max_holders) { warn.hidden = false; LZ.setMsg(warn, p.title + ' is already held by ' + h.map(function (x) { return coName(x.profile_id); }).join(', ') + '. Inviting someone else gives Lytmoz two people in this seat. Remove the current holder in the Position Catalogue first if this is a replacement.', 'err'); }
+    if (p && !lead && f.dataset.pos !== String(p.id)) { f.department.value = p.department_id ? String(p.department_id) : ''; }
+    f.dataset.pos = p ? String(p.id) : '';
+    var dept = lead ? null : (+f.department.value || null), keepTeam = f.team.value;
+    f.team.innerHTML = teamOpts(dept, +keepTeam || null);
+    var auto = autoManager(p, dept), keepRep = f.reports.value;
+    f.reports.innerHTML = '<option value="">' + (auto ? 'Automatic: ' + esc(coName(auto.id)) + ' (' + esc(auto.why) + ')' : 'Automatic') + '</option>' + peopleOpts(null, '').replace('<option value=""></option>', '');
+    f.reports.value = keepRep;
+    f.querySelector('button[type=submit]').disabled = full;
+    if (full) { warn.hidden = false; LZ.setMsg(warn, p.title + ' is already held by ' + h.map(function (x) { return coName(x.profile_id); }).join(', ') + '. Remove the current holder from their profile first if this is a replacement.', 'err'); }
     else { warn.hidden = true; warn.textContent = ''; }
+    var pv = $('inv-preview'); if (!pv) return;
+    if (!p) { pv.innerHTML = f.position.value === 'none' ? '<p class="muted" style="margin:0">They join as staff with the basic workspace (their position, their work and their department). Set a position later from their profile.</p>' : '<p class="muted" style="margin:0">Choose a position to see what this person will get.</p>'; return; }
+    var blocks = ['duties', 'work', 'dept'].concat((p.blocks || []).filter(function (b) { return ['duties', 'work', 'dept'].indexOf(b) < 0; }));
+    var perms = {}; (co.grants || []).forEach(function (g) { if (!g.deny && !g.profile_id && (g.position_id === p.id || (dept && g.department_id === dept))) perms[g.permission] = 1; });
+    var d = co.depts.filter(function (x) { return x.id === dept; })[0];
+    pv.innerHTML = '<div class="inv-prev-grid"><div><span class="k">Level</span><strong>' + esc(LEVEL_NAMES[p.level] || '') + '</strong></div><div><span class="k">Department</span><strong>' + (lead ? 'Above the departments' : d ? esc(d.name) : 'None yet') + '</strong></div><div><span class="k">Reports to</span><strong>' + (f.reports.value ? esc(coName(f.reports.value)) : auto ? esc(coName(auto.id)) : '—') + '</strong></div></div>' +
+      '<div><span class="k">Workspace</span><div class="row" style="gap:6px;margin-top:4px">' + blocks.map(function (b) { return BLOCKS[b] ? '<span class="pill grey">' + esc(BLOCKS[b][1]) + '</span>' : ''; }).join('') + '</div></div>' +
+      '<div><span class="k">Permissions</span>' + (Object.keys(perms).length ? '<ul class="pf-list">' + Object.keys(perms).map(function (k) { return '<li>' + esc(permLabel(k)) + '</li>'; }).join('') + '</ul>' : '<p class="muted" style="margin:4px 0 0;font-size:13.5px">Only their own work and department.</p>') + '</div>' +
+      '<p class="muted" style="margin:0;font-size:12.5px">Set automatically from the ' + esc(p.title) + ' position in the Position Catalogue.</p>';
   }
-  document.addEventListener('change', function (e) { if (e.target && e.target.id === 'inv-pos') seatSync(); });
+  document.addEventListener('change', function (e) {
+    var t = e.target; if (!t) return;
+    if (t.id === 'inv-pos' || t.id === 'inv-dept' || t.id === 'inv-rep') return seatSync();
+    if (t.dataset && t.dataset.df) { co.df[t.dataset.df] = t.value; return renderCompany(); }
+    if (t.id === 'pc-kind') { var f = t.form, k = t.value; f.querySelector('[data-pc-f="pos"]').hidden = k === 'transfer' || k === 'remove'; f.querySelector('[data-pc-f="held"]').hidden = k !== 'remove'; f.querySelector('[data-pc-f="dept"]').hidden = !(k === 'transfer' || k === 'change'); f.querySelector('[data-pc-opt]').hidden = k === 'transfer'; f.querySelector('[data-pc-f="until"]').hidden = k !== 'acting'; f.until.required = k === 'acting'; }
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target; if (!(t.dataset && t.dataset.df === 'q')) return;
+    co.df.q = t.value; var pos = t.selectionStart; renderCompany();
+    var q = document.querySelector('[data-df="q"]'); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (er) {} }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x; if (!co.loaded) return;
+    if ((x = t.closest('[data-pc-tab]'))) { co.ptab = x.dataset.pcTab; co.prof = null; renderCompany(); return; }
+    if ((x = t.closest('[data-it]'))) { co.itab = x.dataset.it; renderCompany(); return; }
+    if (t.closest('[data-pc-back]')) { co.prof = null; renderCompany(); window.scrollTo(0, 0); return; }
+    if ((x = t.closest('[data-person]')) && !x.matches('form')) { co.prof = x.dataset.person; co.profData = null; if (co.tab !== 'people' && coOwner()) co.tab = 'people'; renderCompany(); if (!coOwner()) renderWs(); window.scrollTo(0, 0); return; }
+    if ((x = t.closest('[data-pc-status]'))) {
+      var on = x.dataset.pcStatus === '1', who = dirP(co.prof), note = on ? '' : prompt('Suspend ' + who.name + '? They lose HQ and workspace access until you reactivate them. Reason (kept in their history):', '');
+      if (!on && note === null) return;
+      x.disabled = true;
+      sb.rpc('member_set_status', { person: co.prof, active: on, note_: note || null }).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { x.disabled = false; alert(err.message); });
+    }
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target, k;
+    if (f.id === 'pc-change') {
+      e.preventDefault(); k = f.kind.value;
+      var args = { person: f.dataset.person, kind_: k, pos: k === 'remove' ? +f.held.value : k === 'transfer' ? null : +f.pos.value, dept: (k === 'transfer' || k === 'change') && f.dept.value ? +f.dept.value : null, effective: f.eff.value || null, until: k === 'acting' ? f.until.value : null, note_: f.note.value.trim() || null };
+      if ((k === 'change' || k === 'acting' || k === 'add') && !args.pos) return LZ.setMsg(f.querySelector('.msg'), 'Choose the position.', 'err');
+      if (k === 'transfer' && !args.dept) return LZ.setMsg(f.querySelector('.msg'), 'Choose the department.', 'err');
+      f.querySelector('button[type=submit]').disabled = true;
+      sb.rpc('member_change', args).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { coErr(f, err); });
+    } else if (f.id === 'pc-links') {
+      e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
+      var resp = Array.prototype.filter.call(f.querySelectorAll('[name=resp]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+      sb.rpc('member_set_links', { person: f.dataset.person, mentor_: f.mentor.value || null, reports_: f.reports.value || null, responsibilities_: resp }).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { coErr(f, err); });
+    }
+  });
   function deptName(id) { var d = co.depts.filter(function (x) { return x.id === id; })[0]; return d ? d.name : ''; }
   var REQ_ST = { requested: ['Waiting for the owner', ''], approved: ['Approved', 'green'], declined: ['Declined', 'red'], withdrawn: ['Withdrawn', 'grey'] };
   function requestPanel() {
@@ -1415,7 +1592,7 @@
     return (depts.length ? '<form id="co-request-form" class="card stack"><h2 style="font-size:18px">Ask the owner to invite someone</h2><p class="muted" style="margin:0;font-size:14px">Only the owner issues invitation links. Send the details here; the owner approves or declines, and you can follow the request below.</p>' +
       '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
       '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 200px">Position<select name="position">' + posOptions(3) + '</select></label>' +
-      '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label></div>' +
+      '<label style="flex:1 1 130px">Responsibility<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label></div>' +
       '<label><span>Why this person <span class="muted" style="font-weight:400">· optional</span></span><textarea name="note" rows="2" maxlength="1000" placeholder="Interviewed on Monday, recommended for the developer role."></textarea></label>' +
       '<div class="row"><button class="btn" type="submit">Send request to the owner</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '<div class="card"><p class="muted" style="margin:0">You can ask for invitations once you are placed in a department.</p></div>') +
       (mine.length ? '<section class="card stack"><h2 style="font-size:18px">Your requests</h2><div>' + mine.map(function (r) { var s = REQ_ST[r.status]; return wsItem(esc(r.name), esc(r.email) + ' · ' + esc(deptName(r.department_id)) + (r.position_id ? ' · ' + esc(posTitle(r.position_id)) : '') + ' · ' + when(r.created_at) + (r.decision_note ? '<br>Owner: ' + esc(r.decision_note) : ''), '<span class="pill ' + s[1] + '">' + s[0] + '</span>' + (r.status === 'requested' ? '<button type="button" class="btn small ghost" data-ireq-wd="' + r.id + '">Withdraw</button>' : '')); }).join('') + '</div></section>' : '');
@@ -2878,6 +3055,7 @@
     return sb.auth.signInWithPassword({ email: email, password: password }).then(check).then(LZ.me).then(function (p) {
       return orgRole(p).then(function (role) {
         if (!role) { sb.auth.signOut(); throw new Error('This login is for the Lytmoz team. Clients use the client portal.'); }
+        if (role === 'suspended') { sb.auth.signOut(); throw new Error('Your access to Lytmoz is paused. Please speak to the owner.'); }
         showApp(p, role);
       });
     });
@@ -2920,7 +3098,7 @@
   });
   $('logout').addEventListener('click', function () { sb.auth.signOut().finally(showLogin); });
 
-  LZ.me().then(function (p) { if (recovering) return showNewPw(); return orgRole(p).then(function (role) { role ? showApp(p, role) : showLogin(); }); }).catch(function () { recovering ? showNewPw() : showLogin(); });
+  LZ.me().then(function (p) { if (recovering) return showNewPw(); return orgRole(p).then(function (role) { role && role !== 'suspended' ? showApp(p, role) : showLogin(); }); }).catch(function () { recovering ? showNewPw() : showLogin(); });
 })();
 </script>
 <div id="ios-hint" class="ios-hint" role="dialog" aria-label="Install on iPhone" hidden><div class="card stack" style="gap:10px"><strong>Install on your iPhone</strong><p class="muted" style="margin:0;font-size:14px;line-height:1.5">Tap the <b>Share</b> button at the bottom of Safari, then <b>Add to Home Screen</b>.</p><button type="button" class="btn small ghost" id="ios-hint-close" style="align-self:flex-start">Got it</button></div></div>

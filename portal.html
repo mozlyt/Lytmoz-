@@ -109,7 +109,7 @@
 <section class="card stack"><h2 style="font-size:18px">Quick actions</h2><div class="row" style="gap:10px">
 <button type="button" class="btn small" data-go="services"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Request a service</button>
 <button type="button" class="btn small ghost" data-go="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg>Send files</button>
-<button type="button" class="btn small ghost" data-go="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg>Add a team member</button></div></section>
+<button type="button" class="btn small ghost" data-go="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg>Start a group</button></div></section>
 </section>
 
 <section data-v="projects" class="stack" style="gap:22px" hidden>
@@ -173,10 +173,10 @@
 </section>
 
 <section data-v="team" class="stack" hidden>
-<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><div><h1 class="serif h">My team</h1><p class="muted sub">Groups for any purpose, and your business workspace for staff.</p></div></div>
-<div class="tabs" role="tablist" id="team-mode"><button type="button" role="tab" data-team-mode="groups" aria-selected="true">Groups<b class="nb" id="nb-groups" hidden></b></button><button type="button" role="tab" data-team-mode="biz" aria-selected="false">Business workspace</button></div>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><div><h1 class="serif h">My team</h1><p class="muted sub">Group chats with other Lytmoz clients, and the people you follow.</p></div></div>
+<div class="tabs" role="tablist" id="team-mode"><button type="button" role="tab" data-team-mode="groups" aria-selected="true">Groups</button><button type="button" role="tab" data-team-mode="following" aria-selected="false">Following</button><button type="button" role="tab" data-team-mode="followers" aria-selected="false">Followers<b class="nb" id="nb-followers" hidden></b></button></div>
 <div id="groups"></div>
-<div id="team" hidden></div>
+<div id="follow" hidden></div>
 </section>
 
 <section data-v="billing" class="stack" hidden>
@@ -309,7 +309,7 @@
 <details><summary>How do I follow my project?</summary><p class="muted">Open My projects. You will see the stage, latest updates and a preview link when it is ready.</p></details>
 <details><summary>How do I send my logo, photos or text?</summary><p class="muted">Go to Files &amp; content and upload them. Up to 25 MB per file.</p></details>
 <details><summary>How do I pay an invoice?</summary><p class="muted">Open Billing and tap Pay on the invoice. Pay online by card or Mobile Money, or send a transfer and submit the transaction ID. You can pay a deposit first and the balance later.</p></details>
-<details><summary>Can my staff log in too?</summary><p class="muted">Yes. In My team, create your business workspace, then add their emails after they create a free account. You can then assign them work and discuss it there.</p></details>
+<details><summary>What is My team?</summary><p class="muted">Group chats with other Lytmoz clients, and the people you follow. Start a group for any purpose, add people, and chat and share files. People in a group see only its messages and files, never your projects or invoices. Follow clients to find them quickly, message them and add them to groups.</p></details>
 <details><summary>I need something new built.</summary><p class="muted">Use Request a service and we will reply with a quote.</p></details>
 </div>
 <div class="card stack"><h2 style="font-size:18px">Contact us</h2><div class="row" style="gap:10px">
@@ -721,147 +721,16 @@
     }
   });
 
-  // Team: members, assigned work and discussion
-  var teamOpen = 0, groupUnread = 0;
-  function teamBadge() { badge('team', teamOpen + groupUnread); badge('groups', groupUnread); }
-  var myOrg = null, teamTab = 'tasks', teamTasks = [], teamPosts = [], openTask = null, teamSig = '';
-  var T_STATUS = { todo: 'To do', doing: 'In progress', done: 'Done' };
-  function member(id) { var m = myOrg ? myOrg.members.filter(function (x) { return x.id === id; })[0] : null; return m ? (m.id === me.id ? 'You' : (m.name || m.email)) : 'Former member'; }
+  // Business name for the header. The business workspace screen was removed; My team now holds groups only.
+  var myOrg = null, groupUnread = 0;
+  function teamBadge() { badge('team', groupUnread); }
   function loadTeam() {
     return sb.rpc('my_team').then(check).then(function (orgs) {
       myOrg = (orgs || []).filter(function (o) { return o.myRole === 'owner'; })[0] || (orgs || [])[0] || null;
       $('ws-name').textContent = myOrg ? myOrg.name : 'Your workspace';
       $('ov-eyebrow').textContent = myOrg ? myOrg.name + ' · Overview' : 'Overview';
-      if (!myOrg) {
-        teamOpen = 0; teamBadge();
-        $('team').innerHTML = '<form id="biz-form" class="card stack"><h2 style="font-size:18px">Create your business workspace</h2><p class="muted" style="margin:0;font-size:14px">Name your business, then add your staff. You can assign them work, discuss it together, and everyone you add sees your projects, files and invoices.</p><label>Business name<input name="name" required maxlength="160" value="' + esc(me.company || '') + '"></label><div class="row"><button class="btn" type="submit">Create workspace</button><p class="msg" id="biz-msg" role="status"></p></div></form>';
-        return;
-      }
-      teamSig = '';
-      return loadTeamWork();
     });
   }
-  function loadTeamWork(quiet) {
-    return Promise.all([
-      sb.from('team_tasks').select('*').eq('organization_id', myOrg.id).order('id', { ascending: false }).limit(300).then(check),
-      sb.from('team_posts').select('*').eq('organization_id', myOrg.id).order('id', { ascending: false }).limit(400).then(check)
-    ]).then(function (r) {
-      var sig = JSON.stringify([r[0].map(function (t) { return [t.id, t.updated_at]; }), r[1].length ? r[1][0].id : 0, r[1].length]);
-      if (quiet && sig === teamSig) return;
-      teamSig = sig; teamTasks = r[0]; teamPosts = r[1].reverse();
-      renderTeam();
-    });
-  }
-  function bubble(p) { return '<div class="bub ' + (p.author === me.id ? 'me' : 'them') + '">' + esc(p.text) + '<small>' + esc(member(p.author)) + ' · ' + when(p.created_at) + '</small></div>'; }
-  function taskHtml(t, owner, today) {
-    var mine = t.assignee === me.id, late = t.status !== 'done' && t.due_on && t.due_on < today, proj = allProjects.filter(function (p) { return p.id === t.project_id; })[0];
-    var talk = teamPosts.filter(function (p) { return p.task_id === t.id; }), open = openTask === t.id;
-    return '<div class="task' + (t.status === 'done' ? ' done' : '') + '"><div class="row between" style="align-items:flex-start;gap:10px;flex-wrap:nowrap"><div style="min-width:0"><strong style="font-size:16px;overflow-wrap:anywhere">' + esc(t.title) + '</strong>' +
-      '<div class="muted" style="font-size:13px;margin-top:4px">' + (t.assignee ? 'Assigned to ' + esc(member(t.assignee)) : 'Not assigned') + (t.due_on ? ' · <span' + (late ? ' style="color:#F0A9A0;font-weight:600"' : '') + '>' + (late ? 'Overdue, was due ' : 'Due ') + day(t.due_on) + '</span>' : '') + (proj ? ' · ' + esc(proj.name) : '') + '</div></div>' +
-      (owner || mine ? '<select data-task-status="' + t.id + '" aria-label="Status" style="width:auto;flex:none;padding:8px 10px;font-size:13px">' + Object.keys(T_STATUS).map(function (k) { return '<option value="' + k + '"' + (k === t.status ? ' selected' : '') + '>' + T_STATUS[k] + '</option>'; }).join('') + '</select>'
-        : '<span class="pill ' + (t.status === 'done' ? 'green' : t.status === 'doing' ? 'blue' : '') + '">' + T_STATUS[t.status] + '</span>') + '</div>' +
-      (t.instructions ? '<p style="margin:10px 0 0;font-size:14px;line-height:1.55;white-space:pre-wrap;color:var(--soft)">' + esc(t.instructions) + '</p>' : '') +
-      '<div class="row" style="gap:16px;margin-top:10px"><button type="button" class="linkish" data-task-talk="' + t.id + '" aria-expanded="' + open + '">' + (open ? 'Hide discussion' : talk.length ? 'Discussion (' + talk.length + ')' : 'Discuss') + '</button>' +
-      (owner ? '<button type="button" class="linkish" data-task-del="' + t.id + '" style="color:var(--muted)">Delete</button>' : '') + '</div>' +
-      (open ? '<div class="tthread" style="margin-top:12px">' + (talk.map(bubble).join('') || '<p class="muted" style="margin:0;font-size:14px">No comments yet.</p>') + '</div>' +
-        '<form data-task-post="' + t.id + '" class="row" style="gap:8px;margin-top:10px;align-items:flex-end"><label style="flex:1 1 220px">Comment on this task<textarea name="text" rows="2" maxlength="4000" required data-keep="c' + t.id + '"></textarea></label><button class="btn small" type="submit">Send</button></form>' : '') + '</div>';
-  }
-  function renderTeam() {
-    if (!myOrg) return;
-    var keep = {}; document.querySelectorAll('#team [data-keep]').forEach(function (el) { keep[el.dataset.keep] = el.value; });
-    var owner = myOrg.myRole === 'owner', manage = owner || myOrg.myRole === 'admin', today = new Date().toISOString().slice(0, 10), ROLE = { owner: 'Owner', admin: 'Administrator', member: 'Member' };
-    var openT = teamTasks.filter(function (t) { return t.status !== 'done'; }).sort(function (a, b) { return (a.due_on || '9999') < (b.due_on || '9999') ? -1 : (a.due_on || '9999') > (b.due_on || '9999') ? 1 : b.id - a.id; });
-    var doneT = teamTasks.filter(function (t) { return t.status === 'done'; });
-    var myOpen = openT.filter(function (t) { return t.assignee === me.id; }).length;
-    teamOpen = myOpen; teamBadge();
-    var general = teamPosts.filter(function (p) { return !p.task_id; }), orgProjects = allProjects.filter(function (p) { return p.organization_id === myOrg.id; });
-    var tab = function (k, label) { return '<button type="button" role="tab" data-team-tab="' + k + '" aria-selected="' + (teamTab === k) + '">' + label + '</button>'; };
-    var out = '<div class="row between"><div><strong style="font-size:17px">' + esc(myOrg.name) + '</strong><span class="muted" style="font-size:13px"> · ' + myOrg.members.length + (myOrg.members.length === 1 ? ' member' : ' members') + (myOpen ? ' · ' + myOpen + ' assigned to you' : '') + '</span></div></div>' +
-      '<div class="tabs" role="tablist">' + tab('tasks', 'Tasks' + (openT.length ? ' (' + openT.length + ')' : '')) + tab('talk', 'Discussion') + tab('members', 'Members') + tab('activity', 'Activity') + '</div>';
-    if (teamTab === 'tasks') {
-      out += (owner ? '<form id="task-form" class="card stack"><h2 style="font-size:18px">Assign work</h2>' +
-        '<label>What needs doing?<input name="title" required maxlength="160" placeholder="Prepare the website content" data-keep="tt"></label>' +
-        '<div class="row" style="gap:12px"><label style="flex:2 1 180px">Assign to<select name="assignee" data-keep="ta">' + myOrg.members.map(function (m) { return '<option value="' + m.id + '">' + esc(m.id === me.id ? 'Me' : (m.name || m.email)) + '</option>'; }).join('') + '</select></label>' +
-        '<label style="flex:1 1 150px"><span>Due date <span class="muted" style="font-weight:400">· optional</span></span><input name="due" type="date" min="' + today + '" data-keep="td"></label>' +
-        (orgProjects.length ? '<label style="flex:2 1 180px"><span>Project <span class="muted" style="font-weight:400">· optional</span></span><select name="project" data-keep="tp"><option value="">None</option>' + orgProjects.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
-        '<label><span>Instructions <span class="muted" style="font-weight:400">· optional</span></span><textarea name="instructions" rows="2" maxlength="4000" data-keep="ti"></textarea></label>' +
-        '<div class="row"><button class="btn" type="submit">Assign</button><p class="msg" role="status"></p></div></form>' : '') +
-        '<section class="card stack"><h2 style="font-size:18px">Work in progress</h2><div>' + (openT.map(function (t) { return taskHtml(t, owner, today); }).join('') || '<p class="muted" style="margin:0">' + (owner ? 'Nothing assigned yet. Give your first order above.' : 'Nothing is assigned right now. Work from the business owner appears here.') + '</p>') + '</div>' +
-        (doneT.length ? '<details' + (doneT.some(function (t) { return t.id === openTask; }) ? ' open' : '') + '><summary>Completed (' + doneT.length + ')</summary><div style="margin-top:10px">' + doneT.map(function (t) { return taskHtml(t, owner, today); }).join('') + '</div></details>' : '') + '</section>';
-    } else if (teamTab === 'talk') {
-      out += '<section class="card stack"><h2 style="font-size:18px">Team discussion</h2><p class="muted" style="margin:0;font-size:14px">Only members of ' + esc(myOrg.name) + ' see this. To talk about one piece of work, open Discuss on its task.</p>' +
-        '<div class="tthread" id="team-thread">' + (general.map(bubble).join('') || '<p class="muted" style="margin:0">No messages yet. Start the conversation.</p>') + '</div>' +
-        '<form id="team-post-form" class="stack" style="gap:10px"><label>Write to your team<textarea name="text" rows="2" maxlength="4000" required data-keep="g"></textarea></label><div class="row"><button class="btn" type="submit">Send</button><p class="msg" role="status"></p></div></form></section>';
-    } else if (teamTab === 'members') {
-      out += '<section class="card stack"><h2 style="font-size:18px">Members</h2><div>' + myOrg.members.map(function (m) {
-        var n = openT.filter(function (t) { return t.assignee === m.id; }).length;
-        return '<div class="item">' + ICON('team') + '<div class="main"><strong>' + esc(m.name || m.email) + (m.id === me.id ? ' (you)' : '') + '</strong><span>' + esc(m.email) + ' · ' + (n ? n + ' open task' + (n === 1 ? '' : 's') : 'no open tasks') + '</span></div>' + (owner && m.id !== me.id ? '<select data-set-role="' + m.id + '" aria-label="Role for ' + esc(m.name || m.email) + '" style="width:auto;flex:none;padding:7px 10px;font-size:13px">' + ['member', 'admin', 'owner'].map(function (r) { return '<option value="' + r + '"' + (r === m.role ? ' selected' : '') + '>' + ROLE[r] + '</option>'; }).join('') + '</select>' : '<span class="pill ' + (m.role === 'member' ? 'grey' : '') + '">' + ROLE[m.role] + '</span>') + '<span hidden></span>' +
-          ((owner && m.id !== me.id) || (!owner && manage && m.role === 'member' && m.id !== me.id) ? '<button type="button" class="btn small ghost" data-remove-member="' + m.id + '" aria-label="Remove ' + esc(m.name || m.email) + '">Remove</button>' : '') + '</div>';
-      }).join('') + '</div></section>' +
-        (manage ? '<form id="member-form" class="card stack"><h2 style="font-size:18px">Add a team member</h2><p class="muted" style="margin:0;font-size:14px">They first create a free account at lytmoz.com/portal.html, then you add their email here. <strong>Owners</strong> assign work and manage everyone. <strong>Administrators</strong> add and remove members for you. <strong>Members</strong> do the work assigned to them and join discussions.</p><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Their email<input type="email" name="email" required></label><label style="flex:1 1 130px">Role<select name="role"><option value="member">Member</option>' + (owner ? '<option value="admin">Administrator</option><option value="owner">Owner</option>' : '') + '</select></label><button class="btn" type="submit">' + ICON('plus') + 'Add</button></div><p class="msg" id="member-msg" role="status"></p></form>'
-          : '<p class="muted card" style="margin:0">Only the business owner and administrators can add or remove people.</p>');
-    } else {
-      var ev = [], title = function (id) { var t = teamTasks.filter(function (x) { return x.id === id; })[0]; return t ? '"' + t.title + '"' : 'a task'; };
-      teamTasks.forEach(function (t) {
-        ev.push([t.created_at, member(t.created_by) + ' assigned "' + t.title + '"' + (t.assignee && t.assignee !== t.created_by ? ' to ' + member(t.assignee) : '')]);
-        if (t.done_at) ev.push([t.done_at, '"' + t.title + '" was completed']);
-      });
-      teamPosts.forEach(function (p) { ev.push([p.created_at, member(p.author) + (p.task_id ? ' commented on ' + title(p.task_id) : ' wrote in the team discussion')]); });
-      ev.sort(function (a, b) { return a[0] < b[0] ? 1 : -1; });
-      out += '<section class="card stack"><h2 style="font-size:18px">Recent team activity</h2><div>' + (ev.slice(0, 40).map(function (e) { return '<div class="item" style="padding:10px 0"><div class="main"><strong style="white-space:normal;font-weight:500">' + esc(e[1]) + '</strong><span>' + when(e[0]) + '</span></div></div>'; }).join('') || '<p class="muted" style="margin:0">Assigned work and discussions will show here.</p>') + '</div></section>';
-    }
-    $('team').innerHTML = '<div class="stack" style="gap:18px">' + out + '</div>';
-    document.querySelectorAll('#team [data-keep]').forEach(function (el) { if (keep[el.dataset.keep]) el.value = keep[el.dataset.keep]; });
-    document.querySelectorAll('#team .tthread').forEach(function (el) { el.scrollTop = el.scrollHeight; });
-  }
-  function teamErr(f, err) { var m = f.querySelector('.msg'), b = f.querySelector('button[type=submit]'); if (b) b.disabled = false; if (m) LZ.setMsg(m, err.message, 'err'); else alert(err.message); }
-  document.addEventListener('submit', function (e) {
-    var f = e.target;
-    if (f.id === 'biz-form') {
-      e.preventDefault();
-      sb.rpc('create_my_business', { business_name: f.name.value }).then(check).then(function () { return loadTeam(); }).catch(function (err) { LZ.setMsg($('biz-msg'), err.message, 'err'); });
-    }
-    if (f.id === 'member-form') {
-      e.preventDefault();
-      var b = f.querySelector('button'); b.disabled = true;
-      sb.rpc('add_team_member', { org: myOrg.id, member_email: f.email.value.trim(), member_role: f.role.value }).then(check).then(function () { return loadTeam(); })
-        .catch(function (err) { LZ.setMsg($('member-msg'), err.message, 'err'); b.disabled = false; });
-    }
-    if (f.id === 'task-form') {
-      e.preventDefault();
-      f.querySelector('button[type=submit]').disabled = true;
-      sb.from('team_tasks').insert({ organization_id: myOrg.id, title: f.title.value.trim(), instructions: f.instructions.value.trim() || null, assignee: f.assignee.value || null, due_on: f.due.value || null, project_id: f.project && f.project.value ? +f.project.value : null }).then(check)
-        .then(function () { f.reset(); return loadTeamWork(); }).catch(function (err) { teamErr(f, err); });
-    }
-    if (f.id === 'team-post-form' || f.dataset.taskPost) {
-      e.preventDefault();
-      var text = f.text.value.trim(); if (!text) return;
-      f.querySelector('button[type=submit]').disabled = true;
-      sb.from('team_posts').insert({ organization_id: myOrg.id, task_id: f.dataset.taskPost ? +f.dataset.taskPost : null, text: text }).then(check)
-        .then(function () { f.text.value = ''; return loadTeamWork(); }).catch(function (err) { teamErr(f, err); });
-    }
-  });
-  document.addEventListener('change', function (e) {
-    var sr = e.target.dataset && e.target.dataset.setRole;
-    if (sr) return void sb.rpc('set_team_role', { org: myOrg.id, member: sr, role_: e.target.value }).then(check).then(loadTeam).catch(function (err) { alert(err.message); loadTeam(); });
-    var s = e.target.dataset && e.target.dataset.taskStatus; if (!s) return;
-    sb.from('team_tasks').update({ status: e.target.value }).eq('id', +s).then(check).then(function () { return loadTeamWork(); }).catch(function (err) { alert(err.message); loadTeamWork(); });
-  });
-  document.addEventListener('click', function (e) {
-    var r = e.target.closest('[data-remove-member]');
-    if (r && confirm('Remove this person from your business? They will lose access to its projects.')) sb.rpc('remove_team_member', { org: myOrg.id, member: r.dataset.removeMember }).then(check).then(loadTeam).catch(function (err) { alert(err.message); });
-    var tb = e.target.closest('[data-team-tab]'); if (tb) { teamTab = tb.dataset.teamTab; renderTeam(); return; }
-    var tk = e.target.closest('[data-task-talk]');
-    if (tk) { openTask = openTask === +tk.dataset.taskTalk ? null : +tk.dataset.taskTalk; renderTeam(); var ta = openTask && document.querySelector('[data-task-post="' + openTask + '"] textarea'); if (ta) ta.focus(); return; }
-    var del = e.target.closest('[data-task-del]');
-    if (del && confirm('Delete this task and its discussion? This cannot be undone.')) sb.from('team_tasks').delete().eq('id', +del.dataset.taskDel).then(check).then(function () { return loadTeamWork(); }).catch(function (err) { alert(err.message); });
-  });
-  // Keep the team page fresh while it is open, without disturbing someone who is typing.
-  setInterval(function () {
-    var sec = document.querySelector('[data-v="team"]');
-    if (!myOrg || !sec || sec.hidden || document.visibilityState !== 'visible' || $('team').contains(document.activeElement)) return;
-    loadTeamWork(true).catch(function () {});
-  }, 30000);
 
   // Groups: any client can start a group for a purpose and add other clients.
   // Members see only the group's messages and the files shared inside its chat.
@@ -921,10 +790,11 @@
   }
   function gPicker() {
     if (!gr.cands) return '<p class="muted" style="margin:0">Loading people…</p>';
-    var q = gr.q.toLowerCase(), list = gr.cands.filter(function (c) { return !q || (c.name + ' ' + (c.business || '')).toLowerCase().indexOf(q) >= 0; });
+    var fol = {}; if (fl.data) fl.data.following.forEach(function (p) { fol[p.id] = 1; });
+    var q = gr.q.toLowerCase(), list = gr.cands.slice().sort(function (a, b) { return (fol[b.id] || 0) - (fol[a.id] || 0); }).filter(function (c) { return !q || (c.name + ' ' + (c.business || '')).toLowerCase().indexOf(q) >= 0; });
     var n = Object.keys(gr.pick).length;
     return '<label>Find people<input type="search" data-g-q value="' + esc(gr.q) + '" placeholder="Search by name or business" autocomplete="off"></label>' +
-      '<p class="muted g-hint" style="margin:0;font-size:13px">' + (n ? n + ' chosen · ' : '') + 'People online now and active today are listed first. Only people who are visible in Messages can be added.</p>' +
+      '<p class="muted g-hint" style="margin:0;font-size:13px">' + (n ? n + ' chosen · ' : '') + 'People you follow come first, then people online now and active today. Only people who are visible in Messages can be added.</p>' +
       '<div class="gpick" role="group" aria-label="People">' + (list.slice(0, 200).map(function (c) {
         return '<label class="gp"><input type="checkbox" data-g-pick="' + c.id + '"' + (gr.pick[c.id] ? ' checked' : '') + '><span class="gdot' + (c.online ? ' on' : c.today ? ' today' : '') + '" aria-hidden="true"></span><span class="gp-t"><strong>' + esc(c.name || 'Client') + '</strong><small>' + (c.online ? 'Online now' : c.today ? 'Active today' : 'Not active today') + (c.business ? ' · ' + esc(c.business) : '') + '</small></span></label>';
       }).join('') || '<p class="muted" style="margin:0;padding:10px 0">' + (gr.cands.length ? 'Nobody matches that search.' : 'Nobody else is available to add yet.') + '</p>') + '</div>';
@@ -981,11 +851,6 @@
   function gErr(f, err) { var b = f.querySelector('button[type=submit]'); if (b) b.disabled = false; var m = f.querySelector('.msg'); if (m) LZ.setMsg(m, err.message, 'err'); else alert(err.message); }
   document.addEventListener('click', function (e) {
     var t = e.target, x;
-    if ((x = t.closest('[data-team-mode]'))) {
-      var biz = x.dataset.teamMode === 'biz';
-      document.querySelectorAll('[data-team-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b === x)); });
-      $('groups').hidden = biz; $('team').hidden = !biz; return;
-    }
     if (!$('groups').contains(t)) return;
     if (t.closest('[data-g-new]')) { gr.view = 'new'; gr.pick = {}; gr.q = ''; gCands(null); return; }
     if (t.closest('[data-g-back]')) { gr.view = 'list'; gr.open = null; renderGroups(); loadGroups().catch(function () {}); return; }
@@ -1019,7 +884,7 @@
   });
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (t.dataset && t.dataset.gPick) { if (t.checked) gr.pick[t.dataset.gPick] = 1; else delete gr.pick[t.dataset.gPick]; var hint = t.closest('form').querySelector('.g-hint'); if (hint) hint.textContent = (Object.keys(gr.pick).length ? Object.keys(gr.pick).length + ' chosen · ' : '') + 'People online now and active today are listed first. Only people who are visible in Messages can be added.'; return; }
+    if (t.dataset && t.dataset.gPick) { if (t.checked) gr.pick[t.dataset.gPick] = 1; else delete gr.pick[t.dataset.gPick]; var hint = t.closest('form').querySelector('.g-hint'); if (hint) hint.textContent = (Object.keys(gr.pick).length ? Object.keys(gr.pick).length + ' chosen · ' : '') + 'People you follow come first, then people online now and active today. Only people who are visible in Messages can be added.'; return; }
     if (t.id === 'g-file') { var f = t.files[0]; $('g-fname').textContent = f ? f.name.slice(0, 40) : 'Attach a file'; }
   });
   document.addEventListener('submit', function (e) {
@@ -1072,6 +937,69 @@
     } else loadGroups().catch(function () {});
   }, 45000);
 
+  // Following and followers: clients follow each other, then message or add each other to groups.
+  var fl = { tab: 'groups', data: null, all: null, q: '' };
+  function loadFollows() {
+    return sb.rpc('follow_lists').then(check).then(function (d) {
+      fl.data = d || { following: [], followers: [], suggested: [] };
+      var seen = 0; try { seen = +localStorage.getItem('lz-followers-seen-' + me.id) || 0; } catch (e) {}
+      var fresh = fl.data.followers.filter(function (p) { return new Date(p.followed_at).getTime() > seen; }).length;
+      badge('followers', fresh);
+      if (fl.tab !== 'groups') renderFollows();
+    });
+  }
+  function flSeen() { try { localStorage.setItem('lz-followers-seen-' + me.id, String(Date.now())); } catch (e) {} badge('followers', 0); }
+  function flRow(p, why) {
+    return '<div class="item"><span class="gdot' + (p.online ? ' on' : p.today ? ' today' : '') + '" aria-hidden="true"></span><div class="main"><strong>' + esc(p.name || 'Client') + '</strong><span>' +
+      [p.business ? esc(p.business) : '', p.online ? 'Online now' : p.today ? 'Active today' : '', why || (p.follows_me && p.i_follow ? 'You follow each other' : p.follows_me ? 'Follows you' : ''), (+p.followers ? p.followers + (+p.followers === 1 ? ' follower' : ' followers') : '')].filter(Boolean).join(' · ') + '</span></div>' +
+      '<button type="button" class="btn small ghost" data-f-msg="' + p.id + '" aria-label="Message ' + esc(p.name || '') + '">' + ICON('chat') + 'Message</button>' +
+      (p.i_follow ? '<button type="button" class="btn small ghost" data-f-set="' + p.id + '" data-on="0" aria-label="Unfollow ' + esc(p.name || '') + '">Following</button>'
+        : '<button type="button" class="btn small" data-f-set="' + p.id + '" data-on="1">' + (p.follows_me ? 'Follow back' : 'Follow') + '</button>') + '</div>';
+  }
+  function renderFollows() {
+    var root = $('follow'); if (!root) return;
+    if (!fl.data) { root.innerHTML = '<p class="muted">Loading…</p>'; return; }
+    var d = fl.data, out = '';
+    if (fl.tab === 'following') {
+      var q = fl.q.toLowerCase(), byId = {};
+      d.following.concat(d.followers).forEach(function (p) { byId[p.id] = p; });
+      var found = q && fl.all ? fl.all.filter(function (c) { return (c.name + ' ' + (c.business || '')).toLowerCase().indexOf(q) >= 0; }).slice(0, 40).map(function (c) { return byId[c.id] || Object.assign({ i_follow: false, follows_me: false }, c); }) : null;
+      out = '<section class="card stack" style="gap:0"><h2 style="font-size:18px;margin-bottom:6px">You follow (' + d.following.length + ')</h2>' + (d.following.map(function (p) { return flRow(p); }).join('') || '<p class="muted" style="margin:0">You are not following anyone yet. Find people below.</p>') + '</section>' +
+        '<section class="card stack" style="gap:10px"><h2 style="font-size:18px">Find people to follow</h2><label class="sr-only" for="f-q">Search clients</label><input id="f-q" type="search" data-f-q value="' + esc(fl.q) + '" placeholder="Search by name or business" autocomplete="off">' +
+        '<div>' + (found ? (found.map(function (p) { return flRow(p); }).join('') || '<p class="muted" style="margin:0">Nobody matches that search.</p>')
+          : (d.suggested.length ? '<p class="muted" style="margin:0 0 4px;font-size:13px">Suggested: people who follow you, and people online or active today.</p>' + d.suggested.map(function (p) { return flRow(p); }).join('') : '<p class="muted" style="margin:0">Nobody else is available to follow yet.</p>')) + '</div>' +
+        '<p class="muted" style="margin:0;font-size:12.5px">Only clients who are visible in Messages can be followed. Following someone lets you find them quickly, message them and add them to groups.</p></section>';
+    } else {
+      out = '<section class="card stack" style="gap:0"><h2 style="font-size:18px;margin-bottom:6px">Your followers (' + d.followers.length + ')</h2>' + (d.followers.map(function (p) { return flRow(p, p.i_follow ? 'You follow each other' : 'Followed you ' + when(p.followed_at)); }).join('') || '<p class="muted" style="margin:0">Nobody follows you yet. When someone does, they show here.</p>') + '</section>' +
+        '<p class="muted" style="margin:0;font-size:12.5px">To stop appearing to other clients, turn off visibility in More → Privacy. You can also block someone from inside a chat in Messages.</p>';
+    }
+    root.innerHTML = '<div class="stack" style="gap:16px">' + out + '</div>';
+  }
+  function flTab(k) {
+    fl.tab = k;
+    document.querySelectorAll('[data-team-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.teamMode === k)); });
+    $('groups').hidden = k !== 'groups'; $('follow').hidden = k === 'groups';
+    if (k === 'groups') return;
+    if (k === 'followers') flSeen();
+    renderFollows(); loadFollows().catch(function (err) { $('follow').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
+    if (k === 'following' && !fl.all) sb.rpc('group_candidates', { g: null }).then(check).then(function (r) { fl.all = r || []; if (fl.q) renderFollows(); }).catch(function () { fl.all = []; });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-team-mode]'))) return flTab(x.dataset.teamMode);
+    if ((x = t.closest('[data-f-set]'))) {
+      x.disabled = true;
+      sb.rpc('follow_set', { person: x.dataset.fSet, on_: x.dataset.on === '1' }).then(check).then(loadFollows).then(renderFollows).catch(function (err) { x.disabled = false; alert(err.message); });
+      return;
+    }
+    if ((x = t.closest('[data-f-msg]'))) { show('chat'); if (chatUI && chatUI.openWith) chatUI.openWith(x.dataset.fMsg); }
+  });
+  document.addEventListener('input', function (e) {
+    if (!(e.target.matches && e.target.matches('[data-f-q]'))) return;
+    fl.q = e.target.value; var pos = e.target.selectionStart; renderFollows();
+    var q = $('f-q'); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (er) {} }
+  });
+
   // Subscriptions
   function loadSubs() {
     return sb.from('subscriptions').select('*').order('id', { ascending: false }).then(check).then(function (rows) {
@@ -1110,7 +1038,7 @@
     return loadTeam().catch(function () {}).then(function () {
       return sb.from('projects').select('*').order('id', { ascending: false }).limit(50).then(check);
     }).then(function (rows) {
-      allProjects = rows; if (myOrg) renderTeam();
+      allProjects = rows;
       $('project-switch').innerHTML = rows.length > 1 ? rows.map(function (p) { return '<button type="button" class="chip" data-project="' + p.id + '" aria-pressed="false">' + esc(p.name) + '<span class="muted"> · Stage ' + p.stage + '</span></button>'; }).join('') : '';
       $('project-switch').hidden = rows.length < 2;
       if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
@@ -1118,7 +1046,7 @@
         if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
         fillAccount();
         show((location.hash || '').slice(1) || 'overview');
-        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs(), loadBilling(), loadGroups()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
+        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs(), loadBilling(), loadGroups(), loadFollows()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
       });
     });
   }

@@ -1,0 +1,5 @@
+-- Applied as migrations `staff_leave_ends_access` and `staff_leave_ends_access_fix` (12 Nov 2026).
+-- has_permission() only counts for current staff (or the owner): a removed person keeps no permissions.
+-- staff_left() runs when a staff row is deleted (Remove from Lytmoz): ends their positions (history kept),
+-- removes them from teams and as team leader, removes their personal permission adjustments,
+-- and cancels their open tasks with a note in the task history. Departments and headships were already cleared.

@@ -1003,7 +1003,7 @@
     }
     if (t.closest('[data-g-leave]')) {
       var g = gGroup(), lastOne = gr.people.length <= 1;
-      if (!confirm(lastOne ? 'You are the only person in this group. Leaving deletes it with its messages and files. Leave?' : 'Leave "' + (g ? g.name : 'this group') + '"? You will no longer see its messages or files.')) return;
+      if (!confirm(lastOne ? 'You are the only person in this group. Leaving deletes it and its messages. Leave?' : 'Leave "' + (g ? g.name : 'this group') + '"? You will no longer see its messages or files.')) return;
       var path = gr.open;
       sb.rpc('group_remove', { g: path, person: me.id }).then(check).then(function () { gr.open = null; gr.view = 'list'; return loadGroups(); }).catch(function (err) { alert(err.message); });
     }

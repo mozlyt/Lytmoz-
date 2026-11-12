@@ -111,6 +111,9 @@ begin
   elsif not public.group_admin(g) then raise exception 'Only a group admin can remove people.';
   end if;
   delete from public.chat_group_members where group_id = g and profile_id = person;
+  if not exists (select 1 from public.chat_group_members where group_id = g) then
+    delete from public.chat_groups where id = g;
+  end if;
 end $$;
 create or replace function public.group_set_admin(g bigint, person uuid, on_ boolean)
 returns void language plpgsql security definer set search_path to '' as $$

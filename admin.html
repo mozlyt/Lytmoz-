@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=16">
+<link rel="stylesheet" href="assets/app.css?v=17">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -363,7 +363,7 @@
     document.body.classList.add('owner-mode');
     if (!$('side-nav').firstChild) buildShell();
     $('me-name').textContent = p.name; $('me-av').textContent = initialsOf(p.name);
-    loadHqMenu();
+    loadHqMenu(); refreshInvReqN();
     if (!hqChat && window.LZChat) hqChat = LZChat.mount($('hq-chat-root'), { me: p, isAdmin: true, onUnread: function (n) { chatUnread = n; paintBadges(); } });
     $('who').textContent = p.name;
     var h = new Date().getHours();
@@ -943,7 +943,7 @@
     ['Change what each level is allowed to do', null, null],
     ['Edit their own department\'s name and purpose', 'head_edit_department', null],
     ['Add and remove members of their own department', 'head_manage_members', null],
-    ['Invite new people into their own department', 'head_invite', null],
+    ['Issue invitation links (heads and HR can ask the owner instead)', null, null],
     ['See every department and the organization chart', 'head_see_all', 'staff_see_all'],
     ['Assign duties in their department', 'head_assign_work', null, 'Stage 2'],
     ['Review submitted work', 'head_review_work', null, 'Stage 3']
@@ -964,8 +964,10 @@
     return Promise.all([
       sb.rpc('org_people').then(check), sb.from('departments').select('*').order('name').then(check),
       sb.from('department_members').select('*').then(check), sb.from('authority_settings').select('rules').eq('id', 1).single().then(check),
-      sb.from('staff_invites').select('*').order('id', { ascending: false }).limit(60).then(check), sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check)
-    ]).then(function (r) { co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.loaded = true; renderCompany(); renderWs(); })
+      sb.from('staff_invites').select('*').order('id', { ascending: false }).limit(60).then(check), sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check),
+      sb.from('positions').select('*').order('level').order('id').then(check, function () { return []; }), sb.from('invite_requests').select('*').order('id', { ascending: false }).limit(100).then(check, function () { return []; }),
+      coOwner() ? Promise.resolve(null) : sb.rpc('my_workspace').then(check, function () { return null; }), sb.from('org_permissions').select('*').order('key').then(check, function () { return []; })
+    ]).then(function (r) { co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); renderWs(); })
       .catch(function (err) { $('co-view').innerHTML = $('ws-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
   }
   function deptCard(d) {
@@ -1020,11 +1022,11 @@
         '<div class="row"><button class="btn" type="submit">Create department</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '') +
         (co.depts.map(deptFull).join('') || '<p class="muted card" style="margin:0">No departments yet.</p>');
     } else if (co.tab === 'people') {
-      out += invitePanel() +
+      out += ownerRequests() + invitePanel() + requestPanel() +
         '<section class="card stack"><h2 style="font-size:18px">Everyone at Lytmoz</h2><div>' + co.people.map(function (p) {
           var ds = co.members.filter(function (m) { return m.profile_id === p.id; }).map(function (m) { var d = co.depts.filter(function (x) { return x.id === m.department_id; })[0]; return d ? d.name : ''; }).filter(Boolean);
           return '<div class="item" style="flex-wrap:wrap">' + avatar(p.id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(p.email) + ' · ' + esc(p.level === 'owner' ? 'Overall authority' : (p.title || 'No position set')) + (p.level !== 'owner' ? ' · ' + (ds.length ? esc(ds.join(', ')) : 'no department') : '') + '</span></div>' + levelPill(p) +
-            (owner && p.level !== 'owner' ? '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Change position</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '">Remove</button>' : '') + '</div>';
+            (owner && p.level !== 'owner' ? '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Job title</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '">Remove</button>' : '') + '</div>';
         }).join('') + '</div></section>';
     } else if (co.tab === 'chart') {
       out += '<div class="card oc"><div class="oc-top">' + owners.map(function (p) { return '<div class="oc-box own">' + avatar(p.id) + '<strong>' + esc(p.name) + '</strong><span>Owner</span></div>'; }).join('') + '</div>' +
@@ -1039,7 +1041,8 @@
       out += '<section class="card stack"><h2 style="font-size:18px">What each level can do</h2><p class="muted" style="margin:0;font-size:14px">' + (owner ? 'The owner can always do everything. Switch on what department heads and staff may do. Changes apply straight away.' : 'Set by the owner.') + '</p>' +
         '<div class="table"><table><thead><tr><th>Authority</th><th>Owner</th><th>Department head</th><th>Staff</th></tr></thead><tbody>' + CO_RULES.map(function (r) {
           return '<tr><td>' + r[0] + (r[3] ? ' <span class="pill grey" style="margin-left:4px">Used from ' + r[3] + '</span>' : '') + '</td><td>Yes</td>' + (r[1] ? cell(r[1]) : cell(null, false)) + (r[2] ? cell(r[2]) : cell(null, false)) + '</tr>';
-        }).join('') + '</tbody></table></div><p class="msg" id="co-rule-msg" role="status" style="margin:0"></p></section>';
+        }).join('') + '</tbody></table></div><p class="msg" id="co-rule-msg" role="status" style="margin:0"></p></section>' +
+        '<section class="card stack"><h2 style="font-size:18px">Permissions by position</h2><p style="margin:0;font-size:14.5px;line-height:1.6">Most access now comes from each person\'s position: an Accountant can confirm payments, a Customer Service Representative can reply to clients, and so on. Set them in the Position Catalogue, where you can also adjust one person.</p>' + (owner ? '<button type="button" class="btn small ghost" data-go="co:positions" style="align-self:flex-start">Open the Position Catalogue</button>' : '') + '</section>';
     }
     $('co-view').innerHTML = out;
   }
@@ -1083,7 +1086,7 @@
   });
 
   // Invitations: the only way into the Lytmoz organization
-  function coCanInvite() { return coOwner() || (co.role === 'head' && co.rules.head_invite); }
+  function coCanInvite() { return coOwner(); }
   function inviteLink(i) { return location.origin + '/join.html?t=' + i.token; }
   function inviteText(i) {
     var d = co.depts.filter(function (x) { return x.id === i.department_id; })[0];
@@ -1103,7 +1106,8 @@
       '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
       '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label>' +
       '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label>' +
-      '<label style="flex:2 1 180px"><span>Position <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Marketing officer"></label></div>' +
+      '<label style="flex:2 1 180px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Marketing officer"></label></div>' +
+      '<label><span>Position <span class="muted" style="font-weight:400">· decides their workspace and permissions</span></span><select name="position">' + posOptions() + '</select></label>' +
       '<label>Reporting to<select name="reports"><option value="">The department head</option>' + co.people.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + (p.level === 'owner' ? ' (Owner)' : '') + '</option>'; }).join('') + '</select></label>' +
       '<div class="row"><button class="btn" type="submit">Issue invitation</button><p class="msg" role="status" style="margin:0"></p></div></form>' +
       (shown ? inviteShare(shown) : '') +
@@ -1133,12 +1137,13 @@
     var mine = wsDepts(), first = String(co.me.name || '').trim().split(/\s+/)[0], h = new Date().getHours(), out = '';
     if (ws.dept === null || !mine.some(function (d) { return d.id === ws.dept; })) ws.dept = mine.length ? mine[0].id : null;
     var TITLES = { overview: 'My Workspace', work: 'My Work', submissions: 'Submissions', department: 'Department', messages: 'Messages', profile: 'My Profile' };
-    $('ws-title').textContent = TITLES[ws.tab];
+    $('ws-title').textContent = TITLES[ws.tab] || (BLOCKS[ws.tab.slice(2)] || [0, 'My Workspace'])[1];
     var names = mine.map(function (d) { return d.name; }), where = !mine.length ? 'You are not in a department yet. The owner will place you in one.' : (mine.some(function (d) { return d.head === co.me.id; }) && mine.length === 1 ? 'You lead the ' : 'You are in the ') + (names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1] + ' departments' : names[0] + ' department');
     var posts = co.posts.filter(function (p) { return mine.some(function (d) { return d.id === p.department_id; }); });
     if (ws.tab === 'overview') {
       var sup = mine.length ? wsSupervisor(mine[0]) : null;
       out = '<div class="co-owner" style="align-items:flex-start;flex-direction:column;gap:6px"><h3 class="serif" style="margin:0;font-size:30px;line-height:1.1;font-weight:400">Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', ' + esc(first) + '</h3><p style="margin:0;color:var(--soft);font-size:15.5px">' + esc(where) + '</p></div>' +
+        wsPositionCard() +
         '<div class="tiles"><button type="button" class="card tile" data-ws-go="work"><span class="k">My active duties</span><span class="v">0</span></button><button type="button" class="card tile" data-ws-go="work"><span class="k">Due today</span><span class="v">0</span></button><button type="button" class="card tile" data-ws-go="submissions"><span class="k">Awaiting review</span><span class="v">0</span></button></div>' +
         '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;align-items:start">' +
         '<section class="card stack"><div class="row between"><h2 style="font-size:18px">My Work</h2></div><p class="muted" style="margin:0;line-height:1.6">No duties have been assigned to you yet. When your department head, mentor or the owner assigns work, it appears here with who assigned it and when it is due.</p></section>' +
@@ -1146,6 +1151,8 @@
         (posts.length ? posts.slice(0, 3).map(function (p) { return '<div class="item" style="padding:10px 0">' + avatar(p.author) + '<div class="main"><strong>' + esc(p.author === co.me.id ? 'You' : coName(p.author)) + ' <span class="muted" style="font-weight:400;font-size:12px">· ' + when(p.created_at) + '</span></strong><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">' + esc(p.text) + '</span></div></div>'; }).join('') : '<p class="muted" style="margin:0">No messages yet.' + (mine.length ? ' Say hello to your department.' : '') + '</p>') + '</section>' +
         (sup && sup.p.id !== co.me.id ? '<section class="card stack"><h2 style="font-size:18px">My Supervisor</h2><div class="item" style="padding:6px 0">' + avatar(sup.p.id) + '<div class="main"><strong>' + esc(sup.p.name) + '</strong><span>' + esc(sup.role) + '</span></div><button type="button" class="btn small ghost" data-ws-go="messages">Message</button></div></section>' : '') + '</div></div>' +
         '<div class="card row" style="gap:12px;flex-wrap:nowrap;align-items:flex-start"><span style="color:var(--copper);display:inline-flex;margin-top:2px">' + IC('info') + '</span><p style="margin:0;font-size:14.5px;line-height:1.6">Your drafts and submitted work are internal. They are only published or delivered after review and approval.</p></div>';
+    } else if (ws.tab.indexOf('b:') === 0) {
+      out = '<p class="muted">Loading…</p>';
     } else if (ws.tab === 'work') {
       out = wsEmpty('case', 'No duties yet', 'Work assigned to you by your department head, mentor or the owner will be listed here with its priority, due date and who assigned it. Work assignment opens in Stage 2.');
     } else if (ws.tab === 'submissions') {
@@ -1166,11 +1173,12 @@
     } else {
       var meP = coP(co.me.id) || {};
       out = '<section class="card stack"><div class="row" style="gap:14px;flex-wrap:nowrap">' + avatar(co.me.id) + '<div style="min-width:0"><strong style="font-size:19px">' + esc(co.me.name) + '</strong><div class="muted" style="font-size:14px;overflow-wrap:anywhere">' + esc(co.me.email) + '</div></div></div>' +
-        '<div class="stack" style="gap:0;border-top:1px solid var(--line)"><div class="kv" style="padding:11px 0;border-bottom:1px solid var(--line);justify-content:space-between"><span>Position</span><strong>' + esc(meP.title || 'Not set') + '</strong></div><div class="kv" style="padding:11px 0;border-bottom:1px solid var(--line);justify-content:space-between"><span>Level</span><strong>' + (co.role === 'head' ? 'Department head' : 'Staff') + '</strong></div><div class="kv" style="padding:11px 0;justify-content:space-between"><span>Organization</span><strong>Lytmoz</strong></div></div></section>' +
+        '<div class="stack" style="gap:0;border-top:1px solid var(--line)"><div class="kv" style="padding:11px 0;border-bottom:1px solid var(--line);justify-content:space-between"><span>Position</span><strong>' + esc(posTitles() || meP.title || 'Not set') + '</strong></div><div class="kv" style="padding:11px 0;border-bottom:1px solid var(--line);justify-content:space-between"><span>Level</span><strong>' + (co.role === 'head' ? 'Department head' : 'Staff') + '</strong></div><div class="kv" style="padding:11px 0;justify-content:space-between"><span>Organization</span><strong>Lytmoz</strong></div></div></section>' +
         (mine.length ? '<section class="card stack"><h2 style="font-size:18px">Departments and reporting</h2><div>' + mine.map(function (d) { var sup = wsSupervisor(d); return '<div class="item">' + '<span class="co-ic" style="width:38px;height:38px">' + IC(deptIcon(d)) + '</span><div class="main"><strong>' + esc(d.name) + '</strong><span>' + wsRole(d) + (sup && sup.p.id !== co.me.id ? ' · reports to ' + esc(sup.p.name) : '') + '</span></div></div>'; }).join('') + '</div></section>' : '') +
         '<p class="muted" style="margin:0;font-size:13.5px">Your position, department and role are set by the owner or your department head. To change your password, log out and use Forgot password on the sign-in page.</p>';
     }
     $('ws-view').innerHTML = out;
+    if (ws.tab.indexOf('b:') === 0) wsBlock(ws.tab.slice(2));
     var th = $('ws-thread'); if (th) th.scrollTop = th.scrollHeight;
   }
   function wsGo(tab) { ws.tab = tab; document.querySelectorAll('.nav-i[data-tab="ws"]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.wsTab === tab ? 'true' : 'false'); }); renderWs(); window.scrollTo(0, 0); }
@@ -1182,7 +1190,7 @@
       sb.from('dept_posts').insert({ department_id: ws.dept, text: text }).then(check).then(loadCompany).catch(function (err) { coErr(f, err); });
     } else if (f.id === 'co-invite-form') {
       e.preventDefault(); f.querySelector('button').disabled = true;
-      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: +f.department.value, kind: f.kind.value, title: f.title.value.trim() || null, reports_to: f.reports.value || null, invited_by: co.me.id }).select().single().then(check)
+      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: +f.department.value, kind: f.kind.value, title: f.title.value.trim() || (f.position.value ? posTitle(+f.position.value) : null), reports_to: f.reports.value || null, invited_by: co.me.id, position_id: f.position.value ? +f.position.value : null }).select().single().then(check)
         .then(function (row) { co.shareInvite = row.id; return loadCompany(); })
         .catch(function (err) { coErr(f, /staff_invites_one_pending/.test(err.message) ? new Error('That person already has a pending invitation to this department. Use Send again below.') : err); });
     }
@@ -1206,6 +1214,268 @@
     sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check).then(function (rows) { if ((rows[0] || {}).id !== (co.posts[0] || {}).id) { co.posts = rows; renderWs(); } }).catch(function () {});
   }, 30000);
 
+  // ===== Milestone 1: position catalogue, position workspaces, invitation requests =====
+  // A block is one section of a staff workspace: [icon, name, what it shows, permission it needs]
+  var BLOCKS = {
+    duties: ['doc', 'My position', 'Duties, deliverables and who the person reports to.', null],
+    work: ['case', 'My work', 'Duties assigned to the person.', null],
+    dept: ['flow', 'Department', 'Their department, colleagues and department messages.', null],
+    company: ['chart', 'Company figures', 'Clients, projects, income and what is due.', 'reports.view'],
+    finance: ['wallet', 'Payments & invoices', 'Payments to confirm, invoices due and renewals.', 'finance.view'],
+    clients: ['projects', 'Clients & projects', 'Every client project and its stage.', 'clients.view'],
+    requests: ['edit', 'Service & change requests', 'What clients have asked Lytmoz to do.', 'clients.view'],
+    sites: ['sites', 'Websites & apps', 'The client websites and apps Lytmoz runs.', 'clients.view'],
+    support: ['support', 'Client support', 'Support conversations with clients.', 'support.view'],
+    consult: ['inbox', 'Consultations', 'Consultation requests from the website.', 'consultations.view'],
+    people: ['members', 'People & hiring', 'Staff directory and invitation requests.', null],
+    org: ['net', 'Organization chart', 'Who reports to whom.', null]
+  };
+  var LEVEL_NAMES = { 1: 'Governance', 2: 'Executive management', 3: 'Department management', 4: 'Team management', 5: 'Employees and team members' };
+  var AUTO_POS = { dept_head: 'Given automatically to everyone who heads a department.', team_lead: 'Given automatically to everyone who leads a team.' };
+  var invReqN = 0;
+  function hasPerm(k) { return coOwner() || !!(ws.me && ws.me.permissions.indexOf(k) >= 0); }
+  function myBlocks() {
+    var seen = {}, out = [];
+    ((ws.me && ws.me.positions.length) ? ws.me.positions : [{ blocks: ['duties', 'work', 'dept'] }]).forEach(function (p) { (p.blocks || []).forEach(function (b) { if (BLOCKS[b] && !seen[b] && (!BLOCKS[b][3] || hasPerm(BLOCKS[b][3]))) { seen[b] = 1; out.push(b); } }); });
+    if (!seen.duties) out.unshift('duties');
+    return out;
+  }
+  function wsNav() { // add the position's sections to the staff menu
+    document.querySelectorAll('.hq-nav .ws-b').forEach(function (b) { b.remove(); });
+    var anchor = document.querySelector('.hq-nav .nav-i[data-tab="ws"][data-ws-tab="profile"]'); if (!anchor) return;
+    var html = myBlocks().filter(function (b) { return ['work', 'dept', 'org'].indexOf(b) < 0; }).map(function (b) {
+      return '<button type="button" class="nav-i ws-b" role="tab" aria-selected="' + (ws.tab === 'b:' + b) + '" data-tab="ws" data-ws-tab="b:' + b + '">' + IC(BLOCKS[b][0]) + '<span>' + BLOCKS[b][1] + '</span></button>';
+    }).join('');
+    anchor.insertAdjacentHTML('afterend', html);
+  }
+  function posLines(s) { return String(s || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
+  function posTitles() { return ws.me && ws.me.positions.length ? ws.me.positions.map(function (p) { return p.title + (p.acting ? ' (acting)' : ''); }).join(', ') : ''; }
+  function permText(k) { var p = (co.perms || []).filter(function (x) { return x.key === k; })[0]; return p ? p.description : k; }
+
+  // ---- What the person sees under "My position" ----
+  function wsPositionCard() {
+    var ps = ws.me ? ws.me.positions : [];
+    if (!ps.length) return '<section class="card stack"><h2 style="font-size:18px">My position</h2><p class="muted" style="margin:0;line-height:1.6">You have not been given a position yet. The owner sets it in the Position Catalogue. Until then you see the standard staff workspace.</p></section>';
+    return '<section class="card stack"><div class="row between"><h2 style="font-size:18px">My position</h2><button type="button" class="linkish" data-ws-go="b:duties">Duties and access</button></div>' + ps.map(function (p) {
+      return '<div class="item" style="padding:8px 0;align-items:flex-start"><span class="co-ic" style="width:38px;height:38px">' + IC('doc') + '</span><div class="main"><strong>' + esc(p.title) + (p.acting ? ' <span class="pill grey">Acting</span>' : '') + '</strong><span>' + esc(p.summary || '') + (p.reports_to ? ' Reports to the ' + esc(p.reports_to) + '.' : '') + '</span></div></div>';
+    }).join('') + '<div class="row" style="gap:8px">' + myBlocks().filter(function (b) { return b !== 'duties'; }).map(function (b) {
+      var go = b === 'work' ? 'work' : b === 'dept' ? 'department' : b === 'org' ? '' : 'b:' + b;
+      return go ? '<button type="button" class="co-chip" data-ws-go="' + go + '">' + IC(BLOCKS[b][0]) + BLOCKS[b][1] + '</button>' : '';
+    }).join('') + '</div></section>';
+  }
+  function wsDutiesHtml() {
+    var ps = ws.me ? ws.me.positions : [], perms = ws.me ? ws.me.permissions : [];
+    if (!ps.length) return wsEmpty('doc', 'No position yet', 'The owner gives you a position in the Position Catalogue. It decides your duties and what you can see and do here.');
+    return ps.map(function (p) {
+      var d = posLines(p.responsibilities), v = posLines(p.deliverables);
+      return '<section class="card stack" style="gap:14px"><div class="row" style="gap:14px;flex-wrap:nowrap;align-items:center"><span class="co-ic">' + IC('doc') + '</span><div style="min-width:0"><strong style="font-size:19px">' + esc(p.title) + (p.acting ? ' <span class="pill grey">Acting</span>' : '') + '</strong><div class="muted" style="font-size:14px">' + esc(LEVEL_NAMES[p.level] || '') + (p.department ? ' · ' + esc(p.department) : '') + (p.reports_to ? ' · reports to the ' + esc(p.reports_to) : '') + '</div></div></div>' +
+        (p.summary ? '<p style="margin:0;font-size:15px;line-height:1.6">' + esc(p.summary) + '</p>' : '') +
+        '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px"><div><h3 style="margin:0 0 6px;font-size:14px">Duties</h3><ul class="duties">' + (d.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') || '<li class="muted">Not written yet</li>') + '</ul></div>' +
+        '<div><h3 style="margin:0 0 6px;font-size:14px">Expected deliverables</h3><ul class="duties">' + (v.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') || '<li class="muted">Not written yet</li>') + '</ul></div></div></section>';
+    }).join('') + '<section class="card stack"><h2 style="font-size:18px">What you can see and do</h2>' + (perms.length ? '<ul class="duties">' + perms.map(function (k) { return '<li>' + esc(permText(k)) + '</li>'; }).join('') + '</ul>' : '<p class="muted" style="margin:0">Your own work and your department. Ask the owner if you need more access.</p>') + '<p class="muted" style="margin:0;font-size:13.5px">Access is set by the owner. It is checked by the system on every action, not only hidden on screen.</p></section>';
+  }
+
+  // ---- Workspace sections with live data ----
+  var wsData = { sup: null };
+  function profNames(ids) {
+    ids = ids.filter(function (x, i) { return x && ids.indexOf(x) === i; });
+    if (!ids.length) return Promise.resolve({});
+    return sb.from('profiles').select('id, name, company').in('id', ids).then(check).then(function (rows) { var m = {}; rows.forEach(function (r) { m[r.id] = r; }); return m; });
+  }
+  function wsList(title, rows, empty) { return '<section class="card stack"><h2 style="font-size:18px">' + title + '</h2><div>' + (rows.join('') || '<p class="muted" style="margin:0">' + empty + '</p>') + '</div></section>'; }
+  function wsItem(main, sub, right) { return '<div class="item" style="flex-wrap:wrap"><div class="main"><strong>' + main + '</strong><span>' + sub + '</span></div>' + (right || '') + '</div>'; }
+  function dueStr(by) { return Object.keys(by || {}).map(function (c) { return money(by[c], c); }).join(' + ') || money(0); }
+  function wsBlock(k) {
+    var tab = ws.tab, put = function (html) { if (ws.tab === tab && $('ws-view')) $('ws-view').innerHTML = html; };
+    var bad = function (e) { put('<p class="msg err">' + esc(e.message) + '</p>'); };
+    var nm = function (m, id) { var p = m[id]; return p ? esc(p.name || 'Client') + (p.company ? ' · ' + esc(p.company) : '') : 'Client'; };
+    if (k === 'duties') return put(wsDutiesHtml());
+    if (k === 'company') return sb.rpc('admin_overview').then(check).then(function (o) {
+      var t = [['Consultations this month', o.leadsThisMonth], ['Active projects', o.activeProjects], ['Money due', dueStr(o.invoicesDueBy)], ['Active subscriptions', o.activeSubscriptions], ['New service requests', o.newServiceRequests], ['Open change requests', o.openRequests], ['Payments to confirm', o.pendingPayments]];
+      put('<div class="tiles">' + t.map(function (x) { return '<div class="card tile"><span class="k">' + x[0] + '</span><span class="v">' + esc(String(x[1] == null ? 0 : x[1])) + '</span></div>'; }).join('') + '</div><p class="muted" style="margin:0;font-size:13.5px">Live figures. You can see them but not change them.</p>');
+    }).catch(bad);
+    if (k === 'finance') return Promise.all([
+      sb.from('payments').select('*').eq('status', 'pending').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('invoices').select('*').eq('status', 'due').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('subscriptions').select('*').eq('status', 'active').order('renews_on').limit(30).then(check)
+    ]).then(function (r) {
+      return profNames(r[0].map(function (x) { return x.client_id; }).concat(r[2].map(function (x) { return x.client_id; }))).then(function (m) {
+        var ok = hasPerm('finance.approve');
+        put(wsList('Payments to confirm', r[0].map(function (p) { return wsItem(money(p.amount_cents, p.currency) + ' · ' + nm(m, p.client_id), esc(p.method === 'momo' ? 'Mobile Money' : p.method) + (p.reference ? ' · ref ' + esc(p.reference) : '') + ' · ' + when(p.created_at) + (p.note ? ' · ' + esc(p.note) : ''), ok ? '<button type="button" class="btn small" data-wsp-ok="' + p.id + '">Confirm</button><button type="button" class="btn small ghost" data-wsp-no="' + p.id + '">Not received</button>' : '<span class="pill">Waiting</span>'); }), 'No payments waiting.') +
+          wsList('Invoices due', r[1].map(function (i) { return wsItem(esc(i.description || 'Invoice'), money(i.amount_cents - (i.paid_cents || 0), i.currency) + ' still due' + (i.due_on ? ' · due ' + dayFmt(i.due_on) : ''), '<span class="pill">Due</span>'); }), 'Nothing due.') +
+          wsList('Subscriptions renewing next', r[2].map(function (s) { return wsItem(esc(s.plan) + ' · ' + nm(m, s.client_id), (s.amount_cents ? money(s.amount_cents, s.currency) + ' a ' + (s.billing_interval || 'month') : 'Amount not set') + (s.renews_on ? ' · renews ' + dayFmt(s.renews_on) : ''), ''); }), 'No active subscriptions.'));
+      });
+    }).catch(bad);
+    if (k === 'clients') return sb.from('projects').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (ps) {
+      return profNames(ps.map(function (p) { return p.client_id; })).then(function (m) {
+        put(wsList('Client projects', ps.map(function (p) { return wsItem(esc(p.name), nm(m, p.client_id) + ' · ' + esc(p.plan || '') + ' plan', '<span class="pill ' + (p.stage >= 5 ? 'green' : '') + '">' + (p.stage || 1) + '. ' + esc(LZ.stages[(p.stage || 1) - 1] || '') + '</span>'); }), 'No client projects yet.'));
+      });
+    }).catch(bad);
+    if (k === 'requests') return Promise.all([
+      sb.from('service_requests').select('*').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('change_requests').select('*').order('id', { ascending: false }).limit(100).then(check),
+      sb.from('projects').select('id, name').then(check)
+    ]).then(function (r) {
+      var pn = {}; r[2].forEach(function (p) { pn[p.id] = p.name; });
+      return profNames(r[0].map(function (x) { return x.client_id; })).then(function (m) {
+        put(wsList('Service requests', r[0].map(function (s) { return wsItem(esc(s.service) + ' · ' + nm(m, s.client_id), when(s.created_at) + (s.budget ? ' · budget ' + esc(s.budget) : '') + (s.details ? '<br>' + esc(s.details) : ''), '<span class="pill ' + (s.status === 'new' ? '' : 'grey') + '">' + esc(s.status) + '</span>'); }), 'No service requests.') +
+          wsList('Change requests', r[1].map(function (c) { return wsItem(esc(pn[c.project_id] || 'Project'), when(c.created_at) + '<br>' + esc(c.text), '<span class="pill ' + (c.status === 'open' ? '' : 'grey') + '">' + esc(c.status) + '</span>'); }), 'No change requests.'));
+      });
+    }).catch(bad);
+    if (k === 'sites') return sb.from('client_sites').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (ss) {
+      return profNames(ss.map(function (s) { return s.client_id; })).then(function (m) {
+        put(wsList('Client websites and apps', ss.map(function (s) { var u = s.url && /^https?:\/\//.test(s.url) ? s.url : s.url ? 'https://' + s.url : ''; return wsItem(esc(s.name), nm(m, s.client_id) + ' · ' + esc(s.kind || 'website') + (u ? ' · <a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(s.url) + '</a>' : ''), '<span class="pill ' + (s.status === 'live' ? 'green' : 'grey') + '">' + esc(s.status || '') + '</span>'); }), 'No client websites yet.'));
+      });
+    }).catch(bad);
+    if (k === 'support') return sb.from('messages').select('*').order('id', { ascending: false }).limit(600).then(check).then(function (ms) {
+      return profNames(ms.map(function (x) { return x.client_id; })).then(function (m) {
+        var reply = hasPerm('support.reply');
+        if (wsData.sup) {
+          var th = ms.filter(function (x) { return x.client_id === wsData.sup; }).reverse();
+          return put('<button type="button" class="linkish" data-wss-back>' + IC('back') + ' All conversations</button><section class="card stack"><h2 style="font-size:18px">' + nm(m, wsData.sup) + '</h2><div class="tthread">' + th.map(function (x) { return '<div class="bub ' + (x.from_admin ? 'me' : 'them') + '">' + esc(x.text) + '<small>' + (x.from_admin ? 'Lytmoz' : 'Client') + ' · ' + when(x.created_at) + '</small></div>'; }).join('') + '</div>' +
+            (reply ? '<form id="ws-sup-form" class="stack" style="gap:10px"><label>Reply as Lytmoz<textarea name="text" rows="2" maxlength="4000" required></textarea></label><div class="row"><button class="btn" type="submit">Send reply</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '<p class="muted" style="margin:0;font-size:13.5px">You can read support conversations. Replying needs the "Reply to clients in Support" permission.</p>') + '</section>');
+        }
+        var by = {}, order = []; ms.forEach(function (x) { if (!by[x.client_id]) { by[x.client_id] = { last: x, unread: 0 }; order.push(x.client_id); } if (!x.from_admin && !x.read_by_admin) by[x.client_id].unread++; });
+        put(wsList('Support conversations', order.map(function (id) { var c = by[id]; return '<button type="button" class="item" data-wss="' + id + '" style="width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;cursor:pointer"><div class="main"><strong>' + nm(m, id) + '</strong><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">' + (c.last.from_admin ? 'Lytmoz: ' : '') + esc(c.last.text) + '</span></div>' + (c.unread ? '<span class="pill">' + c.unread + ' new</span>' : '<span class="muted" style="font-size:12px">' + when(c.last.created_at) + '</span>') + '</button>'; }), 'No support conversations yet.'));
+      });
+    }).catch(bad);
+    if (k === 'consult') return sb.from('leads').select('*').order('id', { ascending: false }).limit(150).then(check).then(function (ls) {
+      var can = hasPerm('consultations.manage');
+      put(wsList('Consultation requests', ls.map(function (l) {
+        var wa = String(l.whatsapp || '').replace(/[^\d]/g, '').replace(/^0/, '233');
+        return wsItem(esc(l.name) + ' <span class="muted" style="font-weight:400;font-size:12px">· ' + when(l.created_at) + '</span>', esc(l.message || '') + (l.whatsapp ? '<br><a href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp ' + esc(l.whatsapp) + '</a>' : ''),
+          can ? '<select data-wsl="' + l.id + '" aria-label="Status for ' + esc(l.name) + '" style="width:auto;flex:none">' + leadStatuses.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === l.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select>' : '<span class="pill grey">' + esc((leadStatuses.filter(function (s) { return s[0] === l.status; })[0] || [0, l.status])[1]) + '</span>');
+      }), 'No consultation requests yet.'));
+    }).catch(bad);
+    if (k === 'people') return put(requestPanel() + '<section class="card stack"><h2 style="font-size:18px">Everyone at Lytmoz</h2><div>' + co.people.map(function (p) { return '<div class="item">' + avatar(p.id) + '<div class="main"><strong>' + esc(p.name) + '</strong><span>' + esc(p.level === 'owner' ? 'Owner' : (p.title || 'Staff')) + '</span></div>' + levelPill(p) + '</div>'; }).join('') + '</div></section>');
+    put(wsEmpty('info', 'Nothing here yet', 'This section is not available.'));
+  }
+
+  // ---- Invitation requests (HQ for the owner, workspace for heads and HR) ----
+  function coCanRequest() { return !coOwner() && (co.role === 'head' || hasPerm('invites.request')); }
+  function posOptions(sel) { return '<option value="">No position yet</option>' + (co.pos || []).filter(function (p) { return !AUTO_POS[p.code] && p.is_active !== false; }).map(function (p) { return '<option value="' + p.id + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join(''); }
+  function posTitle(id) { var p = (co.pos || []).filter(function (x) { return x.id === id; })[0]; return p ? p.title : ''; }
+  function deptName(id) { var d = co.depts.filter(function (x) { return x.id === id; })[0]; return d ? d.name : ''; }
+  var REQ_ST = { requested: ['Waiting for the owner', ''], approved: ['Approved', 'green'], declined: ['Declined', 'red'], withdrawn: ['Withdrawn', 'grey'] };
+  function requestPanel() {
+    if (!coCanRequest()) return '';
+    var depts = hasPerm('invites.request') ? co.depts : co.depts.filter(function (d) { return d.head === co.me.id; });
+    var mine = (co.reqs || []).filter(function (r) { return r.requested_by === co.me.id; });
+    return (depts.length ? '<form id="co-request-form" class="card stack"><h2 style="font-size:18px">Ask the owner to invite someone</h2><p class="muted" style="margin:0;font-size:14px">Only the owner issues invitation links. Send the details here; the owner approves or declines, and you can follow the request below.</p>' +
+      '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 200px">Position<select name="position">' + posOptions() + '</select></label>' +
+      '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label></div>' +
+      '<label><span>Why this person <span class="muted" style="font-weight:400">· optional</span></span><textarea name="note" rows="2" maxlength="1000" placeholder="Interviewed on Monday, recommended for the developer role."></textarea></label>' +
+      '<div class="row"><button class="btn" type="submit">Send request to the owner</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '<div class="card"><p class="muted" style="margin:0">You can ask for invitations once you are placed in a department.</p></div>') +
+      (mine.length ? '<section class="card stack"><h2 style="font-size:18px">Your requests</h2><div>' + mine.map(function (r) { var s = REQ_ST[r.status]; return wsItem(esc(r.name), esc(r.email) + ' · ' + esc(deptName(r.department_id)) + (r.position_id ? ' · ' + esc(posTitle(r.position_id)) : '') + ' · ' + when(r.created_at) + (r.decision_note ? '<br>Owner: ' + esc(r.decision_note) : ''), '<span class="pill ' + s[1] + '">' + s[0] + '</span>' + (r.status === 'requested' ? '<button type="button" class="btn small ghost" data-ireq-wd="' + r.id + '">Withdraw</button>' : '')); }).join('') + '</div></section>' : '');
+  }
+  function ownerRequests() {
+    var open = (co.reqs || []).filter(function (r) { return r.status === 'requested'; });
+    if (!coOwner() || !open.length) return '';
+    return '<section class="card stack" style="border-color:var(--copper)"><h2 style="font-size:18px">Invitation requests to approve</h2><p class="muted" style="margin:0;font-size:14px">Approving creates the invitation link. You then share it with the person, as with any invitation.</p><div>' + open.map(function (r) {
+      return wsItem(esc(r.name) + ' · ' + esc(r.email), esc(deptName(r.department_id)) + (r.position_id ? ' · ' + esc(posTitle(r.position_id)) : '') + ' · ' + CO_KIND[r.kind] + ' · asked by ' + esc(coName(r.requested_by)) + ' · ' + when(r.created_at) + (r.note ? '<br>“' + esc(r.note) + '”' : ''),
+        '<button type="button" class="btn small" data-ireq-ok="' + r.id + '">Approve and create link</button><button type="button" class="btn small ghost" data-ireq-no="' + r.id + '">Decline</button>');
+    }).join('') + '</div></section>';
+  }
+  function refreshInvReqN() {
+    if (!coOwner()) return;
+    sb.from('invite_requests').select('id').eq('status', 'requested').then(check).then(function (r) { invReqN = r.length; paintBadges(); }).catch(function () {});
+  }
+
+  // ---- Position Catalogue (owner) ----
+  var cat = { open: null };
+  function catHolders(p) {
+    if (p.code === 'dept_head') return co.depts.filter(function (d) { return d.head; }).map(function (d) { return { profile_id: d.head, auto: 'Head of ' + d.name }; });
+    if (p.code === 'team_lead') return st.teams.filter(function (t) { return t.leader; }).map(function (t) { return { profile_id: t.leader, auto: 'Leads ' + t.name }; });
+    return holders(p);
+  }
+  function catPerms(p) { return (st.grants || []).filter(function (g) { return g.position_id === p.id && !g.deny; }).map(function (g) { return g.permission; }); }
+  function catRow(p) {
+    var hs = catHolders(p), open = cat.open === p.id;
+    return '<div class="cat-row' + (open ? ' open' : '') + '"><button type="button" class="cat-h" data-cat-open="' + p.id + '" aria-expanded="' + open + '"><span class="co-ic" style="width:38px;height:38px">' + ICN((p.blocks || [])[1] && BLOCKS[p.blocks[1]] ? BLOCKS[p.blocks[1]][0] : 'doc') + '</span><span class="cat-t"><strong>' + esc(p.title) + '</strong><small>' + esc(p.summary || 'No summary yet') + '</small></span>' +
+      '<span class="cat-n">' + (AUTO_POS[p.code] ? 'Automatic' : hs.length ? hs.length + (hs.length === 1 ? ' person' : ' people') : 'Vacant') + '</span>' + ICN('chev', 'chev') + '</button>' + (open ? catEditor(p) : '') + '</div>';
+  }
+  function catEditor(p) {
+    var perms = catPerms(p), hs = catHolders(p), others = st.pos.filter(function (x) { return x.id !== p.id; }), opts = staffOptions(hs.map(function (h) { return h.profile_id; }));
+    var ck = function (name, val, on, label, sub) { return '<label class="cat-ck"><input type="checkbox" name="' + name + '" value="' + val + '"' + (on ? ' checked' : '') + '><span><strong>' + label + '</strong>' + (sub ? '<small>' + sub + '</small>' : '') + '</span></label>'; };
+    return '<form class="stack cat-ed" data-cat-edit="' + p.id + '">' +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 220px">Position title<input name="title" required maxlength="80" value="' + esc(p.title) + '"></label><label style="flex:1 1 180px">Level<select name="level">' + [1, 2, 3, 4, 5].map(function (l) { return '<option value="' + l + '"' + (l === p.level ? ' selected' : '') + '>' + LEVEL_NAMES[l] + '</option>'; }).join('') + '</select></label></div>' +
+      '<label>In one sentence<input name="summary" maxlength="300" value="' + esc(p.summary || '') + '"></label>' +
+      '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Department<select name="dept"><option value="">Any department</option>' + co.depts.map(function (d) { return '<option value="' + d.id + '"' + (d.id === p.department_id ? ' selected' : '') + '>' + esc(d.name) + '</option>'; }).join('') + '</select></label>' +
+      '<label style="flex:1 1 200px">Reports to<select name="boss"><option value="">' + (p.level <= 2 ? 'The Owner' : 'Their department head') + '</option>' + others.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.reports_to_position_id ? ' selected' : '') + '>' + esc(x.title) + '</option>'; }).join('') + '</select></label></div>' +
+      '<div class="row" style="gap:12px;align-items:stretch"><label style="flex:1 1 260px">Duties · one per line<textarea name="duties" rows="6" maxlength="2000">' + esc(posLines(p.responsibilities).join('\n')) + '</textarea></label><label style="flex:1 1 260px">Expected deliverables · one per line<textarea name="deliv" rows="6" maxlength="2000">' + esc(posLines(p.deliverables).join('\n')) + '</textarea></label></div>' +
+      '<fieldset class="cat-fs"><legend>Workspace: what this position sees</legend><div class="cat-grid">' + Object.keys(BLOCKS).map(function (b) { return ck('b', b, (p.blocks || []).indexOf(b) >= 0 || b === 'duties', ICN(BLOCKS[b][0]) + BLOCKS[b][1], BLOCKS[b][2]); }).join('') + '</div><p class="muted" style="margin:6px 0 0;font-size:13px">Ticking a section also gives the access it needs to show its data.</p></fieldset>' +
+      '<fieldset class="cat-fs"><legend>Permissions: what this position may see and do</legend><div class="cat-grid">' + (st.perms || []).map(function (k) { return ck('perm', k.key, perms.indexOf(k.key) >= 0, esc(k.description), '<code>' + esc(k.key) + '</code>'); }).join('') + '</div></fieldset>' +
+      '<div class="row"><button class="btn" type="submit">Save position</button>' + (!AUTO_POS[p.code] && !isCEO(p) ? '<button type="button" class="linkish" data-pos-del="' + p.id + '" style="color:var(--muted)">Remove position</button>' : '') + '<p class="msg" role="status" style="margin:0"></p></div></form>' +
+      '<div class="stack cat-hold"><h3 style="margin:0;font-size:14px">Held by</h3>' + (AUTO_POS[p.code] ? '<p class="muted" style="margin:0;font-size:13.5px">' + AUTO_POS[p.code] + '</p>' : '') +
+      (hs.length ? hs.map(function (h) { var pp = coP(h.profile_id) || { name: 'Former staff member' }; return '<div class="item" style="padding:6px 0">' + avatar(h.profile_id) + '<div class="main"><strong>' + esc(pp.name) + (h.is_acting ? ' <span class="pill grey">Acting</span>' : '') + '</strong><span>' + (h.auto ? esc(h.auto) : 'Since ' + esc(dayFmt(h.starts_on))) + '</span></div>' + (h.id ? '<button type="button" class="btn small ghost" data-asg-del="' + h.id + '">Remove</button>' : '') + '</div>'; }).join('') : '<p class="muted" style="margin:0">Nobody yet.</p>') +
+      (!AUTO_POS[p.code] ? (opts ? '<form class="row" data-pos-assign="' + p.id + '" style="gap:10px;align-items:flex-end"><label style="flex:2 1 200px">Give this position to<select name="who">' + opts + '</select></label><label class="tog" style="flex:none"><input type="checkbox" name="acting"><span>Acting</span></label><button class="btn small" type="submit">' + ICN('members') + 'Assign</button></form>' : '<p class="muted" style="margin:0;font-size:13.5px">Invite people under <button type="button" class="linkish" data-go="co:people">Members & Staff</button> to give them this position.</p>') : '') + '</div>';
+  }
+  function renderCatalogue() {
+    var overrides = (st.grants || []).filter(function (g) { return g.profile_id; }), staffP = co.people.filter(function (p) { return p.level !== 'owner'; });
+    return '<div class="card stack" style="gap:8px"><p style="margin:0;font-size:15px;line-height:1.65">A position decides two things: the <strong>workspace</strong> a person sees when they sign in, and what they are <strong>allowed</strong> to see and do. The system checks the permissions on every action. Give people a position here or when you invite them.</p><p class="muted" style="margin:0;font-size:13.5px">' + st.pos.length + ' positions · people who head a department or lead a team get that position automatically.</p></div>' +
+      '<form class="card stack" id="cat-new"><h2 style="font-size:17px">Add a position</h2><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Title<input name="title" required maxlength="80" placeholder="Payroll Officer"></label><label style="flex:1 1 180px">Level<select name="level">' + [1, 2, 3, 4, 5].map(function (l) { return '<option value="' + l + '"' + (l === 5 ? ' selected' : '') + '>' + LEVEL_NAMES[l] + '</option>'; }).join('') + '</select></label><button class="btn" type="submit">Add position</button></div><p class="msg" role="status" style="margin:0"></p></form>' +
+      [1, 2, 3, 4, 5].map(function (l) {
+        var ps = st.pos.filter(function (p) { return p.level === l; });
+        return '<section class="stack" style="gap:10px"><h2 class="cat-lv"><span>' + l + '</span>' + LEVEL_NAMES[l] + '</h2>' + (l === 1 ? '<div class="cat-row"><div class="cat-h" style="cursor:default"><span class="co-ic" style="width:38px;height:38px">' + ICN('crown') + '</span><span class="cat-t"><strong>Owner / Founder</strong><small>Full authority. Approves every invitation. Cannot be given to anyone else.</small></span><span class="cat-n">You</span></div></div>' : '') +
+          (ps.map(catRow).join('') || '<p class="muted" style="margin:0">No positions at this level.</p>') + '</section>';
+      }).join('') +
+      '<section class="card stack"><h2 style="font-size:18px">Adjust access for one person</h2><p class="muted" style="margin:0;font-size:14px">Give one person an extra permission, or take one away, without changing their position.</p>' +
+      (staffP.length ? '<form id="ovr-form" class="row" style="gap:10px;align-items:flex-end"><label style="flex:2 1 180px">Person<select name="who">' + staffP.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label><label style="flex:3 1 240px">Permission<select name="perm">' + (st.perms || []).map(function (k) { return '<option value="' + k.key + '">' + esc(k.description) + '</option>'; }).join('') + '</select></label><label style="flex:1 1 130px">Change<select name="deny"><option value="0">Give it</option><option value="1">Take it away</option></select></label><button class="btn small" type="submit">Save</button></form><p class="msg" id="ovr-msg" role="status" style="margin:0"></p>' : '<p class="muted" style="margin:0">Nobody to adjust yet.</p>') +
+      (overrides.length ? '<div>' + overrides.map(function (g) { return wsItem(esc(coName(g.profile_id)), (g.deny ? 'Taken away: ' : 'Extra: ') + esc(permText(g.permission)), '<span class="pill ' + (g.deny ? 'red' : 'green') + '">' + (g.deny ? 'Removed' : 'Added') + '</span><button type="button" class="btn small ghost" data-ovr-del="' + g.id + '">Undo</button>'); }).join('') + '</div>' : '') + '</section>';
+  }
+  function catSave(f) {
+    var id = +f.dataset.catEdit, p = st.pos.filter(function (x) { return x.id === id; })[0], msg = f.querySelector('.msg');
+    var blocks = [].slice.call(f.querySelectorAll('input[name="b"]:checked')).map(function (i) { return i.value; });
+    var want = [].slice.call(f.querySelectorAll('input[name="perm"]:checked')).map(function (i) { return i.value; });
+    blocks.forEach(function (b) { var need = BLOCKS[b][3]; if (need && want.indexOf(need) < 0) want.push(need); });
+    var have = catPerms(p), add = want.filter(function (k) { return have.indexOf(k) < 0; }), del = have.filter(function (k) { return want.indexOf(k) < 0; });
+    f.querySelector('button[type=submit]').disabled = true;
+    sb.from('positions').update({ title: f.title.value.trim(), level: +f.level.value, summary: f.summary.value.trim() || null, department_id: f.dept.value ? +f.dept.value : null, reports_to_position_id: f.boss.value ? +f.boss.value : null,
+      responsibilities: posLines(f.duties.value).join('\n') || null, deliverables: posLines(f.deliv.value).join('\n') || null, blocks: blocks }).eq('id', id).then(check)
+      .then(function () { return add.length ? sb.from('permission_grants').insert(add.map(function (k) { return { permission: k, position_id: id, reason: 'Set in the Position Catalogue' }; })).then(check) : null; })
+      .then(function () { return del.length ? sb.from('permission_grants').delete().eq('position_id', id).eq('deny', false).in('permission', del).then(check) : null; })
+      .then(loadStruct).then(function () { var m = document.querySelector('[data-cat-edit="' + id + '"] .msg'); if (m) LZ.setMsg(m, 'Saved. People in this position see the change the next time they open HQ.', 'ok'); })
+      .catch(function (err) { f.querySelector('button[type=submit]').disabled = false; LZ.setMsg(msg, err.message, 'err'); });
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.dataset.catEdit) { e.preventDefault(); return catSave(f); }
+    if (f.id === 'cat-new') {
+      e.preventDefault(); f.querySelector('button').disabled = true;
+      return void sb.from('positions').insert({ title: f.title.value.trim(), level: +f.level.value, blocks: ['duties', 'work', 'dept'] }).select().single().then(check).then(function (row) { cat.open = row.id; return loadStruct(); }).catch(function (err) { stErr(f, err); });
+    }
+    if (f.id === 'ovr-form') {
+      e.preventDefault();
+      return void sb.from('permission_grants').insert({ permission: f.perm.value, profile_id: f.who.value, deny: f.deny.value === '1', reason: 'Adjusted for one person' }).then(check).then(loadStruct).catch(function (err) { LZ.setMsg($('ovr-msg'), err.message, 'err'); });
+    }
+    if (f.id === 'co-request-form') {
+      e.preventDefault(); f.querySelector('button').disabled = true;
+      return void sb.from('invite_requests').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: +f.department.value, position_id: f.position.value ? +f.position.value : null, kind: f.kind.value, title: f.position.value ? posTitle(+f.position.value) : null, note: f.note.value.trim() || null })
+        .then(check).then(loadCompany).catch(function (err) { coErr(f, /invite_requests_one_open/.test(err.message) ? new Error('There is already a request waiting for this person in this department.') : err); });
+    }
+    if (f.id === 'ws-sup-form') {
+      e.preventDefault(); var text = f.text.value.trim(); if (!text) return; f.querySelector('button').disabled = true;
+      return void sb.from('messages').insert({ client_id: wsData.sup, text: text, from_admin: true, read_by_admin: true }).then(check).then(function () { wsBlock('support'); }).catch(function (err) { coErr(f, err); });
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-cat-open]'))) { cat.open = cat.open === +x.dataset.catOpen ? null : +x.dataset.catOpen; renderCompany(); var r = document.querySelector('[data-cat-open="' + x.dataset.catOpen + '"]'); if (r && cat.open) r.scrollIntoView({ block: 'nearest' }); return; }
+    if ((x = t.closest('[data-ovr-del]'))) return void sb.from('permission_grants').delete().eq('id', +x.dataset.ovrDel).then(check).then(loadStruct).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-ireq-ok]'))) { x.disabled = true; return void sb.rpc('decide_invite_request', { req: +x.dataset.ireqOk, approve: true }).then(check).then(function (r) { co.shareInvite = r.invite_id; refreshInvReqN(); return loadCompany(); }).catch(function (err) { x.disabled = false; alert(err.message); }); }
+    if ((x = t.closest('[data-ireq-no]'))) { var why = prompt('Decline this request? You can add a short reason for the person who asked.', ''); if (why === null) return; return void sb.rpc('decide_invite_request', { req: +x.dataset.ireqNo, approve: false, note_: why }).then(check).then(function () { refreshInvReqN(); return loadCompany(); }).catch(function (err) { alert(err.message); }); }
+    if ((x = t.closest('[data-ireq-wd]')) && confirm('Withdraw this request?')) return void sb.rpc('withdraw_invite_request', { req: +x.dataset.ireqWd }).then(check).then(loadCompany).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-wss]'))) { wsData.sup = x.dataset.wss; return wsBlock('support'); }
+    if (t.closest('[data-wss-back]')) { wsData.sup = null; return wsBlock('support'); }
+    if ((x = t.closest('[data-wsp-ok]')) && confirm('Confirm this payment? It counts toward the invoice.')) return void sb.from('payments').update({ status: 'confirmed' }).eq('id', +x.dataset.wspOk).then(check).then(function () { wsBlock('finance'); }).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-wsp-no]')) && confirm('Mark as not received? The client will see "Not received".')) return void sb.from('payments').update({ status: 'rejected' }).eq('id', +x.dataset.wspNo).then(check).then(function () { wsBlock('finance'); }).catch(function (err) { alert(err.message); });
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.wsl) sb.from('leads').update({ status: t.value }).eq('id', +t.dataset.wsl).then(check).catch(function (err) { alert(err.message); });
+  });
+
   // ===== Owner HQ layout: sidebar, top bar, dashboard, reports, help, governance pages =====
   var NAV = {
     side: [
@@ -1214,6 +1484,7 @@
         ['co:board', 'biz', 'Board of Directors', 'Governance seats: chair, members and secretary.'],
         ['co:ceo', 'members', 'CEO – Chief Executive', 'Who leads daily operations and reports to you.'],
         ['co:exec', 'case', 'Executive Management', 'COO, CFO, CTO, CHRO, CMO and other executives.'],
+        ['co:positions', 'doc', 'Position Catalogue', 'Every position: duties, workspace and permissions.'],
         ['co:departments', 'flow', 'Departments', 'Create departments and appoint their heads.'],
         ['co:teams', 'team', 'Teams', 'Teams inside each department and their leaders.'],
         ['co:people', 'members', 'Members & Staff', 'Invite and manage everyone who works for Lytmoz.'],
@@ -1267,7 +1538,7 @@
     return m && m.length ? m : NAV.bar.map(function (b) { return { id: b.id, icon: b.icon, label: b.label, desc: b.desc, items: b.items.map(function (i) { return [i[0], i[1], i[2], false]; }) }; });
   }
   var CO_NATIVE = { overview: 1, departments: 1, people: 1, chart: 1, authority: 1 };
-  var STRUCT_TABS = { owner: 1, board: 1, ceo: 1, exec: 1, teams: 1 };
+  var STRUCT_TABS = { owner: 1, board: 1, ceo: 1, exec: 1, teams: 1, positions: 1 };
   var hqKey = 'dash';
   var ICN = function (n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
   function initialsOf(n) { return String(n || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
@@ -1333,7 +1604,7 @@
     if ((x = t.closest('[data-go]')) && !t.closest('[data-panel="company"] form')) { e.preventDefault(); goTo(x.dataset.go); return; }
     if ((x = t.closest('[data-sg]'))) { var box = $('sg-' + x.dataset.sg), open = box.hidden; box.hidden = !open; x.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
     if ((x = t.closest('[data-dd]'))) { var g = barMenu().filter(function (b) { return b.id === x.dataset.dd; })[0], cnt = badgeCounts(); ddOpen(x, ddItems(g.items.filter(function (i) { return !i[3]; }).map(function (i) { return [i[0], i[1], i[2], '', cnt[i[0]] || 0]; }))); return; }
-    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['chat', 'chat', 'Unread chats', '', chatUnread], ['messages', 'support', 'Unread support messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
+    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['co:people', 'members', 'Invitation requests to approve', '', invReqN], ['chat', 'chat', 'Unread chats', '', chatUnread], ['messages', 'support', 'Unread support messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
     if (t.closest('#me-btn')) { ddOpen($('me-btn'), '<div class="dd-me"><span class="av">' + esc(initialsOf(co.me && co.me.name)) + '</span><div><strong>' + esc(co.me ? co.me.name : '') + '</strong><span>' + esc(co.me ? co.me.email || 'Owner' : '') + ' · Owner</span></div></div>' + ddItems([['co:owner', 'crown', 'Owner / Founder'], ['settings', 'gear', 'Settings'], ['help', 'help', 'How HQ works']]) + (!$('install-app').hidden ? '<button type="button" class="dd-i" id="dd-install">' + ICN('phone') + '<span>Install the HQ app</span></button>' : '') + '<button type="button" class="dd-i" id="dd-logout">' + ICN('logout') + '<span>Log out</span></button>'); return; }
     if (t.closest('#dd-install')) { ddClose(); $('install-app').click(); return; }
     if (t.closest('#dd-logout') || t.closest('#side-logout')) { ddClose(); $('logout').click(); return; }
@@ -1521,7 +1792,7 @@
   });
   setInterval(function () { if (document.body.classList.contains('owner-mode') && document.visibilityState === 'visible') dashLoad(); }, 60000);
 
-  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0 }; }
+  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0, 'co:people': invReqN }; }
   function paintBadges() {
     var cnt = badgeCounts(), total = 0; Object.keys(cnt).forEach(function (k) { total += cnt[k]; });
     document.querySelectorAll('#bar-menu [data-bkeys]').forEach(function (b) {
@@ -1664,8 +1935,9 @@
   function dutyKey(title) { if (DUTIES[title]) return title; var k = Object.keys(DUTIES).filter(function (x) { return x.split(' – ')[0].toLowerCase() === String(title).split(/[ –-]/)[0].toLowerCase() && x !== 'Owner / Founder'; })[0]; return k || null; }
   function loadStruct() {
     if (st.busy) return st.busy;
-    st.busy = Promise.all([sb.from('positions').select('*').order('level').order('id').then(check), sb.from('position_assignments').select('*').order('id').then(check), sb.from('teams').select('*').order('name').then(check), sb.from('team_members').select('*').then(check)])
-      .then(function (r) { st.pos = r[0]; st.asg = r[1]; st.teams = r[2]; st.tm = r[3]; st.loaded = true; st.busy = false; renderCompany(); })
+    st.busy = Promise.all([sb.from('positions').select('*').order('level').order('id').then(check), sb.from('position_assignments').select('*').order('id').then(check), sb.from('teams').select('*').order('name').then(check), sb.from('team_members').select('*').then(check),
+      sb.from('org_permissions').select('*').order('key').then(check, function () { return []; }), sb.from('permission_grants').select('*').order('id').then(check, function () { return []; })])
+      .then(function (r) { st.pos = r[0]; st.asg = r[1]; st.teams = r[2]; st.tm = r[3]; st.perms = r[4] || []; st.grants = r[5] || []; co.perms = st.perms; co.pos = st.pos; st.loaded = true; st.busy = false; renderCompany(); })
       .catch(function (err) { st.busy = false; $('co-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
     return st.busy;
   }
@@ -1689,7 +1961,7 @@
       '<label style="flex:2 1 200px"><span>Title <span class="muted" style="font-weight:400">· only for another position</span></span><input name="title" maxlength="80"></label><button class="btn" type="submit">Add position</button></div><p class="msg" role="status" style="margin:0"></p></form>';
   }
   function renderStruct() {
-    var T = { owner: ['Owner / Founder', 'Overall authority over Lytmoz.'], board: ['Board of Directors', 'Corporate governance and oversight.'], ceo: ['CEO – Chief Executive', 'Leads daily operations within the authority you delegate.'], exec: ['Executive Management', 'Executives who run their areas and report to the CEO.'], teams: ['Teams', 'Working groups inside each department.'] };
+    var T = { owner: ['Owner / Founder', 'Overall authority over Lytmoz.'], board: ['Board of Directors', 'Corporate governance and oversight.'], ceo: ['CEO – Chief Executive', 'Leads daily operations within the authority you delegate.'], exec: ['Executive Management', 'Executives who run their areas and report to the CEO.'], teams: ['Teams', 'Working groups inside each department.'], positions: ['Position Catalogue', 'Who does what at Lytmoz, what they see and what they may do.'] };
     $('co-title').textContent = T[co.tab][0]; $('co-sub').textContent = T[co.tab][1];
     if (!co.loaded) { $('co-view').innerHTML = '<p class="muted">Loading…</p>'; return; }
     if (!st.loaded) { $('co-view').innerHTML = '<p class="muted">Loading…</p>'; loadStruct(); return; }
@@ -1710,6 +1982,8 @@
     } else if (co.tab === 'exec') {
       out = '<div class="card stack" style="gap:8px"><p style="margin:0;font-size:15px;line-height:1.65">Executives each run an area of Lytmoz: operations, finance, technology, people and marketing. They report to the CEO.</p><p class="muted" style="margin:0;font-size:13.5px">' + filled(execs) + ' of ' + execs.length + ' executive positions filled.</p></div>' +
         addPosForm('exec', EXEC_PRESETS) + (execs.map(function (p) { var k = (dutyKey(p.title) || p.title).slice(0, 3).toUpperCase(); return posCard(p, k === 'CFO' ? 'wallet' : k === 'CTO' ? 'code' : k === 'CMO' ? 'megaphone' : k === 'CHR' ? 'members' : 'flow'); }).join('') || '<p class="muted card" style="margin:0">No executive positions yet.' + (owner ? ' Add them above.' : '') + '</p>');
+    } else if (co.tab === 'positions') {
+      out = renderCatalogue();
     } else if (co.tab === 'teams') {
       var staffList = co.people.filter(function (p) { return p.level !== 'owner'; });
       out = (owner ? '<form class="card stack" id="team-new"><h2 style="font-size:17px">Create a team</h2><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 180px">Department<select name="dept">' + co.depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 180px">Team name<input name="name" required maxlength="80" placeholder="Web development"></label>' +

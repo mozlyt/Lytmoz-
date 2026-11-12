@@ -65,3 +65,12 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **Top menu editor** (Set Up → Edit top menu): rename, hide, reorder and move items between top-bar buttons. Saved in `hq_settings.menu` (row id 1, admins only). "Back to the standard menu" + Save restores the default.
 - **Privacy policy**: public page `/privacy/`, edited in Set Up → Privacy & Policy (keys `privacy.updated`, `privacy.body`; `## ` = heading, `- ` = bullet). Draft/publish like the other website text.
 - **Email** (Inbox → Email): opens the Gmail mailbox and lists clients with a "Write email" link. Reading mail inside HQ needs the mailbox connected later.
+
+## Positions, workspaces and permissions (Milestone 1, `supabase/positions_milestone1.sql`)
+
+- **positions** is the Position Catalogue: `code`, `title`, `level` (1 governance … 5 employees), `department_id` (empty = any), `reports_to_position_id`, `summary`, `responsibilities` (duties, one per line), `deliverables`, `blocks` (workspace sections: duties, work, dept, company, finance, clients, requests, sites, support, consult, people, org). Edited in HQ → Organization Structure → Position Catalogue.
+- People hold positions through **position_assignments**. `my_position_ids()` adds the `dept_head` position for anyone heading a department and `team_lead` for anyone leading a team.
+- **permission_grants** give a permission to a position, department or person; `deny = true` on a person removes it for them only. `has_permission(key)` is used by the database rules, so access is enforced on the server.
+- New permissions: `reports.view`, `finance.view`, `finance.approve`, `clients.view`, `support.view`, `support.reply`, `consultations.view`, `consultations.manage`, `invites.request`. Staff with them can read the matching client data; confirming payments and changing a consultation's status are limited to those single changes by triggers.
+- `my_workspace()` returns the signed-in person's positions and permissions; HQ builds their menu from it.
+- **Invitations**: only the owner creates `staff_invites`. HR, executives (with `invites.request`) and department heads (own department) create **invite_requests**; the owner runs `decide_invite_request(id, approve, note)`, which creates the invitation link. An accepted invitation with a `position_id` assigns that position.

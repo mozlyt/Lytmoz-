@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=15">
+<link rel="stylesheet" href="assets/app.css?v=16">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -98,6 +98,7 @@
 <symbol id="i-scales" viewBox="0 0 24 24"><path d="M12 4v16M7.5 20h9M5 7.5h14M5 7.5l-2.500 6a2.700 2.700 0 0 0 5 0zM19 7.5l-2.500 6a2.700 2.700 0 0 0 5 0z"/></symbol>
 <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.3"/></symbol>
 <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9.5L12 5l9.500 4.5L12 14z"/><path d="M6.5 11.700v4c1.500 1.400 3.300 2.100 5.500 2.100s4-.7 5.500-2.100v-4"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/></symbol>
 <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
 <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
 <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
@@ -118,7 +119,7 @@
 <div class="side-card"><svg class="ic" aria-hidden="true"><use href="#i-crown"/></svg><strong>Lytmoz Enterprise</strong><span>Build · Manage · Scale</span></div>
 </aside>
 <div id="side-shade" class="side-shade"></div>
-<nav class="hq-nav" role="tablist" aria-label="HQ"><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Overview</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="work"><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><span>My Work</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="submissions"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg><span>Submissions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="department"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Department</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Messages</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="profile"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>My Profile</span></button><p class="ws muted">Lytmoz</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Organization</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="departments"><svg class="ic" aria-hidden="true"><use href="#i-flow"/></svg><span>Departments</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>People &amp; Roles</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="chart"><svg class="ic" aria-hidden="true"><use href="#i-net"/></svg><span>Organization Chart</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="authority"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>Authority Settings</span></button><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="payments"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Payments</span><span id="nb-pay" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button><p class="ws muted">Setup</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="dash" tabindex="-1">dash</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="reports" tabindex="-1">reports</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="help" tabindex="-1">help</button></nav>
+<nav class="hq-nav" role="tablist" aria-label="HQ"><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Overview</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="work"><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><span>My Work</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="submissions"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg><span>Submissions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="department"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Department</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Messages</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="profile"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>My Profile</span></button><p class="ws muted">Lytmoz</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Organization</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="departments"><svg class="ic" aria-hidden="true"><use href="#i-flow"/></svg><span>Departments</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>People &amp; Roles</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="chart"><svg class="ic" aria-hidden="true"><use href="#i-net"/></svg><span>Organization Chart</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="authority"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>Authority Settings</span></button><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="payments"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Payments</span><span id="nb-pay" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button><p class="ws muted">Setup</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="dash" tabindex="-1">dash</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="reports" tabindex="-1">reports</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="help" tabindex="-1">help</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="chat" tabindex="-1">chat</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="email" tabindex="-1">email</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="menu" tabindex="-1">menu</button></nav>
 <main class="hq-main stack" style="gap:22px">
 <div id="hq-bar" class="hq-bar">
 <button type="button" id="side-open" class="icon-btn" aria-label="Open the menu" aria-expanded="false" aria-controls="side"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
@@ -145,6 +146,9 @@
 <div class="dash-g1"><div class="card stack" id="d-req"></div><div class="card stack" id="d-act"></div><div class="card qa"><h2 class="qa-h"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg>Quick actions</h2><div class="qa-b"><button type="button" class="qa-i" data-qa="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg>Assign request</button><button type="button" class="qa-i" data-qa="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Send message</button><button type="button" class="qa-i" data-qa="project"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Create project</button><button type="button" class="qa-i" data-qa="co:people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg>Add member</button><button type="button" class="qa-i" data-qa="reports"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg>View reports</button></div></div></div>
 <div class="dash-g2"><div class="card stack" id="d-msg" style="gap:10px"></div><div class="card stack" id="d-top" style="gap:10px"></div><div class="card stack" id="d-sys" style="gap:6px"></div></div>
 </section>
+<section data-panel="chat" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">Messages</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Chat live with clients. You only see your own conversations; chats between clients stay private to them.</p></div></div><div id="hq-chat-root"></div></section>
+<section data-panel="email" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">Email</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Your Lytmoz mailbox and every client's email address.</p></div></div><div id="email-view" class="stack"></div></section>
+<section data-panel="menu" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">Edit top menu</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">The buttons across the top of Admin HQ.</p></div></div><div id="menu-view" class="stack"></div></section>
 <section data-panel="reports" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">Reports &amp; Analytics</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Revenue, requests, projects and clients over the last six months.</p></div></div><div id="reports-view" class="stack"></div></section>
 <section data-panel="help" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">How HQ works</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">What every button in Admin HQ does. Tap one to go there.</p></div></div><div id="help-view" class="stack"></div></section>
 
@@ -329,6 +333,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js?v=4"></script>
 <script src="assets/api.js?v=3"></script>
+<script src="assets/chat.js?v=1"></script>
 <script>
 (function () {
   var sb = LZ.sb, check = LZ.check, esc = LZ.esc, money = LZ.money, when = LZ.when;
@@ -358,6 +363,8 @@
     document.body.classList.add('owner-mode');
     if (!$('side-nav').firstChild) buildShell();
     $('me-name').textContent = p.name; $('me-av').textContent = initialsOf(p.name);
+    loadHqMenu();
+    if (!hqChat && window.LZChat) hqChat = LZChat.mount($('hq-chat-root'), { me: p, isAdmin: true, onUnread: function (n) { chatUnread = n; paintBadges(); } });
     $('who').textContent = p.name;
     var h = new Date().getHours();
     $('greet').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
@@ -754,7 +761,9 @@
     ['flow', 'flow', 'Workflows & Projects', 'Project stages, client work and change requests.'],
     ['billing', 'wallet', 'Billing & Pricing', 'Public prices, payment details and subscriptions.'],
     ['team', 'members', 'Team & Permissions', 'HQ staff, client logins and business teams.'],
-    ['notify', 'bell', 'Notifications & Integrations', 'Where alerts go and what Lytmoz is connected to.']
+    ['notify', 'bell', 'Notifications & Integrations', 'Where alerts go and what Lytmoz is connected to.'],
+    ['privacy', 'shield', 'Privacy & Policy', 'The privacy policy, and how client chat privacy works.'],
+    ['tab:menu', 'menu', 'Top menu', 'Rename, hide and reorder the buttons in the top bar.']
   ];
   var SITE_PAGES = [
     ['services', 'case', 'All services', '/services/'], ['website-design', 'web', 'Website design', '/website-design/'],
@@ -778,6 +787,7 @@
     pricing: [['pricing.heading', 'Heading'], ['pricing.note', 'How payment works', 1]].concat([1, 2, 3].reduce(function (a, n) {
       var k = 'pricing.p' + n + '.'; return a.concat([[k + 'name', 'Plan ' + n + ' name'], [k + 'text', 'Plan ' + n + ' description', 1], [k + 'price', 'Plan ' + n + ' setup price'], [k + 'monthly', 'Plan ' + n + ' monthly care line'], [k + 'features', 'Plan ' + n + ' what is included', 1], [k + 'cta', 'Plan ' + n + ' button text']]);
     }, [])),
+    privacy: [['privacy.updated', 'Last updated (for example 12 November 2026)'], ['privacy.body', 'Policy text. Start a line with ## for a heading and - for a point. Leave an empty line between paragraphs.', 1, 22, 20000]],
     org: [['org.whatsapp', 'WhatsApp number, with country code and no spaces (for example 233538729743)'], ['org.facebook', 'Facebook page link'], ['org.instagram', 'Instagram link'], ['org.tiktok', 'TikTok link'], ['org.linkedin', 'LinkedIn link']],
     services: [['@services', 'Services clients can request in their portal (one per line)', 1], ['@specialists', 'Specialists you bring in, shown on the consultation section (one per line)', 1]]
   };
@@ -802,8 +812,11 @@
   function siteGetDefaults() {
     if (siteDefaults) return Promise.resolve(siteDefaults);
     var get = function (u) { return fetch(u, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Could not read ' + u); return r.text(); }).then(function (h) { return new DOMParser().parseFromString(h, 'text/html'); }); };
-    return Promise.all([get('/index.html'), get('/portal.html')].concat(SITE_PAGES.map(function (p) { return get(p[3] + 'index.html'); }))).then(function (d) {
+    return Promise.all([get('/index.html'), get('/portal.html')].concat(SITE_PAGES.map(function (p) { return get(p[3] + 'index.html'); }), [get('/privacy/index.html')])).then(function (d) {
       var c = { text: {}, specialists: [], faq: [], services: [] }, home = d[0];
+      d[d.length - 1].querySelectorAll('[data-lz-rich]').forEach(function (el) { // turn the policy page into the simple editing format
+        c.text[el.getAttribute('data-lz-rich')] = [].map.call(el.children, function (n) { return n.tagName === 'H2' ? '## ' + n.textContent.trim() : n.tagName === 'UL' ? [].map.call(n.children, function (li) { return '- ' + li.textContent.trim(); }).join('\n') : n.textContent.trim(); }).join('\n\n');
+      });
       d.forEach(function (doc, i) { if (i !== 1) doc.querySelectorAll('[data-lz]').forEach(function (el) { c.text[el.getAttribute('data-lz')] = el.textContent.trim(); }); });
       home.querySelectorAll('[data-lz-list="specialists"] > *').forEach(function (el) { c.specialists.push(el.textContent.trim()); });
       home.querySelectorAll('[data-lz-faq]').forEach(function (el) { c.faq.push({ q: el.querySelector('summary').textContent.trim(), a: el.querySelector('p').textContent.trim() }); });
@@ -816,7 +829,7 @@
   function fieldsHtml(list) {
     return list.map(function (f) {
       var isList = f[0].charAt(0) === '@', val = isList ? siteWork[f[0].slice(1)].join('\n') : (siteWork.text[f[0]] || ''), attr = isList ? 'data-list="' + f[0].slice(1) + '"' : 'data-k="' + f[0] + '"';
-      return '<label>' + f[1] + (f[2] ? '<textarea ' + attr + ' rows="' + (isList ? 6 : 3) + '" maxlength="3000">' + esc(val) + '</textarea>' : '<input ' + attr + ' maxlength="200" value="' + esc(val) + '">') + '</label>';
+      return '<label>' + f[1] + (f[2] ? '<textarea ' + attr + ' rows="' + (f[3] || (isList ? 6 : 3)) + '" maxlength="' + (f[4] || 3000) + '">' + esc(val) + '</textarea>' : '<input ' + attr + ' maxlength="200" value="' + esc(val) + '">') + '</label>';
     }).join('');
   }
   function faqRow(f) {
@@ -845,6 +858,7 @@
     else if (page) out = screen(page[1], page[2], 'lytmoz.com' + page[3], '<div class="card stack" id="set-form">' + fieldsHtml([['p.' + page[0] + '.eyebrow', 'Small label'], ['p.' + page[0] + '.heading', 'Main heading'], ['p.' + page[0] + '.lead', 'Introduction', 1]]) + NOTE('The rest of this page (what you get, pricing cards, questions) is not editable here yet. <a href="' + page[3] + '" target="_blank" rel="noopener">Open the page</a>') + '</div>');
     else if (v === 'consult') out = screen('chat', 'Consultation & Intake', 'How a consultation is explained on the home page.', editor('consult', NOTE('The questions on the consultation form itself (name, WhatsApp, idea) are fixed for now.')) + rows([['tab:leads', 'inbox', 'Consultation requests', 'Open the requests people have sent.']]));
     else if (v === 'pricing') out = screen('tag', 'Public prices', 'The three plans shown on the home page.', editor('pricing', NOTE('Changing a price here only changes what visitors see. Invoices and subscriptions you already created keep their amounts. The short price cards on the separate service pages are not linked yet.')));
+    else if (v === 'privacy') out = screen('shield', 'Privacy & Policy', 'Shown at lytmoz.com/privacy and linked from the client portal.', editor('privacy', NOTE('Have a lawyer check the policy before you rely on it.')) + info([['Client chat privacy', 'Clients are hidden in Messages until they switch on "Show me in Messages" in their portal (More, then Privacy & security). Hidden clients cannot be found by other clients and do not show as online.'], ['Who sees chats', 'Only the two people in a conversation. Lytmoz HQ shows you your own chats only.'], ['Blocking', 'Anyone can block a person in a chat. Neither side can then send messages there.']]));
     else if (v === 'org') out = screen('pin', 'Business details', 'Used on every public page once published.', editor('org', NOTE('Leave a field empty to keep what the site uses now. The email address for alerts is fixed in the site files for now.')));
     else if (v === 'services') out = screen('case', 'Services & Expertise', 'What clients can ask for and who you bring in.', editor('services'));
     else if (v === 'flow') out = screen('flow', 'Workflows & Projects', 'How work moves from first contact to monthly care.', info(LZ.stages.map(function (s, i) { return ['Stage ' + (i + 1) + ' · ' + esc(s), 'Shown to clients as their project moves forward.']; })) + NOTE('Stage names are fixed for now.') + rows([['tab:projects', 'projects', 'Clients & projects', 'Move a project between stages, post updates, add invoices.'], ['tab:requests', 'edit', 'Change requests', 'What clients have asked to change.'], ['tab:svc', 'services', 'Service requests', 'New work clients have asked for.']]));
@@ -897,12 +911,12 @@
     var go = t.closest('[data-set-go]'), tab = t.closest('[data-set-tab]');
     if (go) { setStack.push(go.dataset.setGo); setRender(); window.scrollTo(0, 0); return; }
     if (t.closest('[data-set-back]')) { setStack.pop(); if (!setStack.length) setStack = ['menu']; setRender(); window.scrollTo(0, 0); return; }
-    if (tab) { var b = document.querySelector('.nav-i[data-tab="' + tab.dataset.setTab + '"]'); if (b) b.click(); window.scrollTo(0, 0); return; }
+    if (tab) { if (document.body.classList.contains('owner-mode')) return void goTo(tab.dataset.setTab); var b = document.querySelector('.nav-i[data-tab="' + tab.dataset.setTab + '"]'); if (b) b.click(); window.scrollTo(0, 0); return; }
     if (t.id === 'set-faq-add') { $('set-faq').insertAdjacentHTML('beforeend', faqRow({})); var qs = $('set-faq').querySelectorAll('[data-faq-q]'); qs[qs.length - 1].focus(); return; }
     if (t.closest('[data-faq-del]')) { var holder = $('set-faq'); t.closest('[data-faq]').remove(); siteWork.faq = [].map.call(holder.querySelectorAll('[data-faq]'), function (r) { return { q: r.querySelector('[data-faq-q]').value.trim(), a: r.querySelector('[data-faq-a]').value.trim() }; }).filter(function (f) { return f.q && f.a; }); return siteStatus(); }
     if (t.id === 'set-save') { siteBusy(true, 'Saving…'); return void siteSave().then(function () { siteBusy(false); LZ.setMsg($('set-msg'), 'Draft saved. Visitors still see the published version.', 'ok'); }).catch(siteFail); }
     if (t.id === 'set-preview') {
-      var v = setStack[setStack.length - 1], pg = v.indexOf('page:') === 0 ? SITE_PAGES.filter(function (p) { return p[0] === v.slice(5); })[0] : null, url = (pg ? pg[3] : '/') + '?preview=1' + (v === 'consult' ? '#consultation' : v === 'pricing' ? '#pricing' : v === 'home:faq' ? '#faq' : v === 'home:approach' ? '#approach' : '');
+      var v = setStack[setStack.length - 1], pg = v.indexOf('page:') === 0 ? SITE_PAGES.filter(function (p) { return p[0] === v.slice(5); })[0] : null, url = (pg ? pg[3] : v === 'privacy' ? '/privacy/' : '/') + '?preview=1' + (v === 'consult' ? '#consultation' : v === 'pricing' ? '#pricing' : v === 'home:faq' ? '#faq' : v === 'home:approach' ? '#approach' : '');
       var w = window.open('', '_blank'); siteBusy(true, 'Opening preview…');
       return void siteSave().then(function () { siteBusy(false); if (w) w.location = url; else LZ.setMsg($('set-msg'), 'Allow pop-ups, or open lytmoz.com/?preview=1 in this browser.', 'err'); }).catch(function (err) { if (w) w.close(); siteFail(err); });
     }
@@ -1212,7 +1226,9 @@
         ['files', 'files', 'Client files', 'Files clients have uploaded.'],
         ['infra', 'key', 'Client accounts', 'Accounts, domains and renewals for each client.']] },
       { id: 'comm', icon: 'chat', label: 'Communication', items: [
-        ['messages', 'support', 'Inbox', 'Messages from clients.'],
+        ['chat', 'chat', 'Messages', 'Live one-to-one chat with clients, like WhatsApp.'],
+        ['messages', 'support', 'Support', 'Support requests clients send to Lytmoz.'],
+        ['email', 'inbox', 'Email', 'Write to clients and open the Lytmoz mailbox.'],
         ['leads', 'inbox', 'Consultations', 'Consultation requests sent from the website.']] },
       { id: 'rep', icon: 'chart', label: 'Reports & Analytics', items: [
         ['dash', 'overview', 'Dashboard overview', 'Key figures, requests and activity at a glance.'],
@@ -1225,21 +1241,31 @@
         ['set:web', 'web', 'Website & content', 'Edit and publish the public website.'],
         ['set:org', 'pin', 'Business details', 'WhatsApp number and social links.'],
         ['set:billing', 'wallet', 'Billing & pricing', 'Public prices, payment details and subscriptions.'],
-        ['set:notify', 'bell', 'Notifications', 'Where alerts go and what Lytmoz is connected to.']] },
+        ['set:notify', 'bell', 'Notifications', 'Where alerts go and what Lytmoz is connected to.'],
+        ['set:privacy', 'shield', 'Privacy & Policy', 'The privacy policy visitors and clients read.'],
+        ['menu', 'menu', 'Top menu', 'Rename, hide and reorder the buttons in the top bar.']] },
       { id: 'help', icon: 'help', label: 'Help & Support', items: [
         ['help', 'help', 'How HQ works', 'What every button in Admin HQ does.'],
         ['messages', 'support', 'Client support', 'Answer clients who need help.']] }
     ],
     bar: [
-      { id: 'b-dash', icon: 'overview', label: 'Dashboard Overview', desc: 'Your starting page, reports and the system log.', items: [['dash', 'overview', 'Overview'], ['reports', 'chart', 'Reports & analytics'], ['activity', 'activity', 'System logs']] },
-      { id: 'b-work', icon: 'projects', label: 'Work', desc: 'Everything you are delivering for clients.', items: [['projects', 'projects', 'Clients & projects'], ['svc', 'services', 'Service requests'], ['requests', 'edit', 'Change requests'], ['leads', 'inbox', 'Consultations'], ['sites', 'sites', 'Websites & apps'], ['files', 'files', 'Client files']] },
-      { id: 'b-review', icon: 'chart', label: 'Report and Review', desc: 'Figures to study and things waiting for your check.', items: [['reports', 'chart', 'Reports'], ['payments', 'billing', 'Payments to confirm'], ['requests', 'edit', 'Change requests to review'], ['activity', 'activity', 'Activity log']] },
-      { key: 'messages', icon: 'chat', label: 'Inbox', badge: 'bb-inbox', desc: 'Client messages. The number shows unread ones.' },
-      { id: 'b-members', icon: 'members', label: 'Members', desc: 'Client logins, client businesses and Lytmoz staff.', items: [['members', 'members', 'Client members'], ['orgs', 'biz', 'Businesses'], ['infra', 'key', 'Client accounts'], ['co:people', 'team', 'Lytmoz staff'], ['co:departments', 'flow', 'Departments']] },
+      { id: 'b-dash', icon: 'overview', label: 'Dashboard Overview', desc: 'Your starting page.', items: [['dash', 'overview', 'Overview']] },
+      { id: 'b-work', icon: 'projects', label: 'Work', desc: 'Everything you are delivering for clients.', items: [['projects', 'projects', 'Clients & projects'], ['svc', 'services', 'Service requests'], ['requests', 'edit', 'Change requests'], ['sites', 'sites', 'Websites & apps'], ['files', 'files', 'Client files']] },
+      { id: 'b-review', icon: 'chart', label: 'Report and Review', desc: 'Analysis of client work and payments received.', items: [['reports', 'chart', 'Reports'], ['payments', 'billing', 'Payments confirmed']] },
+      { id: 'b-inbox', icon: 'chat', label: 'Inbox', desc: 'Messages, support, email and consultations.', items: [['chat', 'chat', 'Messages'], ['messages', 'support', 'Support'], ['email', 'inbox', 'Email'], ['leads', 'inbox', 'Consultations']] },
+      { id: 'b-members', icon: 'members', label: 'Members', desc: 'People who log into the client portal and their businesses.', items: [['members', 'members', 'Client members'], ['orgs', 'biz', 'Businesses']] },
       { id: 'b-billing', icon: 'billing', label: 'Billing', desc: 'Invoices, payments and recurring plans.', items: [['payments', 'billing', 'Payments & invoices'], ['subs', 'subs', 'Subscriptions'], ['set:pricing', 'tag', 'Public prices']] },
-      { id: 'b-setup', icon: 'gear', label: 'Set Up', desc: 'How Lytmoz is organised and configured.', items: [['settings', 'gear', 'Settings'], ['co:overview', 'org', 'Organization'], ['co:authority', 'shield', 'Roles & permissions'], ['set:web', 'web', 'Website editing']] }
+      { id: 'b-setup', icon: 'gear', label: 'Set Up', desc: 'Client accounts, logs, the public website and this menu.', items: [['infra', 'key', 'Client accounts'], ['activity', 'activity', 'Activity log'], ['set:web', 'web', 'Website editing'], ['set:org', 'pin', 'Business details'], ['set:privacy', 'shield', 'Privacy & Policy'], ['menu', 'menu', 'Edit top menu']] }
     ]
   };
+  var PUB = { dash: ['overview', 'Overview'], projects: ['projects', 'Clients & projects'], svc: ['services', 'Service requests'], requests: ['edit', 'Change requests'], sites: ['sites', 'Websites & apps'], files: ['files', 'Client files'],
+    reports: ['chart', 'Reports'], payments: ['billing', 'Payments'], chat: ['chat', 'Messages'], messages: ['support', 'Support'], email: ['inbox', 'Email'], leads: ['inbox', 'Consultations'], members: ['members', 'Client members'], orgs: ['biz', 'Businesses'],
+    subs: ['subs', 'Subscriptions'], 'set:pricing': ['tag', 'Public prices'], infra: ['key', 'Client accounts'], activity: ['activity', 'Activity log'], 'set:web': ['web', 'Website editing'], 'set:org': ['pin', 'Business details'], 'set:privacy': ['shield', 'Privacy & Policy'], menu: ['menu', 'Edit top menu'] };
+  var hqMenu = null, chatUnread = 0, hqChat = null;
+  function barMenu() { // the owner's saved top menu, keeping only public items; falls back to the default
+    var m = hqMenu && Array.isArray(hqMenu) ? hqMenu.map(function (b) { return { id: b.id, icon: b.icon || 'overview', label: String(b.label || '').slice(0, 40) || 'Menu', hidden: !!b.hidden, items: (b.items || []).filter(function (i) { return PUB[i[0]]; }).map(function (i) { return [i[0], PUB[i[0]][0], String(i[1] || PUB[i[0]][1]).slice(0, 40), !!i[2]]; }) }; }) : null;
+    return m && m.length ? m : NAV.bar.map(function (b) { return { id: b.id, icon: b.icon, label: b.label, desc: b.desc, items: b.items.map(function (i) { return [i[0], i[1], i[2], false]; }) }; });
+  }
   var CO_NATIVE = { overview: 1, departments: 1, people: 1, chart: 1, authority: 1 };
   var STRUCT_TABS = { owner: 1, board: 1, ceo: 1, exec: 1, teams: 1 };
   var hqKey = 'dash';
@@ -1253,10 +1279,13 @@
         '<div class="sg-items" id="sg-' + g.id + '"' + (g.id === 'org' ? '' : ' hidden') + '>' + g.items.map(function (i) { return '<button type="button" class="sg-i" data-go="' + i[0] + '">' + ICN(i[1]) + '<span>' + i[2] + '</span></button>'; }).join('') + '</div></div>';
     }).join('');
     $('side-nav').innerHTML = side + '<button type="button" class="sg-h solo" id="side-logout">' + ICN('logout') + '<span>Log out</span></button>';
-    $('bar-menu').innerHTML = NAV.bar.map(function (b) {
-      return b.key ? '<button type="button" class="bm" data-go="' + b.key + '">' + ICN(b.icon) + '<span>' + b.label + '</span><span class="bm-n" id="' + b.badge + '" hidden></span></button>'
-        : '<button type="button" class="bm" data-dd="' + b.id + '" aria-haspopup="true" aria-expanded="false">' + ICN(b.icon) + '<span>' + b.label + '</span>' + ICN('chev', 'bm-down') + '</button>';
+    $('bar-menu').innerHTML = barMenu().filter(function (b) { return !b.hidden; }).map(function (b) {
+      var vis = b.items.filter(function (i) { return !i[3]; }), keys = vis.map(function (i) { return i[0]; }).join(' ');
+      if (!vis.length) return '';
+      return vis.length === 1 ? '<button type="button" class="bm" data-go="' + vis[0][0] + '" data-bkeys="' + keys + '">' + ICN(b.icon) + '<span>' + esc(b.label) + '</span><span class="bm-n" hidden></span></button>'
+        : '<button type="button" class="bm" data-dd="' + b.id + '" data-bkeys="' + keys + '" aria-haspopup="true" aria-expanded="false">' + ICN(b.icon) + '<span>' + esc(b.label) + '</span><span class="bm-n" hidden></span>' + ICN('chev', 'bm-down') + '</button>';
     }).join('');
+    paintBadges();
   }
   function ddClose() {
     var dd = $('dd'); if (dd.hidden) return; dd.hidden = true;
@@ -1277,8 +1306,8 @@
     var hit = document.querySelector('#side .sg-i[data-go="' + key + '"]');
     if (hit) { var box = hit.parentNode; box.hidden = false; box.previousElementSibling.setAttribute('aria-expanded', 'true'); }
     document.querySelectorAll('#bar-menu [data-dd]').forEach(function (b) {
-      var g = NAV.bar.filter(function (x) { return x.id === b.dataset.dd; })[0];
-      b.classList.toggle('on', !!(g && g.items.some(function (i) { return i[0] === key; })));
+      var g = barMenu().filter(function (x) { return x.id === b.dataset.dd; })[0];
+      b.classList.toggle('on', !!(g && g.items.some(function (i) { return i[0] === key && !i[3]; })));
     });
   }
   function goTo(key) {
@@ -1291,6 +1320,9 @@
     if (tab === 'dash') dashLoad();
     if (tab === 'reports') renderReports(sub);
     if (tab === 'help') renderHelp();
+    if (tab === 'email') renderEmail();
+    if (tab === 'menu') renderMenuEditor();
+    if (tab === 'chat' && hqChat) hqChat.refresh();
     markNav(key); ddClose(); sideOpen(false);
     if (tab !== 'reports' || !sub) window.scrollTo(0, 0);
   }
@@ -1300,8 +1332,8 @@
     if (!document.body.classList.contains('owner-mode')) return;
     if ((x = t.closest('[data-go]')) && !t.closest('[data-panel="company"] form')) { e.preventDefault(); goTo(x.dataset.go); return; }
     if ((x = t.closest('[data-sg]'))) { var box = $('sg-' + x.dataset.sg), open = box.hidden; box.hidden = !open; x.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
-    if ((x = t.closest('[data-dd]'))) { var g = NAV.bar.filter(function (b) { return b.id === x.dataset.dd; })[0]; ddOpen(x, ddItems(g.items)); return; }
-    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['messages', 'support', 'Unread messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
+    if ((x = t.closest('[data-dd]'))) { var g = barMenu().filter(function (b) { return b.id === x.dataset.dd; })[0], cnt = badgeCounts(); ddOpen(x, ddItems(g.items.filter(function (i) { return !i[3]; }).map(function (i) { return [i[0], i[1], i[2], '', cnt[i[0]] || 0]; }))); return; }
+    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['chat', 'chat', 'Unread chats', '', chatUnread], ['messages', 'support', 'Unread support messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
     if (t.closest('#me-btn')) { ddOpen($('me-btn'), '<div class="dd-me"><span class="av">' + esc(initialsOf(co.me && co.me.name)) + '</span><div><strong>' + esc(co.me ? co.me.name : '') + '</strong><span>' + esc(co.me ? co.me.email || 'Owner' : '') + ' · Owner</span></div></div>' + ddItems([['co:owner', 'crown', 'Owner / Founder'], ['settings', 'gear', 'Settings'], ['help', 'help', 'How HQ works']]) + (!$('install-app').hidden ? '<button type="button" class="dd-i" id="dd-install">' + ICN('phone') + '<span>Install the HQ app</span></button>' : '') + '<button type="button" class="dd-i" id="dd-logout">' + ICN('logout') + '<span>Log out</span></button>'); return; }
     if (t.closest('#dd-install')) { ddClose(); $('install-app').click(); return; }
     if (t.closest('#dd-logout') || t.closest('#side-logout')) { ddClose(); $('logout').click(); return; }
@@ -1352,9 +1384,7 @@
         renew: d.subs.filter(function (s) { return s.status === 'active' && s.renews_on && s.renews_on <= week && s.renews_on >= today; }).length
       };
       var c = dash.counts, total = c.unread + c.svc + c.leads + c.pay + c.change + c.renew;
-      $('bb-inbox').textContent = c.unread; $('bb-inbox').hidden = !c.unread;
-      $('bell-n').textContent = total; $('bell-n').hidden = !total;
-      $('bell').setAttribute('aria-label', 'Notifications' + (total ? ', ' + total + ' waiting' : ''));
+      paintBadges();
       renderDash(); dashStatus();
       if (!document.querySelector('[data-panel="reports"]').hidden) renderReports();
       return d;
@@ -1491,6 +1521,95 @@
   });
   setInterval(function () { if (document.body.classList.contains('owner-mode') && document.visibilityState === 'visible') dashLoad(); }, 60000);
 
+  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0 }; }
+  function paintBadges() {
+    var cnt = badgeCounts(), total = 0; Object.keys(cnt).forEach(function (k) { total += cnt[k]; });
+    document.querySelectorAll('#bar-menu [data-bkeys]').forEach(function (b) {
+      var n = b.dataset.bkeys.split(' ').reduce(function (a, k) { return a + (cnt[k] || 0); }, 0), el = b.querySelector('.bm-n');
+      el.textContent = n; el.hidden = !n;
+    });
+    $('bell-n').textContent = total; $('bell-n').hidden = !total;
+    $('bell').setAttribute('aria-label', 'Notifications' + (total ? ', ' + total + ' waiting' : ''));
+  }
+
+  // ----- Email -----
+  function renderEmail() {
+    var d = dash.data; if (!d) { $('email-view').innerHTML = '<p class="muted">Loading…</p>'; var pr = dashLoad(); if (pr && pr.then) pr.then(renderEmail); return; }
+    var q = ($('email-q') || {}).value || '', ql = q.toLowerCase();
+    var list = d.profiles.filter(function (p) { return p.role === 'client' && p.email; }).map(function (p) { return { p: p, biz: d.orgName[d.orgOf[p.id]] || p.company || '' }; })
+      .filter(function (x) { return !ql || (x.p.name + ' ' + x.p.email + ' ' + x.biz).toLowerCase().indexOf(ql) >= 0; }).sort(function (a, b) { return String(a.p.name).localeCompare(b.p.name); });
+    var box = $('email-list');
+    if (!box) {
+      $('email-view').innerHTML = '<div class="card stack"><div class="row between" style="gap:12px"><div><h2 class="dh">' + ICN('inbox') + 'Lytmoz mailbox</h2><p class="muted" style="margin:6px 0 0;font-size:14px">Mail to ' + esc(LZ.cfg.email || 'info@lytmoz.com') + ' and website alerts are forwarded to your Gmail.</p></div><a class="btn small" href="https://mail.google.com/mail/" target="_blank" rel="noopener">Open mailbox</a></div>' +
+        '<p class="muted" style="margin:0;font-size:13px">Reading and sending email inside HQ needs your mailbox connected to Lytmoz. Until then, Write email opens your own email app with the client\'s address filled in.</p></div>' +
+        '<div class="card stack"><div class="row between" style="gap:12px"><h2 class="dh">' + ICN('members') + 'Write to a client</h2><label style="flex:0 1 260px"><span class="sr">Search clients</span><input type="search" id="email-q" placeholder="Search clients" autocomplete="off"></label></div><div id="email-list"></div></div>';
+      box = $('email-list');
+    }
+    box.innerHTML = list.map(function (x) { return '<div class="item"><span class="av">' + esc(initialsOf(x.p.name)) + '</span><div class="main"><strong>' + esc(x.p.name || x.p.email) + (x.biz ? ' <span class="muted" style="font-weight:500">· ' + esc(x.biz) + '</span>' : '') + '</strong><span>' + esc(x.p.email) + '</span></div><a class="btn small ghost" href="mailto:' + encodeURIComponent(x.p.email) + '?subject=' + encodeURIComponent('Lytmoz') + '">Write email</a></div>'; }).join('') || '<p class="muted" style="margin:0">' + (q ? 'No clients match.' : 'No clients yet.') + '</p>';
+  }
+  document.addEventListener('input', function (e) { if (e.target.id === 'email-q') renderEmail(); });
+
+  // ----- Top menu editor (Set Up > Edit top menu) -----
+  var menuDraft = null;
+  function renderMenuEditor() {
+    if (!menuDraft) menuDraft = JSON.parse(JSON.stringify(barMenu()));
+    var used = {}; menuDraft.forEach(function (b) { b.items.forEach(function (i) { used[i[0]] = 1; }); });
+    var btn = function (attr, icon, label, dis) { return '<button type="button" class="icon-btn sm" ' + attr + ' aria-label="' + label + '"' + (dis ? ' disabled' : '') + '>' + ICN(icon) + '</button>'; };
+    $('menu-view').innerHTML = '<div class="card stack" style="gap:8px"><p style="margin:0;font-size:15px;line-height:1.6">Rename, hide and reorder the buttons in the top bar and what each one holds. The top bar is for the public side: clients, their work, their messages and their billing. A button with one item opens it directly.</p><p class="muted" style="margin:0;font-size:13px">Internal management (organization, staff, departments) stays in the left menu.</p></div>' +
+      menuDraft.map(function (b, bi) {
+        var free = Object.keys(PUB).filter(function (k) { return !used[k]; });
+        return '<div class="card stack menu-b' + (b.hidden ? ' off' : '') + '"><div class="row" style="gap:10px;flex-wrap:nowrap;align-items:flex-end"><span class="co-ic">' + ICN(b.icon) + '</span><label style="flex:1;min-width:0">Button name<input data-mb="' + bi + '" maxlength="40" value="' + esc(b.label) + '"></label>' +
+          btn('data-mup="' + bi + '"', 'up', 'Move button up', !bi) + btn('data-mdown="' + bi + '"', 'down', 'Move button down', bi === menuDraft.length - 1) + '</div>' +
+          '<label class="tog"><input type="checkbox" data-mshow="' + bi + '"' + (b.hidden ? '' : ' checked') + '><span>Show this button</span></label>' +
+          '<div class="menu-items">' + b.items.map(function (i, ii) {
+            return '<div class="menu-it' + (i[3] ? ' off' : '') + '">' + ICN(i[1]) + '<label style="flex:1;min-width:0"><span class="sr">Item name</span><input data-mi="' + bi + ':' + ii + '" maxlength="40" value="' + esc(i[2]) + '"></label>' +
+              '<label class="tog" style="flex:none"><input type="checkbox" data-mishow="' + bi + ':' + ii + '"' + (i[3] ? '' : ' checked') + '><span class="sr">Show</span></label>' +
+              btn('data-miup="' + bi + ':' + ii + '"', 'up', 'Move up', !ii) + btn('data-midown="' + bi + ':' + ii + '"', 'down', 'Move down', ii === b.items.length - 1) + (i[0] === 'menu' ? '' : btn('data-midel="' + bi + ':' + ii + '"', 'logout', 'Move out of this button')) + '</div>';
+          }).join('') + '</div>' +
+          (free.length ? '<div class="row" style="gap:10px;align-items:flex-end"><label style="flex:1 1 200px">Add an item<select data-madd-sel="' + bi + '">' + free.map(function (k) { return '<option value="' + k + '">' + PUB[k][1] + '</option>'; }).join('') + '</select></label><button type="button" class="btn small ghost" data-madd="' + bi + '">Add</button></div>' : '') + '</div>';
+      }).join('') +
+      '<div class="card stack"><div class="row" style="gap:10px"><button type="button" class="btn" id="menu-save">Save menu</button><button type="button" class="btn ghost" id="menu-cancel">Undo changes</button><button type="button" class="linkish" id="menu-reset">Back to the standard menu</button></div><p class="msg" id="menu-msg" role="status" style="margin:0"></p></div>';
+  }
+  function menuIdx(v) { var p = v.split(':'); return [+p[0], +p[1]]; }
+  function swap(arr, a, b) { var t = arr[a]; arr[a] = arr[b]; arr[b] = t; }
+  document.addEventListener('input', function (e) {
+    var d = e.target.dataset || {}; if (!menuDraft) return;
+    if (d.mb !== undefined) menuDraft[+d.mb].label = e.target.value;
+    if (d.mi !== undefined) { var x = menuIdx(d.mi); menuDraft[x[0]].items[x[1]][2] = e.target.value; }
+  });
+  document.addEventListener('change', function (e) {
+    var d = e.target.dataset || {}; if (!menuDraft) return;
+    if (d.mshow !== undefined) { menuDraft[+d.mshow].hidden = !e.target.checked; renderMenuEditor(); }
+    if (d.mishow !== undefined) { var x = menuIdx(d.mishow); menuDraft[x[0]].items[x[1]][3] = !e.target.checked; renderMenuEditor(); }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x, d; if (!menuDraft || !t.closest('#menu-view')) return;
+    if ((x = t.closest('[data-mup]'))) { d = +x.dataset.mup; swap(menuDraft, d, d - 1); return renderMenuEditor(); }
+    if ((x = t.closest('[data-mdown]'))) { d = +x.dataset.mdown; swap(menuDraft, d, d + 1); return renderMenuEditor(); }
+    if ((x = t.closest('[data-miup]'))) { d = menuIdx(x.dataset.miup); swap(menuDraft[d[0]].items, d[1], d[1] - 1); return renderMenuEditor(); }
+    if ((x = t.closest('[data-midown]'))) { d = menuIdx(x.dataset.midown); swap(menuDraft[d[0]].items, d[1], d[1] + 1); return renderMenuEditor(); }
+    if ((x = t.closest('[data-midel]'))) { d = menuIdx(x.dataset.midel); menuDraft[d[0]].items.splice(d[1], 1); return renderMenuEditor(); }
+    if ((x = t.closest('[data-madd]'))) { d = +x.dataset.madd; var k = document.querySelector('[data-madd-sel="' + d + '"]').value; menuDraft[d].items.push([k, PUB[k][0], PUB[k][1], false]); return renderMenuEditor(); }
+    if (t.id === 'menu-cancel') { menuDraft = null; return renderMenuEditor(); }
+    if (t.id === 'menu-reset') { if (!confirm('Go back to the standard top menu? Your changes to names and order are removed when you save.')) return; menuDraft = JSON.parse(JSON.stringify(NAV.bar.map(function (b) { return { id: b.id, icon: b.icon, label: b.label, items: b.items.map(function (i) { return [i[0], i[1], i[2], false]; }) }; }))); return renderMenuEditor(); }
+    if (t.id === 'menu-save') {
+      if (!menuDraft.some(function (b) { return !b.hidden && b.items.some(function (i) { return i[0] === 'menu' && !i[3]; }); }) && !confirm('Edit top menu is hidden from the top bar. You can still reach it from Settings in the left menu. Save anyway?')) return;
+      var clean = menuDraft.map(function (b) { return { id: b.id, icon: b.icon, label: b.label.trim() || 'Menu', hidden: !!b.hidden, items: b.items.map(function (i) { return [i[0], i[2].trim() || PUB[i[0]][1], !!i[3]]; }) }; });
+      t.disabled = true;
+      sb.from('hq_settings').update({ menu: clean, updated_at: new Date().toISOString() }).eq('id', 1).then(check).then(function () {
+        hqMenu = clean; menuDraft = null; buildShell(); markNav(hqKey); renderMenuEditor(); LZ.setMsg($('menu-msg'), 'Saved. The top bar is updated.', 'ok');
+      }).catch(function (err) { t.disabled = false; LZ.setMsg($('menu-msg'), err.message, 'err'); });
+    }
+  });
+  function loadHqMenu() {
+    return sb.from('hq_settings').select('menu').eq('id', 1).maybeSingle().then(check).then(function (r) {
+      if (r && Array.isArray(r.menu) && r.menu.length) {
+        hqMenu = r.menu;
+        buildShell(); markNav(hqKey);
+      }
+    }).catch(function () {});
+  }
+
   // ----- Reports -----
   function months(n) { var out = [], d = new Date(); for (var i = n - 1; i >= 0; i--) { var a = new Date(d.getFullYear(), d.getMonth() - i, 1); out.push([a, new Date(a.getFullYear(), a.getMonth() + 1, 1)]); } return out; }
   function bars(rows, fmt) { var max = Math.max.apply(null, rows.map(function (r) { return r[1]; }).concat([1])); return '<div class="rb">' + rows.map(function (r) { return '<div class="rb-r"><span class="rb-k">' + r[0] + '</span><div class="bar"><div style="width:' + (r[1] ? Math.max(3, Math.round(r[1] / max * 100)) : 0) + '%"></div></div><span class="rb-v">' + (fmt ? fmt(r[1]) : r[1]) + '</span></div>'; }).join('') + '</div>'; }
@@ -1519,7 +1638,7 @@
   function renderHelp() {
     var item = function (k, icon, label, desc) { return '<button type="button" class="menu-i" data-go="' + k + '">' + ICN(icon) + '<span><strong>' + label + '</strong>' + (desc ? '<small>' + desc + '</small>' : '') + '</span>' + ICN('chev', 'chev') + '</button>'; };
     $('help-view').innerHTML = '<div class="card stack"><h2 class="dh">' + ICN('overview') + 'Top bar</h2><p class="muted" style="margin:0;font-size:14px">The buttons across the top of every page. The ones with an arrow open a short list.</p><div>' +
-      NAV.bar.map(function (b) { return item(b.key || b.items[0][0], b.icon, b.label, b.desc + (b.items ? ' Contains: ' + b.items.map(function (i) { return i[2]; }).join(', ') + '.' : '')); }).join('') +
+      barMenu().filter(function (b) { return !b.hidden; }).map(function (b) { var vis = b.items.filter(function (i) { return !i[3]; }); return vis.length ? item(vis[0][0], b.icon, b.label, (b.desc ? b.desc + ' ' : '') + (vis.length > 1 ? 'Contains: ' + vis.map(function (i) { return i[2]; }).join(', ') + '.' : '')) : ''; }).join('') +
       item('dash', 'bell', 'Bell', 'Everything waiting for you: unread messages, new requests, payments to confirm and renewals due.') + item('co:owner', 'members', 'Your picture', 'Your name, your owner page, settings and log out.') + '</div></div>' +
       NAV.side.map(function (g) { return '<div class="card stack"><h2 class="dh">' + ICN(g.icon) + g.label + '</h2><div>' + (g.key ? item(g.key, g.icon, g.label, g.desc) : g.items.map(function (i) { return item(i[0], i[1], i[2], i[3]); }).join('')) + '</div></div>'; }).join('') +
       '<div class="card stack"><h2 class="dh">' + ICN('flow') + 'Dashboard overview</h2><div>' +

@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=15">
+<link rel="stylesheet" href="assets/app.css?v=16">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -68,6 +68,8 @@
 <symbol id="i-billing" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3 10h18M7 15h4"/></symbol>
 <symbol id="i-support" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.5L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></symbol>
 <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14.5 4.5h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-3M10 16.5 14.5 12 10 7.5M14.5 12H4.5"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5.5h10a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5H8.5L5 16.5v-3H4A1.5 1.5 0 0 1 2.5 12V7A1.5 1.5 0 0 1 4 5.5z"/><path d="M18 9.5h2A1.5 1.5 0 0 1 21.5 11v5a1.5 1.5 0 0 1-1.5 1.5h-1v3l-3.5-3H12"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 <symbol id="i-link" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M17.5 13.5v4a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h4"/></symbol>
 <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/></symbol>
@@ -90,7 +92,7 @@
 <div class="wrap hq">
 <nav class="hq-nav" aria-label="Client HQ">
 <p class="ws muted" id="ws-name">Your workspace</p>
-<button type="button" class="nav-i" data-view="overview" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-overview"/></svg><span>Overview</span><b class="nb" id="nb-overview" hidden></b></button><button type="button" class="nav-i" data-view="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>My projects</span><b class="nb" id="nb-projects" hidden></b></button><button type="button" class="nav-i" data-view="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites & apps</span><b class="nb" id="nb-sites" hidden></b></button><button type="button" class="nav-i" data-view="services"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Request a service</span><b class="nb" id="nb-services" hidden></b></button><button type="button" class="nav-i" data-view="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Files & content</span><b class="nb" id="nb-files" hidden></b></button><button type="button" class="nav-i" data-view="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><span>My team</span><b class="nb" id="nb-team" hidden></b></button><button type="button" class="nav-i" data-view="billing"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Billing</span><b class="nb" id="nb-billing" hidden></b></button><button type="button" class="nav-i" data-view="support"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Support</span><b class="nb" id="nb-support" hidden></b></button><button type="button" class="nav-i" data-view="more"><svg class="ic" aria-hidden="true"><use href="#i-more"/></svg><span>More</span></button>
+<button type="button" class="nav-i" data-view="overview" aria-current="page"><svg class="ic" aria-hidden="true"><use href="#i-overview"/></svg><span>Overview</span><b class="nb" id="nb-overview" hidden></b></button><button type="button" class="nav-i" data-view="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>My projects</span><b class="nb" id="nb-projects" hidden></b></button><button type="button" class="nav-i" data-view="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites & apps</span><b class="nb" id="nb-sites" hidden></b></button><button type="button" class="nav-i" data-view="services"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Request a service</span><b class="nb" id="nb-services" hidden></b></button><button type="button" class="nav-i" data-view="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Files & content</span><b class="nb" id="nb-files" hidden></b></button><button type="button" class="nav-i" data-view="team"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><span>My team</span><b class="nb" id="nb-team" hidden></b></button><button type="button" class="nav-i" data-view="billing"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Billing</span><b class="nb" id="nb-billing" hidden></b></button><button type="button" class="nav-i" data-view="chat"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Messages</span><b class="nb" id="nb-chat" hidden></b></button><button type="button" class="nav-i" data-view="support"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Support</span><b class="nb" id="nb-support" hidden></b></button><button type="button" class="nav-i" data-view="more"><svg class="ic" aria-hidden="true"><use href="#i-more"/></svg><span>More</span></button>
 </nav>
 
 <main class="hq-main stack" style="gap:22px">
@@ -212,6 +214,11 @@
 </form>
 </section>
 
+<section data-v="chat" class="stack" hidden>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><div><h1 class="serif h">Messages</h1><p class="muted sub">Chat with Lytmoz and with other clients who are online.</p></div></div>
+<div id="chat-root"></div>
+</section>
+
 <section data-v="support" class="stack" hidden>
 <div class="head"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><div><h1 class="serif h">Support</h1><p class="muted sub">Message the Lytmoz team. We reply here and on WhatsApp.</p></div></div>
 <section class="card stack" id="messages-card">
@@ -283,8 +290,11 @@
 <section data-v="privacy" class="stack" hidden>
 <button type="button" class="back" data-go="more"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>More</button>
 <div class="head"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><div><h1 class="serif h">Privacy &amp; security</h1><p class="muted sub">Your data and your account.</p></div></div>
+<div class="card stack"><h2 style="font-size:18px">Messages and online status</h2>
+<label class="switch"><input type="checkbox" id="chat-vis"><span><strong>Show me in Messages</strong><small>Other clients can find you, start a chat with you and see when you are online. Turn it off to be invisible. You can always chat with Lytmoz.</small></span></label>
+<p class="msg" id="chat-vis-msg" role="status" style="margin:0"></p></div>
 <div class="card stack"><h2 style="font-size:18px">How we treat your data</h2>
-<ul class="checks" style="margin:0"><li>Your projects, files and messages are visible only to you, your team and Lytmoz.</li><li>The websites and systems we build run on accounts registered to you. See <button type="button" class="linkish" data-go="sites">Your accounts</button>.</li><li>We never sell or share your details.</li></ul></div>
+<ul class="checks" style="margin:0"><li>Your projects, files and messages are visible only to you, your team and Lytmoz.</li><li>The websites and systems we build run on accounts registered to you. See <button type="button" class="linkish" data-go="sites">Your accounts</button>.</li><li>We never sell or share your details.</li></ul><a href="/privacy/" target="_blank" rel="noopener" style="font-size:14px;font-weight:600">Read our full privacy policy</a></div>
 <div class="card stack"><h2 style="font-size:18px">Signed in somewhere else?</h2><p class="muted" style="margin:0;font-size:14px">Log out of Lytmoz on every phone and computer at once, including this one.</p><button type="button" class="btn ghost small" id="logout-all" style="align-self:flex-start">Log out everywhere</button></div>
 <div class="card stack"><h2 style="font-size:18px">Close my account</h2><p class="muted" style="margin:0;font-size:14px">We will confirm with you, then delete your account and personal details. Live websites stay yours.</p><button type="button" class="btn ghost small" id="close-account" style="align-self:flex-start">Request account closure</button><p class="msg" id="close-msg" role="status"></p></div>
 </section>
@@ -312,6 +322,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js?v=4"></script>
 <script src="assets/api.js?v=3"></script>
+<script src="assets/chat.js?v=1"></script>
 <script>
 (function () {
   var sb = LZ.sb, check = LZ.check, esc = LZ.esc, money = LZ.money, when = LZ.when;
@@ -528,6 +539,14 @@
   document.addEventListener('click', function (e) {
     var a = e.target.closest('[data-plan-ask]'), t = a && document.querySelector('#msg-form textarea');
     if (t) { t.value = 'About my ' + a.dataset.planAsk + ' plan: I would like to '; setTimeout(function () { t.focus(); }, 50); }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'chat-vis') return;
+    var on = e.target.checked; e.target.disabled = true;
+    sb.rpc('chat_set_visible', { on_: on }).then(check).then(function () {
+      me.chat_visible = on; if (chatUI) chatUI.setVisible(on);
+      LZ.setMsg($('chat-vis-msg'), on ? 'You are visible in Messages.' : 'You are hidden. Other clients cannot find you or see when you are online.', 'ok');
+    }).catch(function (err) { e.target.checked = !on; LZ.setMsg($('chat-vis-msg'), err.message, 'err'); }).then(function () { e.target.disabled = false; });
   });
   function badge(view, n) { var b = $('nb-' + view); if (!b) return; b.textContent = n; b.hidden = !n; }
   var ICON = function (n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
@@ -835,8 +854,11 @@
       document.querySelectorAll('[data-project]').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.project === p.id ? 'true' : 'false'); });
     });
   }
+  var chatUI = null;
   function load(user) {
     me = user;
+    $('chat-vis').checked = !!me.chat_visible;
+    if (!chatUI && window.LZChat) chatUI = LZChat.mount($('chat-root'), { me: me, onUnread: function (n) { badge('chat', n); }, onVisibility: function () { show('privacy'); $('chat-vis').focus(); } });
     // Services list is set in Lytmoz HQ > Settings
     sb.rpc('public_site').then(function (r) {
       var wa = r.data && r.data.text && r.data.text['org.whatsapp'];

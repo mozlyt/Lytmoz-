@@ -18,6 +18,15 @@
       var u = t['org.' + s[0]]; if (typeof u !== 'string' || !/^https:\/\/[^\s"'<>]+$/.test(u)) return;
       document.querySelectorAll('a[href*="' + s[1] + '/"]').forEach(function (a) { a.href = u; });
     });
+    document.querySelectorAll('[data-lz-rich]').forEach(function (el) {
+      var v = t[el.getAttribute('data-lz-rich')]; if (typeof v !== 'string' || !v.trim()) return;
+      el.textContent = ''; var ul = null;
+      v.replace(/\r/g, '').split('\n').forEach(function (line) {
+        var l = line.trim(); if (!l) { ul = null; return; }
+        if (/^[-*] /.test(l)) { if (!ul) { ul = document.createElement('ul'); el.appendChild(ul); } var li = document.createElement('li'); li.textContent = l.slice(2); ul.appendChild(li); return; }
+        ul = null; var n = document.createElement(/^## /.test(l) ? 'h2' : 'p'); n.textContent = l.replace(/^## /, ''); el.appendChild(n);
+      });
+    });
     var box = document.querySelector('[data-lz-list="specialists"]');
     if (box && Array.isArray(c.specialists) && c.specialists.length && box.firstElementChild) {
       var chip = box.firstElementChild.cloneNode(false); box.textContent = '';

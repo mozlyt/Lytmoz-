@@ -58,3 +58,10 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - The owner sees a left sidebar (Organization Structure, Projects & Tasks, Communication, Reports & Analytics, System Logs, Settings, Help & Support, Log out) and a top bar (Dashboard Overview, Work, Report and Review, Inbox, Members, Billing, Set Up, bell, account menu). Both are built from `NAV` in `admin.html`; `goTo(key)` opens a section. Staff and department heads keep their own workspace menu.
 - The dashboard is computed in the browser from the latest rows of each table (up to 1,000 per table), so its figures are exact at Lytmoz's current size.
 - Owner / Founder, Board of Directors, CEO, Executive Management and Teams use `positions` (level 1 = governance, 2 = executive), `position_assignments` and `teams` / `team_members`.
+
+## Messages, top menu and privacy (migration `chat_visibility_and_hq_menu`)
+
+- **Messages** (HQ Inbox → Messages, portal → Messages): WhatsApp-style chat. Tables `chat_threads`, `chat_messages`, `chat_blocks`; only the two people in a chat can read it (the owner cannot read client-to-client chats). Clients are **hidden by default**; a client turns on "Show me in Messages" in Privacy & security (`profiles.chat_visible`, RPC `chat_set_visible`). A new chat between two clients needs both visible. Everyone can always chat with Lytmoz. Online = `last_seen` within 2 minutes (`chat_seen` every minute). RPCs: `chat_people`, `chat_open`, `chat_list`, `chat_read`. `chat_messages` is in the realtime publication; the page also polls every 8 s.
+- **Top menu editor** (Set Up → Edit top menu): rename, hide, reorder and move items between top-bar buttons. Saved in `hq_settings.menu` (row id 1, admins only). "Back to the standard menu" + Save restores the default.
+- **Privacy policy**: public page `/privacy/`, edited in Set Up → Privacy & Policy (keys `privacy.updated`, `privacy.body`; `## ` = heading, `- ` = bullet). Draft/publish like the other website text.
+- **Email** (Inbox → Email): opens the Gmail mailbox and lists clients with a "Write email" link. Reading mail inside HQ needs the mailbox connected later.

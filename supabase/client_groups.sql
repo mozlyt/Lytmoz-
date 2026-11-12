@@ -35,7 +35,11 @@ create or replace function public.group_admin(g bigint)
 returns boolean language sql stable security definer set search_path to '' as $$
   select exists (select 1 from public.chat_group_members m where m.group_id = g and m.profile_id = (select auth.uid()) and m.role = 'admin');
 $$;
-grant execute on function public.in_group(bigint), public.group_admin(bigint) to authenticated;
+create or replace function public.in_group_folder(f text)
+returns boolean language sql stable security definer set search_path to '' as $$
+  select case when f ~ '^[0-9]{1,18}$' then public.in_group(f::bigint) else false end;
+$$;
+grant execute on function public.in_group(bigint), public.group_admin(bigint), public.in_group_folder(text) to authenticated;
 
 alter table public.chat_groups enable row level security;
 alter table public.chat_group_members enable row level security;
@@ -143,6 +147,6 @@ alter publication supabase_realtime add table public.chat_group_messages;
 -- Files shared inside a group chat: private bucket, readable and writable only by that group's members.
 insert into storage.buckets (id, name, public, file_size_limit) values ('group-files', 'group-files', false, 20971520) on conflict (id) do nothing;
 create policy "group members read group files" on storage.objects for select to authenticated
-  using (bucket_id = 'group-files' and public.in_group(((storage.foldername(name))[1])::bigint));
+  using (bucket_id = 'group-files' and public.in_group_folder((storage.foldername(name))[1]));
 create policy "group members upload group files" on storage.objects for insert to authenticated
-  with check (bucket_id = 'group-files' and public.in_group(((storage.foldername(name))[1])::bigint));
+  with check (bucket_id = 'group-files' and public.in_group_folder((storage.foldername(name))[1]));

@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=25">
+<link rel="stylesheet" href="assets/app.css?v=26">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -173,8 +173,10 @@
 </section>
 
 <section data-v="team" class="stack" hidden>
-<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><div><h1 class="serif h">My team</h1><p class="muted sub">Assign work, discuss it and follow progress with your staff.</p></div></div>
-<div id="team"></div>
+<div class="head"><svg class="ic" aria-hidden="true"><use href="#i-team"/></svg><div><h1 class="serif h">My team</h1><p class="muted sub">Groups for any purpose, and your business workspace for staff.</p></div></div>
+<div class="tabs" role="tablist" id="team-mode"><button type="button" role="tab" data-team-mode="groups" aria-selected="true">Groups<b class="nb" id="nb-groups" hidden></b></button><button type="button" role="tab" data-team-mode="biz" aria-selected="false">Business workspace</button></div>
+<div id="groups"></div>
+<div id="team" hidden></div>
 </section>
 
 <section data-v="billing" class="stack" hidden>
@@ -720,6 +722,8 @@
   });
 
   // Team: members, assigned work and discussion
+  var teamOpen = 0, groupUnread = 0;
+  function teamBadge() { badge('team', teamOpen + groupUnread); badge('groups', groupUnread); }
   var myOrg = null, teamTab = 'tasks', teamTasks = [], teamPosts = [], openTask = null, teamSig = '';
   var T_STATUS = { todo: 'To do', doing: 'In progress', done: 'Done' };
   function member(id) { var m = myOrg ? myOrg.members.filter(function (x) { return x.id === id; })[0] : null; return m ? (m.id === me.id ? 'You' : (m.name || m.email)) : 'Former member'; }
@@ -729,7 +733,7 @@
       $('ws-name').textContent = myOrg ? myOrg.name : 'Your workspace';
       $('ov-eyebrow').textContent = myOrg ? myOrg.name + ' · Overview' : 'Overview';
       if (!myOrg) {
-        badge('team', 0);
+        teamOpen = 0; teamBadge();
         $('team').innerHTML = '<form id="biz-form" class="card stack"><h2 style="font-size:18px">Create your business workspace</h2><p class="muted" style="margin:0;font-size:14px">Name your business, then add your staff. You can assign them work, discuss it together, and everyone you add sees your projects, files and invoices.</p><label>Business name<input name="name" required maxlength="160" value="' + esc(me.company || '') + '"></label><div class="row"><button class="btn" type="submit">Create workspace</button><p class="msg" id="biz-msg" role="status"></p></div></form>';
         return;
       }
@@ -769,7 +773,7 @@
     var openT = teamTasks.filter(function (t) { return t.status !== 'done'; }).sort(function (a, b) { return (a.due_on || '9999') < (b.due_on || '9999') ? -1 : (a.due_on || '9999') > (b.due_on || '9999') ? 1 : b.id - a.id; });
     var doneT = teamTasks.filter(function (t) { return t.status === 'done'; });
     var myOpen = openT.filter(function (t) { return t.assignee === me.id; }).length;
-    badge('team', myOpen);
+    teamOpen = myOpen; teamBadge();
     var general = teamPosts.filter(function (p) { return !p.task_id; }), orgProjects = allProjects.filter(function (p) { return p.organization_id === myOrg.id; });
     var tab = function (k, label) { return '<button type="button" role="tab" data-team-tab="' + k + '" aria-selected="' + (teamTab === k) + '">' + label + '</button>'; };
     var out = '<div class="row between"><div><strong style="font-size:17px">' + esc(myOrg.name) + '</strong><span class="muted" style="font-size:13px"> · ' + myOrg.members.length + (myOrg.members.length === 1 ? ' member' : ' members') + (myOpen ? ' · ' + myOpen + ' assigned to you' : '') + '</span></div></div>' +
@@ -859,6 +863,215 @@
     loadTeamWork(true).catch(function () {});
   }, 30000);
 
+  // Groups: any client can start a group for a purpose and add other clients.
+  // Members see only the group's messages and the files shared inside its chat.
+  var GBUCKET = 'group-files';
+  var gr = { list: [], view: 'list', open: null, msgs: [], people: [], cands: null, pick: {}, q: '', live: null, urls: {} };
+  function gSize(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+  function gGroup() { return gr.list.filter(function (g) { return g.id === gr.open; })[0]; }
+  function loadGroups() {
+    return sb.rpc('group_list').then(check).then(function (rows) {
+      gr.list = rows || [];
+      groupUnread = gr.list.reduce(function (a, g) { return a + (g.id === gr.open && gr.view === 'chat' ? 0 : +g.unread || 0); }, 0); teamBadge();
+      if (gr.open && !gGroup()) { gr.open = null; gr.view = 'list'; }
+      if (gr.view === 'list') renderGroups();
+      gLive();
+    });
+  }
+  function gLive() {
+    if (gr.live || !sb.channel) return;
+    gr.live = sb.channel('groups-' + me.id).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_group_messages' }, function (ev) {
+      var m = ev.new || {};
+      if (m.group_id === gr.open && gr.view === 'chat') {
+        gAppend(m); gMarkRead();
+      } else loadGroups().catch(function () {});
+    }).subscribe();
+  }
+  function gMarkRead() {
+    var last = gr.msgs.length ? gr.msgs[gr.msgs.length - 1].id : 0; if (!last || !gr.open) return;
+    sb.from('chat_group_members').update({ last_read_id: last }).eq('group_id', gr.open).eq('profile_id', me.id).then(function () {
+      var g = gGroup(); if (g) g.unread = 0; groupUnread = gr.list.reduce(function (a, x) { return a + (+x.unread || 0); }, 0); teamBadge();
+    });
+  }
+  function gOpen(id) {
+    gr.open = id; gr.view = 'chat'; gr.msgs = []; renderGroups();
+    return Promise.all([
+      sb.from('chat_group_messages').select('*').eq('group_id', id).order('id', { ascending: false }).limit(300).then(check),
+      sb.rpc('group_people', { g: id }).then(check)
+    ]).then(function (r) { gr.msgs = r[0].reverse(); gr.people = r[1] || []; renderGroups(); gMarkRead(); })
+      .catch(function (err) { $('groups').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
+  }
+  function gAppend(m) {
+    if (gr.msgs.some(function (x) { return x.id === m.id; })) return;
+    gr.msgs.push(m); var th = $('g-thread'); if (!th) return renderGroups();
+    var ph = th.querySelector('p.muted'); if (ph) ph.remove();
+    th.insertAdjacentHTML('beforeend', gMsg(m)); th.scrollTop = th.scrollHeight; gImgs($('groups'));
+  }
+  function gImgs(root) {
+    var need = Array.prototype.map.call(root.querySelectorAll('img[data-g-img]:not([src])'), function (i) { return i.dataset.gImg; });
+    if (need.length) sb.storage.from(GBUCKET).createSignedUrls(need, 3600).then(function (r) {
+      (r.data || []).forEach(function (u) { if (u.signedUrl) gr.urls[u.path] = u.signedUrl; });
+      root.querySelectorAll('img[data-g-img]:not([src])').forEach(function (i) { if (gr.urls[i.dataset.gImg]) i.src = gr.urls[i.dataset.gImg]; });
+    });
+  }
+  function gName(id) { if (id === me.id) return 'You'; var p = gr.people.filter(function (x) { return x.id === id; })[0]; return p ? p.name : 'Former member'; }
+  function gCands(g) {
+    gr.cands = null; renderGroups();
+    sb.rpc('group_candidates', { g: g || null }).then(check).then(function (r) { gr.cands = r || []; renderGroups(); }).catch(function (err) { gr.cands = []; alert(err.message); });
+  }
+  function gPicker() {
+    if (!gr.cands) return '<p class="muted" style="margin:0">Loading people…</p>';
+    var q = gr.q.toLowerCase(), list = gr.cands.filter(function (c) { return !q || (c.name + ' ' + (c.business || '')).toLowerCase().indexOf(q) >= 0; });
+    var n = Object.keys(gr.pick).length;
+    return '<label>Find people<input type="search" data-g-q value="' + esc(gr.q) + '" placeholder="Search by name or business" autocomplete="off"></label>' +
+      '<p class="muted g-hint" style="margin:0;font-size:13px">' + (n ? n + ' chosen · ' : '') + 'People online now and active today are listed first. Only people who are visible in Messages can be added.</p>' +
+      '<div class="gpick" role="group" aria-label="People">' + (list.slice(0, 200).map(function (c) {
+        return '<label class="gp"><input type="checkbox" data-g-pick="' + c.id + '"' + (gr.pick[c.id] ? ' checked' : '') + '><span class="gdot' + (c.online ? ' on' : c.today ? ' today' : '') + '" aria-hidden="true"></span><span class="gp-t"><strong>' + esc(c.name || 'Client') + '</strong><small>' + (c.online ? 'Online now' : c.today ? 'Active today' : 'Not active today') + (c.business ? ' · ' + esc(c.business) : '') + '</small></span></label>';
+      }).join('') || '<p class="muted" style="margin:0;padding:10px 0">' + (gr.cands.length ? 'Nobody matches that search.' : 'Nobody else is available to add yet.') + '</p>') + '</div>';
+  }
+  function gMsg(m) {
+    var mine = m.sender === me.id, file = '';
+    if (m.file_path) {
+      var img = /^image\//.test(m.file_type || '');
+      file = (img ? '<button type="button" class="gimg" data-g-file="' + esc(m.file_path) + '" aria-label="Open ' + esc(m.file_name) + '"><img alt="' + esc(m.file_name) + '" data-g-img="' + esc(m.file_path) + '"' + (gr.urls[m.file_path] ? ' src="' + esc(gr.urls[m.file_path]) + '"' : '') + '></button>' : '') +
+        '<button type="button" class="gfile" data-g-file="' + esc(m.file_path) + '">' + ICON('files') + '<span><strong>' + esc(m.file_name || 'File') + '</strong><small>' + (m.file_size ? gSize(m.file_size) + ' · ' : '') + 'Open</small></span></button>';
+    }
+    return '<div class="bub ' + (mine ? 'me' : 'them') + '">' + (mine ? '' : '<b class="gwho">' + esc(gName(m.sender)) + '</b>') + file + (m.text ? (file ? '<div style="margin-top:8px">' : '') + esc(m.text) + (file ? '</div>' : '') : '') + '<small>' + when(m.created_at) + '</small></div>';
+  }
+  function renderGroups() {
+    var root = $('groups'); if (!root) return;
+    var keep = {}; root.querySelectorAll('[data-keep]').forEach(function (el) { keep[el.dataset.keep] = el.value; });
+    var g = gGroup(), admin = g && g.my_role === 'admin', out = '';
+    if (gr.view === 'new') {
+      out = '<form id="g-new" class="card stack"><div class="row between"><h2 style="font-size:18px">New group</h2><button type="button" class="linkish" data-g-back>Cancel</button></div>' +
+        '<label>Group name<input name="name" required minlength="2" maxlength="80" placeholder="Launch planning" data-keep="gn"></label>' +
+        '<label><span>What is it for? <span class="muted" style="font-weight:400">· optional</span></span><input name="purpose" maxlength="300" placeholder="Planning our product launch together" data-keep="gpu"></label>' +
+        gPicker() + '<div class="row"><button class="btn" type="submit">Create group</button><p class="msg" role="status" style="margin:0"></p></div></form>';
+    } else if (gr.view === 'chat' && g) {
+      out = '<section class="card stack gchat"><div class="row between" style="align-items:flex-start;gap:10px;flex-wrap:nowrap"><button type="button" class="linkish" data-g-back>All groups</button><button type="button" class="btn small ghost" data-g-people>' + ICON('team') + 'People (' + (gr.people.length || g.members) + ')</button></div>' +
+        '<div><h2 style="font-size:19px;overflow-wrap:anywhere">' + esc(g.name) + '</h2>' + (g.purpose ? '<p class="muted" style="margin:4px 0 0;font-size:14px">' + esc(g.purpose) + '</p>' : '') + '</div>' +
+        '<div class="tthread gthread" id="g-thread">' + (gr.msgs.map(gMsg).join('') || '<p class="muted" style="margin:0">No messages yet. Anyone in the group can start the discussion.</p>') + '</div>' +
+        '<form id="g-send" class="stack" style="gap:8px"><label class="sr-only" for="g-text">Message</label><textarea id="g-text" name="text" rows="2" maxlength="4000" placeholder="Write to the group" data-keep="gt"></textarea>' +
+        '<div class="row between" style="gap:10px"><label class="btn small ghost gattach">' + ICON('files') + '<span id="g-fname">Attach a file</span><input type="file" name="file" id="g-file" hidden></label><button class="btn small" type="submit">Send</button></div><p class="msg" role="status" style="margin:0"></p></form>' +
+        '<p class="muted" style="margin:0;font-size:12.5px">Only people in this group see its messages and files. Files up to 20 MB.</p></section>';
+    } else if (gr.view === 'people' && g) {
+      out = '<section class="card stack"><div class="row between"><button type="button" class="linkish" data-g-open="' + g.id + '">Back to the chat</button><span class="muted" style="font-size:13px">' + (admin ? 'You are an admin' : 'Member') + '</span></div>' +
+        (admin ? '<form id="g-edit" class="stack" style="gap:10px"><label>Group name<input name="name" required minlength="2" maxlength="80" value="' + esc(g.name) + '"></label><label>What is it for?<input name="purpose" maxlength="300" value="' + esc(g.purpose || '') + '"></label><div class="row"><button class="btn small" type="submit">Save</button><p class="msg" role="status" style="margin:0"></p></div></form>'
+          : '<div><h2 style="font-size:18px">' + esc(g.name) + '</h2>' + (g.purpose ? '<p class="muted" style="margin:4px 0 0">' + esc(g.purpose) + '</p>' : '') + '</div>') +
+        '<h3 class="set-sec" style="margin:6px 0 0">People (' + gr.people.length + ')</h3><div>' + gr.people.map(function (p) {
+          var self = p.id === me.id;
+          return '<div class="item"><span class="gdot' + (p.online ? ' on' : '') + '" aria-hidden="true"></span><div class="main"><strong>' + esc(p.name || 'Client') + (self ? ' (you)' : '') + '</strong><span>' + (p.role === 'admin' ? 'Admin' : 'Member') + (p.online ? ' · online' : '') + '</span></div>' +
+            (admin && !self ? '<button type="button" class="btn small ghost" data-g-admin="' + p.id + '" data-on="' + (p.role !== 'admin') + '">' + (p.role === 'admin' ? 'Remove admin' : 'Make admin') + '</button><button type="button" class="btn small ghost" data-g-remove="' + p.id + '">Remove</button>' : '') + '</div>';
+        }).join('') + '</div>' +
+        (admin ? '<details' + (gr.cands ? ' open' : '') + ' data-g-add-wrap><summary>Add people</summary><form id="g-add" class="stack" style="gap:10px;margin-top:10px">' + (gr.cands ? gPicker() + '<div class="row"><button class="btn small" type="submit">Add to group</button><p class="msg" role="status" style="margin:0"></p></div>' : '<p class="muted" style="margin:0">Loading people…</p>') + '</form></details>' : '<p class="muted" style="margin:0;font-size:13.5px">Only a group admin can add or remove people.</p>') +
+        '<div class="row"><button type="button" class="btn small ghost" data-g-leave style="color:#F0A9A0">Leave group</button></div></section>';
+    } else {
+      gr.view = 'list';
+      out = '<div class="row between"><p class="muted" style="margin:0;font-size:14px;max-width:560px">Start a group for any purpose and add other Lytmoz clients. Everyone in it can chat and share files. Nobody sees your projects, files or invoices.</p><button type="button" class="btn" data-g-new>' + ICON('plus') + 'New group</button></div>' +
+        '<section class="card stack" style="gap:0">' + (gr.list.map(function (x) {
+          var last = x.last ? (x.last.mine ? 'You: ' : (x.last.sender ? x.last.sender + ': ' : '')) + x.last.text : (x.purpose || 'No messages yet');
+          return '<button type="button" class="item gitem" data-g-open="' + x.id + '">' + ICON('team') + '<div class="main"><strong>' + esc(x.name) + '</strong><span>' + esc(String(last).slice(0, 110)) + '</span></div><span class="muted" style="font-size:12.5px;white-space:nowrap">' + x.members + (x.members === 1 ? ' person' : ' people') + '</span>' + (+x.unread ? '<span class="pill blue">' + x.unread + ' new</span>' : '') + '</button>';
+        }).join('') || '<p class="muted" style="margin:0">You are not in any groups yet. Create one, or ask another client to add you.</p>') + '</section>';
+    }
+    root.innerHTML = '<div class="stack" style="gap:16px">' + out + '</div>';
+    root.querySelectorAll('[data-keep]').forEach(function (el) { if (keep[el.dataset.keep]) el.value = keep[el.dataset.keep]; });
+    var th = $('g-thread'); if (th) th.scrollTop = th.scrollHeight;
+    gImgs(root);
+  }
+  function gErr(f, err) { var b = f.querySelector('button[type=submit]'); if (b) b.disabled = false; var m = f.querySelector('.msg'); if (m) LZ.setMsg(m, err.message, 'err'); else alert(err.message); }
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-team-mode]'))) {
+      var biz = x.dataset.teamMode === 'biz';
+      document.querySelectorAll('[data-team-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b === x)); });
+      $('groups').hidden = biz; $('team').hidden = !biz; return;
+    }
+    if (!$('groups').contains(t)) return;
+    if (t.closest('[data-g-new]')) { gr.view = 'new'; gr.pick = {}; gr.q = ''; gCands(null); return; }
+    if (t.closest('[data-g-back]')) { gr.view = 'list'; gr.open = null; renderGroups(); loadGroups().catch(function () {}); return; }
+    if ((x = t.closest('[data-g-open]'))) { gOpen(+x.dataset.gOpen); return; }
+    if (t.closest('[data-g-people]')) { gr.view = 'people'; gr.cands = null; gr.pick = {}; gr.q = ''; renderGroups(); return; }
+    if ((x = t.closest('[data-g-file]'))) {
+      var w = window.open('', '_blank');
+      sb.storage.from(GBUCKET).createSignedUrl(x.dataset.gFile, 300).then(check).then(function (r) { if (w) w.location = r.signedUrl; else location.href = r.signedUrl; }).catch(function (err) { if (w) w.close(); alert(err.message); });
+      return;
+    }
+    if ((x = t.closest('[data-g-admin]'))) { sb.rpc('group_set_admin', { g: gr.open, person: x.dataset.gAdmin, on_: x.dataset.on === 'true' }).then(check).then(function () { return Promise.all([gOpen(gr.open), loadGroups()]); }).then(function () { gr.view = 'people'; renderGroups(); }).catch(function (err) { alert(err.message); }); return; }
+    if ((x = t.closest('[data-g-remove]')) && confirm('Remove ' + gName(x.dataset.gRemove) + ' from this group? They will no longer see its messages or files.')) {
+      sb.rpc('group_remove', { g: gr.open, person: x.dataset.gRemove }).then(check).then(function () { return sb.rpc('group_people', { g: gr.open }).then(check); }).then(function (p) { gr.people = p || []; renderGroups(); }).catch(function (err) { alert(err.message); });
+      return;
+    }
+    if (t.closest('[data-g-leave]')) {
+      var g = gGroup(), lastOne = gr.people.length <= 1;
+      if (!confirm(lastOne ? 'You are the only person in this group. Leaving deletes it with its messages and files. Leave?' : 'Leave "' + (g ? g.name : 'this group') + '"? You will no longer see its messages or files.')) return;
+      var path = gr.open;
+      sb.rpc('group_remove', { g: path, person: me.id }).then(check).then(function () { gr.open = null; gr.view = 'list'; return loadGroups(); }).catch(function (err) { alert(err.message); });
+    }
+  });
+  document.addEventListener('toggle', function (e) {
+    if (e.target.matches && e.target.matches('[data-g-add-wrap]') && e.target.open && !gr.cands) gCands(gr.open);
+  }, true);
+  document.addEventListener('input', function (e) {
+    if (e.target.matches && e.target.matches('[data-g-q]')) {
+      gr.q = e.target.value; var pos = e.target.selectionStart; renderGroups();
+      var q = document.querySelector('#groups [data-g-q]'); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (er) {} }
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.gPick) { if (t.checked) gr.pick[t.dataset.gPick] = 1; else delete gr.pick[t.dataset.gPick]; var hint = t.closest('form').querySelector('.g-hint'); if (hint) hint.textContent = (Object.keys(gr.pick).length ? Object.keys(gr.pick).length + ' chosen · ' : '') + 'People online now and active today are listed first. Only people who are visible in Messages can be added.'; return; }
+    if (t.id === 'g-file') { var f = t.files[0]; $('g-fname').textContent = f ? f.name.slice(0, 40) : 'Attach a file'; }
+  });
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.id === 'g-new') {
+      e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
+      sb.rpc('group_create', { name_: f.name.value.trim(), purpose_: f.purpose.value.trim() || null, people: Object.keys(gr.pick) }).then(check)
+        .then(function (id) { f.reset(); gr.pick = {}; return loadGroups().then(function () { return gOpen(id); }); }).catch(function (err) { gErr(f, err); });
+    }
+    if (f.id === 'g-add') {
+      e.preventDefault(); var ids = Object.keys(gr.pick);
+      if (!ids.length) return LZ.setMsg(f.querySelector('.msg'), 'Choose at least one person.', 'err');
+      f.querySelector('button[type=submit]').disabled = true;
+      sb.rpc('group_add_people', { g: gr.open, people: ids }).then(check).then(function () { return sb.rpc('group_people', { g: gr.open }).then(check); })
+        .then(function (p) { gr.people = p || []; gr.pick = {}; gr.cands = null; renderGroups(); loadGroups().catch(function () {}); }).catch(function (err) { gErr(f, err); });
+    }
+    if (f.id === 'g-edit') {
+      e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
+      sb.rpc('group_update', { g: gr.open, name_: f.name.value.trim(), purpose_: f.purpose.value.trim() }).then(check).then(function () { return loadGroups(); })
+        .then(function () { renderGroups(); }).catch(function (err) { gErr(f, err); });
+    }
+    if (f.id === 'g-send') {
+      e.preventDefault();
+      var text = f.text.value.trim(), file = $('g-file').files[0], g = gr.open, b = f.querySelector('button[type=submit]');
+      if (!text && !file) return;
+      if (file && file.size > 20 * 1048576) return LZ.setMsg(f.querySelector('.msg'), file.name + ' is larger than 20 MB.', 'err');
+      b.disabled = true; if (file) LZ.setMsg(f.querySelector('.msg'), 'Uploading ' + file.name + '…');
+      var row = { group_id: g, sender: me.id, text: text || null }, up = Promise.resolve();
+      if (file) {
+        var safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-120), path = g + '/' + me.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '-' + safe;
+        row.file_path = path; row.file_name = file.name.slice(0, 200); row.file_size = file.size; row.file_type = (file.type || 'application/octet-stream').slice(0, 120);
+        up = sb.storage.from(GBUCKET).upload(path, file, { contentType: row.file_type }).then(check);
+      }
+      up.then(function () { return sb.from('chat_group_messages').insert(row).select().single().then(check); })
+        .then(function (m) {
+          if (gr.open === g) gAppend(m);
+          f.text.value = ''; $('g-file').value = ''; $('g-fname').textContent = 'Attach a file'; b.disabled = false; LZ.setMsg(f.querySelector('.msg'), ''); gMarkRead(); f.text.focus();
+        }).catch(function (err) { gErr(f, err); });
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.target.id === 'g-text' && e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); var f = $('g-send'); if (f.requestSubmit) f.requestSubmit(); else f.querySelector('button[type=submit]').click(); }
+  });
+  // Fallback refresh in case live updates drop.
+  setInterval(function () {
+    if (!me || document.visibilityState !== 'visible') return;
+    if (gr.view === 'chat' && gr.open && !$('groups').hidden && !document.querySelector('[data-v="team"]').hidden) {
+      var last = gr.msgs.length ? gr.msgs[gr.msgs.length - 1].id : 0;
+      sb.from('chat_group_messages').select('*').eq('group_id', gr.open).gt('id', last).order('id').then(check).then(function (rows) { if (rows.length) { rows.forEach(gAppend); gMarkRead(); } }).catch(function () {});
+    } else loadGroups().catch(function () {});
+  }, 45000);
+
   // Subscriptions
   function loadSubs() {
     return sb.from('subscriptions').select('*').order('id', { ascending: false }).then(check).then(function (rows) {
@@ -905,7 +1118,7 @@
         if (rows.length > 1) $('t-project').textContent = rows.length + ' projects';
         fillAccount();
         show((location.hash || '').slice(1) || 'overview');
-        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs(), loadBilling()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
+        return Promise.all([loadThread(), loadSites(), loadAccounts(), loadServices(), loadFiles(), loadSubs(), loadBilling(), loadGroups()].map(function (x) { return x.catch(function (e) { console.error(e); }); }));
       });
     });
   }

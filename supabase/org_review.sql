@@ -1,0 +1,11 @@
+-- Applied as migrations `org_review_part1` and `org_review_part2_messaging` (12 Nov 2026).
+-- Part 1: leave_tasks default 'hold' (current setting switched to hold); authority head_assign_work on;
+--   reviewer_ok(rev, target) / work_reviewers(target): a reviewer must be the owner, an executive, the person's head,
+--   their manager or their team leader (enforced in work_assign); six new positions (Project Manager, Administrative
+--   Assistant, Operations Officer, Marketing Officer, Security Officer, Office Assistant);
+--   org_settings.escalate_days (0 = off) and work_escalated(); escalated tasks are visible to executives and the head.
+-- Part 2: private staff messaging. chat_allowed(x, y): owner<->anyone; visible client<->visible client;
+--   staff<->staff when org_settings.staff_dm and neither is in dm_mutes. Staff never see clients in Messages.
+--   chat_reports + chat_report(thread, reason): the owner can read a conversation only after a participant reports it
+--   (chat_reported()). dm_mute(person, on) is owner-only. Team Rooms: team_room_posts, private to the team and its
+--   leader; the owner reads only. room_reads accepts team:<id>.

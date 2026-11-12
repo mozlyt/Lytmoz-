@@ -539,3 +539,9 @@ body.staff-mode .hq-nav .nav-i[aria-selected="true"] .ic{color:#1a120b}
 .room-acts{display:flex;gap:14px;flex-wrap:wrap}.room-acts .linkish{font-size:12.5px}
 .wsx-news{display:flex;gap:12px;align-items:flex-start;width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--line);background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer}
 .wsx-news>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}.wsx-news strong{font-size:14.5px}.wsx-news small{font-size:13px;color:var(--soft)}.wsx-news em{font-style:normal;font-size:12px;color:var(--muted)}
+.rec{display:flex;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.5}.rec:first-child{border-top:0}
+.rec-t{flex:none;width:118px;color:var(--muted);font-size:12.5px;padding-top:2px}.rec b{font-weight:600}
+.wsx-note{display:flex;gap:12px;align-items:flex-start;width:100%;padding:10px 0;border:0;border-bottom:1px solid var(--line);background:none;color:var(--text);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.wsx-note>span:last-child{display:flex;flex-direction:column;gap:2px;min-width:0}.wsx-note em{font-style:normal;font-size:12px;color:var(--muted)}
+#ws-chat-root .chat{min-height:520px}
+@media (max-width:560px){.rec{flex-direction:column;gap:2px}.rec-t{width:auto}}

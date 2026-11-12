@@ -1,5 +1,5 @@
 /* Lytmoz Messages: one-to-one chat used by Admin HQ and the client portal.
-   LZChat.mount(element, { me: profile, isAdmin: bool, onUnread: fn(n), onVisibility: fn() }) */
+   LZChat.mount(element, { me: profile, isAdmin: bool, staff: bool, onUnread: fn(n), onVisibility: fn() }) */
 (function () {
   var sb = LZ.sb, esc = LZ.esc, check = LZ.check;
   function initials(n) { return String(n || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
@@ -22,6 +22,7 @@
 
     function note() {
       var n = $('note');
+      if (opt.staff) { n.hidden = false; n.innerHTML = 'Private: only you and the other person can read a chat. If something is wrong, open the chat and use Report.'; return; }
       if (opt.isAdmin) { n.hidden = true; return; }
       n.hidden = st.visible;
       n.innerHTML = 'You are hidden. Other clients cannot see you or start a chat with you. <button type="button" class="linkish" data-c="vis">Show me in Messages</button>';
@@ -44,7 +45,7 @@
         var ppl = st.people.filter(match);
         $('list').innerHTML = '<button type="button" class="chat-row back" data-c="back"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span>Back to chats</span></button>' +
           (ppl.map(function (p) { return '<button type="button" class="chat-row" role="listitem" data-person="' + p.id + '">' + avatar(p.name, p.online, p.lytmoz) + '<span class="chat-b"><strong>' + esc(p.name) + '</strong><span>' + esc(p.online ? 'Online' : (p.business || (p.lytmoz ? 'Lytmoz team' : 'Client'))) + '</span></span></button>'; }).join('') ||
-            '<p class="chat-none">' + (opt.isAdmin ? 'No clients to message yet.' : st.visible ? 'No other clients are visible right now. Lytmoz is always here.' : 'Only Lytmoz is shown while you are hidden.') + '</p>');
+            '<p class="chat-none">' + (opt.staff ? 'Nobody to message right now.' : opt.isAdmin ? 'No clients or staff to message yet.' : st.visible ? 'No other clients are visible right now. Lytmoz is always here.' : 'Only Lytmoz is shown while you are hidden.') + '</p>');
         return;
       }
       var rows = st.list.filter(match);
@@ -59,8 +60,11 @@
       h.querySelector('[data-c="hname"]').textContent = t.name;
       h.querySelector('[data-c="hsub"]').textContent = t.blocked ? 'Blocked' : t.online ? 'Online' : (t.business || '');
       h.querySelector('.chat-av').outerHTML = avatar(t.name, t.online, t.name === 'Lytmoz');
-      var b = h.querySelector('[data-c="block"]'); if (b) { b.hidden = t.name === 'Lytmoz'; b.textContent = t.blocked ? 'Unblock' : 'Block'; }
-      var f = root.querySelector('.chat-form'); if (f) { f.hidden = !!t.blocked; root.querySelector('.chat-blocked').hidden = !t.blocked; }
+      var owner = t.name === 'Lytmoz' || t.business === 'Owner';
+      var b = h.querySelector('[data-c="block"]'); if (b) { b.hidden = owner; b.textContent = t.blocked ? 'Unblock' : 'Block'; }
+      var r = h.querySelector('[data-c="report"]'); if (r) { r.hidden = !opt.staff || owner; r.disabled = !!t.reported; r.textContent = t.reported ? 'Reported' : 'Report'; }
+      var off = !!t.blocked || !!t.closed, f = root.querySelector('.chat-form'), m = root.querySelector('.chat-blocked');
+      if (f) { f.hidden = off; m.hidden = !off; m.textContent = t.blocked ? 'You blocked this person. Unblock them to send messages.' : 'You cannot message this person right now. You can still read earlier messages.'; }
     }
     function bubbles() {
       var out = '', last = '';
@@ -81,7 +85,7 @@
       st.cur = id; st.mode = 'list'; box.classList.add('has-cur');
       var t = st.list.filter(function (x) { return x.id === id; })[0] || { name: '', business: '' };
       $('main').innerHTML = '<div class="chat-head"><button type="button" class="icon-btn chat-backbtn" data-c="close" aria-label="Back to chats"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></button>' + avatar(t.name, t.online) +
-        '<div class="chat-who"><strong data-c="hname"></strong><span data-c="hsub"></span></div><button type="button" class="btn small ghost" data-c="block" hidden>Block</button></div>' +
+        '<div class="chat-who"><strong data-c="hname"></strong><span data-c="hsub"></span></div><button type="button" class="btn small ghost" data-c="report" hidden>Report</button><button type="button" class="btn small ghost" data-c="block" hidden>Block</button></div>' +
         '<div class="chat-msgs" aria-live="polite"><p class="chat-none" style="margin:auto">Loading…</p></div>' +
         '<p class="chat-blocked" hidden>You blocked this person. Unblock them to send messages.</p>' +
         '<form class="chat-form"><label class="sr" for="chat-in">Message</label><textarea id="chat-in" rows="1" maxlength="4000" placeholder="Type a message"></textarea><button class="btn chat-send" type="submit" aria-label="Send"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button></form>';
@@ -124,6 +128,13 @@
         sb.rpc('chat_open', { other: x.dataset.person }).then(check).then(function (id) { st.q = ''; return refreshList().then(function () { open(id); }); }).catch(function (err) { alert(err.message); });
         return;
       }
+      if (t.closest('[data-c="report"]')) {
+        var rt = st.list.filter(function (y) { return y.id === st.cur; })[0]; if (!rt) return;
+        var why = prompt('Report this conversation with ' + rt.name + ' to the owner?\n\nThe owner will then be able to read this whole conversation. Say briefly what is wrong:', '');
+        if (why === null) return; if (why.trim().length < 3) return alert('Please say briefly what is wrong.');
+        sb.rpc('chat_report', { t: rt.id, reason: why.trim() }).then(check).then(function () { alert('Reported. The owner can now read this conversation and will look into it.'); return refreshList(); }).catch(function (err) { alert(err.message); });
+        return;
+      }
       if (t.closest('[data-c="block"]')) {
         var th = st.list.filter(function (y) { return y.id === st.cur; })[0]; if (!th) return;
         if (th.blocked) sb.from('chat_blocks').delete().eq('blocker', me).eq('blocked', th.other).then(check).then(refreshList).catch(function (err) { alert(err.message); });
@@ -156,7 +167,8 @@
     note(); refreshList();
     return {
       setVisible: function (v) { st.visible = v; note(); if (st.mode === 'people') loadPeople(); },
-      refresh: refreshList, unread: totalUnread
+      refresh: refreshList, unread: totalUnread,
+      openWith: function (person) { return sb.rpc('chat_open', { other: person }).then(check).then(function (id) { return refreshList().then(function () { open(id); }); }).catch(function (err) { alert(err.message); }); }
     };
   }
   window.LZChat = { mount: mount };

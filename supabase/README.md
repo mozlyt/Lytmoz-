@@ -94,3 +94,12 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 
 - **Department Room**: private to each department and its head; the owner reads (HQ → Internal Communication → Department Rooms) but cannot post. Staff are told the owner can read it.
 - **Organization Room**: company news (pinned, shown on every workspace's Announcements card) and discussion for everyone. Owner switch (Open / Approval needed / Closed) in the room and in Organization Settings → Communication; owner approves, removes and pins posts and can stop one person posting. News posters: positions with `news.post`.
+
+## Review round (`supabase/org_review.sql`)
+
+- **Private messages for staff**: Messages in every workspace. Anyone at Lytmoz can message anyone at Lytmoz (not clients). Private to the two people; a participant can **Report** a conversation, after which the owner can read it (HQ → Internal Communication → Reported conversations). Owner can switch staff messaging off or stop one person (Organization Settings → Communication); everyone can always message the owner.
+- **Team Rooms**: private to each team and its leader; owner reads (Internal Communication → Team Rooms).
+- **Organization records**: Organization Settings → Organization records, a readable history of joining, positions, permissions, work and settings changes from `activity_logs`.
+- **Escalation**: overdue tasks are flagged at once; after `escalate_days` they also reach the head, executives and owner (Overdue tab in Staff tasks / Team Work).
+- **Reviewer**: chosen when assigning (must be above the person).
+- **Workspace home**: My Team, My Performance, My Notifications (and a Notifications page).

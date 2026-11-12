@@ -1,0 +1,5 @@
+-- Applied as migration `quality_reviews_feedback` (12 Nov 2026).
+-- delivery_reviews: quality check before delivery (checks jsonb, passed, note). Recorded by the owner or staff with
+--   clients.view + work.review. Passing moves the project to stage 7 (Delivered); failing moves it back to 5 (In progress).
+-- project_feedback: one rating (1-5) and comment per client per project, only once the project is Delivered (stage >= 7),
+--   only for projects the client can see. Readable by that client, the owner and staff with clients.view.

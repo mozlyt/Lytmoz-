@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=24">
+<link rel="stylesheet" href="assets/app.css?v=25">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -124,6 +124,7 @@
 <div class="row between"><strong>Progress</strong><span style="color:var(--copper);font-weight:700" id="stage-label"></span></div>
 <div class="bar"><div id="bar" style="width:0"></div></div>
 <div class="steps" id="steps"></div>
+<div id="rate-box" class="stack rate-box" hidden></div>
 </section>
 <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
 <section class="card stack">
@@ -356,6 +357,29 @@
     return sb.from('messages').select('*').eq('client_id', me.id).order('created_at', { ascending: true }).limit(200).then(check).then(renderThread);
   }
 
+  var rateNow = 0;
+  function showRating(p) { // clients rate a project once it has been delivered
+    var box = $('rate-box'); if (!box) return;
+    if (p.stage < LZ.stages.length - 1) { box.hidden = true; return; }
+    sb.from('project_feedback').select('*').eq('project_id', p.id).eq('client_id', me.id).maybeSingle().then(check).then(function (f) {
+      rateNow = f ? f.rating : 0;
+      box.hidden = false;
+      box.innerHTML = '<strong>' + (f ? 'Your rating' : 'How did we do?') + '</strong><p class="muted" style="margin:0;font-size:14px">' + (f ? 'Thank you. You can change your rating at any time.' : 'Rate the work Lytmoz delivered. Your feedback goes straight to the owner.') + '</p>' +
+        '<div class="stars" role="radiogroup" aria-label="Rating">' + [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (n === rateNow) + '" aria-label="' + n + ' out of 5" data-rate="' + n + '" class="' + (n <= rateNow ? 'on' : '') + '">★</button>'; }).join('') + '</div>' +
+        '<label>Comment <span class="muted" style="font-weight:400">· optional</span><textarea id="rate-text" rows="2" maxlength="2000">' + esc((f && f.comment) || '') + '</textarea></label><div class="row"><button type="button" class="btn small" id="rate-save" data-project="' + p.id + '">' + (f ? 'Update rating' : 'Send rating') + '</button><p class="msg" id="rate-msg" role="status" style="margin:0"></p></div>';
+    }).catch(function () { box.hidden = true; });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target, x = t.closest && t.closest('[data-rate]');
+    if (x) { rateNow = +x.dataset.rate; document.querySelectorAll('[data-rate]').forEach(function (b) { b.classList.toggle('on', +b.dataset.rate <= rateNow); b.setAttribute('aria-checked', String(+b.dataset.rate === rateNow)); }); return; }
+    if (t.id === 'rate-save') {
+      if (!rateNow) return LZ.setMsg($('rate-msg'), 'Choose from 1 to 5 stars.', 'err');
+      t.disabled = true;
+      sb.from('project_feedback').upsert({ project_id: +t.dataset.project, client_id: me.id, rating: rateNow, comment: $('rate-text').value.trim() || null, updated_at: new Date().toISOString() }, { onConflict: 'project_id,client_id' }).then(check)
+        .then(function () { t.disabled = false; t.textContent = 'Update rating'; LZ.setMsg($('rate-msg'), 'Thank you. Your rating was sent to Lytmoz.', 'ok'); })
+        .catch(function (err) { t.disabled = false; LZ.setMsg($('rate-msg'), err.message, 'err'); });
+    }
+  });
   function render(user, p, updates, invoices) {
     $('login').hidden = true; $('app').hidden = false;
     $('who').textContent = user.name || user.email || '';
@@ -372,6 +396,7 @@
       var n = i + 1, st = n < p.stage || p.stage === N ? ['Done', '#9FD3AE'] : n === p.stage ? ['In progress', '#E2A97F'] : [n === p.stage + 1 ? 'Next' : 'Later', '#A9A096'];
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
+    showRating(p);
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
     var inv = (invoices || []), cur = inv[0] && inv[0].currency, same = inv.filter(function (i) { return i.currency === cur; });
     var tot = same.reduce(function (a, i) { return a + i.amount_cents; }, 0), got = same.reduce(function (a, i) { return a + (i.paid_cents || 0); }, 0);

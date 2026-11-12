@@ -549,3 +549,6 @@ body.staff-mode .hq-nav .nav-i[aria-selected="true"] .ic{color:#1a120b}
 .menu-prev span{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;font-size:13.5px;font-weight:600;background:#1E1B18}
 .menu-prev .ic{width:16px;height:16px;color:var(--copper)}.menu-prev .bm-down{width:12px;height:12px;color:var(--muted)}
 #dd .dd-h+.dd-i{margin-top:0}
+.stars{display:flex;gap:4px}.stars button{border:0;background:none;font-size:30px;line-height:1;color:var(--line2);cursor:pointer;padding:2px}.stars button.on{color:var(--copper)}
+.rate-box{margin-top:14px;padding:14px;border:1px solid var(--line2);border-radius:14px}
+.stars-ro{color:var(--copper);letter-spacing:1px}.stars-ro i{font-style:normal;color:var(--line2)}

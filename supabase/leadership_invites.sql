@@ -1,0 +1,6 @@
+-- Applied as migration `leadership_invites` (12 Nov 2026). Invitations for board and executive seats have no department.
+-- staff_invites.department_id is nullable (a department or a position is required); one pending invite per email and seat.
+-- positions.max_holders marks one-person seats (CEO, COO, Board Chair, Board Secretary, heads); HQ warns, it does not block.
+-- Board Chair and Board Secretary positions added with standard duties and access.
+-- invite_info() returns position and level; accept_invite_as() adds department membership only when there is a department.
+-- invite_requests (HR, heads) may only be for positions at level 3 or below; leadership seats are invited by the owner.

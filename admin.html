@@ -966,8 +966,9 @@
       sb.from('department_members').select('*').then(check), sb.from('authority_settings').select('rules').eq('id', 1).single().then(check),
       sb.from('staff_invites').select('*').order('id', { ascending: false }).limit(60).then(check), sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check),
       sb.from('positions').select('*').order('level').order('id').then(check, function () { return []; }), sb.from('invite_requests').select('*').order('id', { ascending: false }).limit(100).then(check, function () { return []; }),
-      coOwner() ? Promise.resolve(null) : sb.rpc('my_workspace').then(check, function () { return null; }), sb.from('org_permissions').select('*').order('key').then(check, function () { return []; })
-    ]).then(function (r) { co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); renderWs(); loadWork(); })
+      coOwner() ? Promise.resolve(null) : sb.rpc('my_workspace').then(check, function () { return null; }), sb.from('org_permissions').select('*').order('key').then(check, function () { return []; }),
+      sb.from('position_assignments').select('position_id, profile_id, ends_on').then(check, function () { return []; })
+    ]).then(function (r) { co.asg = r[10] || []; co.people = r[0] || []; co.depts = r[1]; co.members = r[2]; co.rules = r[3].rules || {}; co.invites = r[4] || []; co.posts = r[5] || []; co.pos = r[6] || []; co.reqs = r[7] || []; ws.me = r[8] || (coOwner() ? null : { positions: [], permissions: [] }); co.perms = r[9] || []; co.loaded = true; if (!coOwner()) wsNav(); renderCompany(); seatSync(); renderWs(); loadWork(); })
       .catch(function (err) { $('co-view').innerHTML = $('ws-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
   }
   function deptCard(d) {
@@ -1091,7 +1092,7 @@
   function inviteLink(i) { return location.origin + '/join.html?t=' + i.token; }
   function inviteText(i) {
     var d = co.depts.filter(function (x) { return x.id === i.department_id; })[0];
-    return 'Hello ' + i.name + ', you have been invited to join Lytmoz as ' + (i.kind === 'lead' ? 'a team lead' : i.kind === 'mentor' ? 'a mentor' : 'a member') + ' of the ' + (d ? d.name : '') + ' department' + (i.title ? ' (' + i.title + ')' : '') + '.\n\nAccept your invitation and set up your account here:\n' + inviteLink(i) + '\n\nThis link is for you only and expires on ' + dayFmt(i.expires_at) + '.';
+    return 'Hello ' + i.name + ', you have been invited to join Lytmoz as ' + (d ? (i.kind === 'lead' ? 'a team lead' : i.kind === 'mentor' ? 'a mentor' : 'a member') + ' of the ' + d.name + ' department' + (i.title ? ' (' + i.title + ')' : '') : posTitle(i.position_id) || i.title || 'a member of the leadership') + '.\n\nAccept your invitation and set up your account here:\n' + inviteLink(i) + '\n\nThis link is for you only and expires on ' + dayFmt(i.expires_at) + '.';
   }
   function inviteShare(i) {
     return '<div class="card stack" style="border-color:var(--copper);gap:12px"><strong>Invitation ready for ' + esc(i.name) + '</strong><p class="muted" style="margin:0;font-size:14px">Send this link to them. It works once, only for ' + esc(i.email) + ', until ' + dayFmt(i.expires_at) + '.</p>' +
@@ -1105,17 +1106,18 @@
     var now = Date.now(), shown = co.invites.filter(function (i) { return i.id === co.shareInvite; })[0];
     return '<form id="co-invite-form" class="card stack"><h2 style="font-size:18px">Invite a member</h2><p class="muted" style="margin:0;font-size:14px">People join Lytmoz by invitation only. They become organization members, not clients, and get a workspace for their department.</p>' +
       '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
-      '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label>' +
+      '<label><span>Joining as <span class="muted" style="font-weight:400">· the position decides their workspace and permissions</span></span><select name="position" id="inv-pos" required>' + seatOptions() + '</select></label><p class="msg" id="inv-warn" role="status" style="margin:0" hidden></p>' +
+      '<div class="row" id="inv-dept-row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label>' +
       '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label>' +
       '<label style="flex:2 1 180px"><span>Job title <span class="muted" style="font-weight:400">· optional</span></span><input name="title" maxlength="80" placeholder="Marketing officer"></label></div>' +
-      '<label><span>Position <span class="muted" style="font-weight:400">· decides their workspace and permissions</span></span><select name="position">' + posOptions() + '</select></label>' +
+      '<p class="muted" id="inv-lead-note" style="margin:0;font-size:13.5px" hidden>Board and executive positions sit above the departments, so there is no department to choose. They report to you.</p>' +
       '<label>Reporting to<select name="reports"><option value="">The department head</option>' + co.people.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + (p.level === 'owner' ? ' (Owner)' : '') + '</option>'; }).join('') + '</select></label>' +
       '<div class="row"><button class="btn" type="submit">Issue invitation</button><p class="msg" role="status" style="margin:0"></p></div></form>' +
       (shown ? inviteShare(shown) : '') +
       (co.invites.length ? '<section class="card stack"><h2 style="font-size:18px">Invitations</h2><div>' + co.invites.slice(0, 30).map(function (i) {
         var d = co.depts.filter(function (x) { return x.id === i.department_id; })[0], expired = i.status === 'pending' && new Date(i.expires_at).getTime() < now;
         var st = i.status === 'accepted' ? ['Accepted', 'green'] : i.status === 'revoked' ? ['Revoked', 'grey'] : expired ? ['Expired', 'red'] : ['Pending', ''];
-        return '<div class="item" style="flex-wrap:wrap"><div class="main"><strong>' + esc(i.name) + '</strong><span>' + esc(i.email) + ' · ' + esc(d ? d.name : '') + ' · ' + CO_KIND[i.kind] + ' · ' + (i.status === 'accepted' ? 'joined ' + dayFmt(i.accepted_at) : i.status === 'pending' ? (expired ? 'expired ' : 'expires ') + dayFmt(i.expires_at) : 'invited ' + dayFmt(i.created_at)) + ' · by ' + esc(coName(i.invited_by)) + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span>' +
+        return '<div class="item" style="flex-wrap:wrap"><div class="main"><strong>' + esc(i.name) + '</strong><span>' + esc(i.email) + ' · ' + (d ? esc(d.name) + ' · ' + CO_KIND[i.kind] : esc(posTitle(i.position_id) || 'Leadership')) + ' · ' + (i.status === 'accepted' ? 'joined ' + dayFmt(i.accepted_at) : i.status === 'pending' ? (expired ? 'expired ' : 'expires ') + dayFmt(i.expires_at) : 'invited ' + dayFmt(i.created_at)) + ' · by ' + esc(coName(i.invited_by)) + '</span></div><span class="pill ' + st[1] + '">' + st[0] + '</span>' +
           (i.status === 'pending' ? (expired ? '' : '<button type="button" class="btn small ghost" data-inv-show="' + i.id + '">Share</button>') + '<button type="button" class="btn small ghost" data-inv-resend="' + i.id + '">Send again</button><button type="button" class="btn small ghost" data-inv-revoke="' + i.id + '">Revoke</button>' : '') + '</div>';
       }).join('') + '</div></section>' : '');
   }
@@ -1162,7 +1164,7 @@
         return '<div class="card stack" style="gap:14px"><div class="row" style="gap:14px;flex-wrap:nowrap;align-items:center"><span class="co-ic">' + IC(deptIcon(d)) + '</span><div style="min-width:0"><strong style="font-size:19px">' + esc(d.name) + '</strong><div class="muted" style="font-size:14px">' + esc(d.purpose || '') + '</div></div></div>' +
           '<div class="row" style="gap:18px;font-size:14px;border-top:1px solid var(--line);padding-top:12px"><span><span class="muted">Your role:</span> <strong>' + wsRole(d) + '</strong></span><span><span class="muted">Head:</span> <strong>' + esc(d.head ? coName(d.head) : 'Not appointed') + '</strong></span>' + (sup && sup.p.id !== co.me.id ? '<span><span class="muted">You report to:</span> <strong>' + esc(sup.p.name) + '</strong></span>' : '') + '</div>' +
           '<div><h3 style="margin:0 0 4px;font-size:14px">Team</h3>' + mem.map(function (m) { var p = coP(m.profile_id) || { name: 'Unknown' }; return '<div class="item">' + avatar(m.profile_id) + '<div class="main"><strong>' + esc(p.name) + (m.profile_id === co.me.id ? ' (you)' : '') + '</strong><span>' + esc(m.role_title || p.title || 'Member') + '</span></div><span class="pill ' + (m.profile_id === d.head ? 'blue' : (m.kind || 'member') === 'member' ? 'grey' : '') + '">' + (m.profile_id === d.head ? 'Head' : CO_KIND[m.kind || 'member']) + '</span></div>'; }).join('') + '</div></div>';
-      }).join('') : wsEmpty('org', 'No department yet', 'You are part of Lytmoz but not yet placed in a department. The owner will add you to one.');
+      }).join('') : (ws.me && ws.me.positions.some(function (p) { return p.level <= 2; }) ? wsEmpty('org', 'You sit above the departments', 'As a member of the leadership you are not placed in a single department. Use Organization Chart and your position\'s sections to follow the whole organization.') : wsEmpty('org', 'No department yet', 'You are part of Lytmoz but not yet placed in a department. The owner will add you to one.'));
     } else if (ws.tab === 'messages') {
       var d = mine.filter(function (x) { return x.id === ws.dept; })[0], thread = co.posts.filter(function (p) { return p.department_id === ws.dept; }).slice().reverse();
       out = !d ? wsEmpty('chat', 'No department yet', 'Department communication opens when you are placed in a department.') :
@@ -1190,9 +1192,9 @@
       sb.from('dept_posts').insert({ department_id: ws.dept, text: text }).then(check).then(loadCompany).catch(function (err) { coErr(f, err); });
     } else if (f.id === 'co-invite-form') {
       e.preventDefault(); f.querySelector('button').disabled = true;
-      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: +f.department.value, kind: f.kind.value, title: f.title.value.trim() || (f.position.value ? posTitle(+f.position.value) : null), reports_to: f.reports.value || null, invited_by: co.me.id, position_id: f.position.value ? +f.position.value : null }).select().single().then(check)
+      sb.from('staff_invites').insert({ name: f.name.value.trim(), email: f.email.value.trim().toLowerCase(), department_id: seatLead(f.position.value) ? null : +f.department.value, kind: seatLead(f.position.value) ? 'member' : f.kind.value, title: (seatLead(f.position.value) ? '' : f.title.value.trim()) || posTitle(+f.position.value) || null, reports_to: f.reports.value || null, invited_by: co.me.id, position_id: +f.position.value || null }).select().single().then(check)
         .then(function (row) { co.shareInvite = row.id; return loadCompany(); })
-        .catch(function (err) { coErr(f, /staff_invites_one_pending/.test(err.message) ? new Error('That person already has a pending invitation to this department. Use Send again below.') : err); });
+        .catch(function (err) { coErr(f, /staff_invites_one_pending/.test(err.message) ? new Error('That person already has a pending invitation for this. Use Send again below.') : err); });
     }
   });
   document.addEventListener('click', function (e) {
@@ -1355,8 +1357,27 @@
 
   // ---- Invitation requests (HQ for the owner, workspace for heads and HR) ----
   function coCanRequest() { return !coOwner() && (co.role === 'head' || hasPerm('invites.request')); }
-  function posOptions(sel) { return '<option value="">No position yet</option>' + (co.pos || []).filter(function (p) { return !AUTO_POS[p.code] && p.is_active !== false; }).map(function (p) { return '<option value="' + p.id + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join(''); }
+  function posOptions(minLevel) { var sel = null; return '<option value="">No position yet</option>' + (co.pos || []).filter(function (p) { return !AUTO_POS[p.code] && p.is_active !== false && (!minLevel || p.level >= minLevel); }).map(function (p) { return '<option value="' + p.id + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join(''); }
   function posTitle(id) { var p = (co.pos || []).filter(function (x) { return x.id === id; })[0]; return p ? p.title : ''; }
+  function seatPos(v) { return (co.pos || []).filter(function (x) { return x.id === +v; })[0]; }
+  function seatLead(v) { var p = seatPos(v); return !!(p && p.level <= 2); }
+  function seatHolders(p) { var today = new Date().toISOString().slice(0, 10); return (co.asg || []).filter(function (a) { return a.position_id === p.id && (!a.ends_on || a.ends_on >= today); }); }
+  function seatOptions() { // positions grouped by rank, with who holds them
+    var ps = (co.pos || []).filter(function (p) { return !AUTO_POS[p.code] && p.is_active !== false; });
+    return '<option value="" disabled selected>Choose a position…</option>' + [1, 2, 3, 4, 5].map(function (l) {
+      var g = ps.filter(function (p) { return p.level === l; }); if (!g.length) return '';
+      return '<optgroup label="' + LEVEL_NAMES[l] + '">' + g.map(function (p) { var h = seatHolders(p), full = p.max_holders && h.length >= p.max_holders; return '<option value="' + p.id + '">' + esc(p.title) + (full ? ' — held by ' + esc(h.map(function (x) { return coName(x.profile_id); }).join(', ')) : p.max_holders ? ' — vacant' : h.length ? ' — ' + h.length + ' in post' : '') + '</option>'; }).join('') + '</optgroup>';
+    }).join('') + '<optgroup label="Other"><option value="none">Staff member, position not set yet</option></optgroup>';
+  }
+  function seatSync() {
+    var f = $('co-invite-form'); if (!f) return;
+    var p = seatPos(f.position.value), lead = !!(p && p.level <= 2), h = p ? seatHolders(p) : [], warn = $('inv-warn');
+    $('inv-dept-row').hidden = lead; $('inv-lead-note').hidden = !lead;
+    if (p && p.department_id && !lead) f.department.value = String(p.department_id);
+    if (p && p.max_holders && h.length >= p.max_holders) { warn.hidden = false; LZ.setMsg(warn, p.title + ' is already held by ' + h.map(function (x) { return coName(x.profile_id); }).join(', ') + '. Inviting someone else gives Lytmoz two people in this seat. Remove the current holder in the Position Catalogue first if this is a replacement.', 'err'); }
+    else { warn.hidden = true; warn.textContent = ''; }
+  }
+  document.addEventListener('change', function (e) { if (e.target && e.target.id === 'inv-pos') seatSync(); });
   function deptName(id) { var d = co.depts.filter(function (x) { return x.id === id; })[0]; return d ? d.name : ''; }
   var REQ_ST = { requested: ['Waiting for the owner', ''], approved: ['Approved', 'green'], declined: ['Declined', 'red'], withdrawn: ['Withdrawn', 'grey'] };
   function requestPanel() {
@@ -1365,7 +1386,7 @@
     var mine = (co.reqs || []).filter(function (r) { return r.requested_by === co.me.id; });
     return (depts.length ? '<form id="co-request-form" class="card stack"><h2 style="font-size:18px">Ask the owner to invite someone</h2><p class="muted" style="margin:0;font-size:14px">Only the owner issues invitation links. Send the details here; the owner approves or declines, and you can follow the request below.</p>' +
       '<div class="row" style="gap:12px"><label style="flex:1 1 200px">Full name<input name="name" required maxlength="120"></label><label style="flex:1 1 220px">Email address<input type="email" name="email" required maxlength="200"></label></div>' +
-      '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 200px">Position<select name="position">' + posOptions() + '</select></label>' +
+      '<div class="row" style="gap:12px"><label style="flex:2 1 200px">Department<select name="department">' + depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 200px">Position<select name="position">' + posOptions(3) + '</select></label>' +
       '<label style="flex:1 1 130px">Role<select name="kind"><option value="member">Member</option><option value="lead">Team lead</option><option value="mentor">Mentor</option></select></label></div>' +
       '<label><span>Why this person <span class="muted" style="font-weight:400">· optional</span></span><textarea name="note" rows="2" maxlength="1000" placeholder="Interviewed on Monday, recommended for the developer role."></textarea></label>' +
       '<div class="row"><button class="btn" type="submit">Send request to the owner</button><p class="msg" role="status" style="margin:0"></p></div></form>' : '<div class="card"><p class="muted" style="margin:0">You can ask for invitations once you are placed in a department.</p></div>') +
@@ -1505,7 +1526,7 @@
   }
   function wsOverview(mine, posts) {
     var first = String(co.me.name || '').trim().split(/\s+/)[0], h = new Date().getHours(), c = wsClock(), f = wsFocus(), ps = ws.me ? ws.me.positions : [];
-    var d0 = mine[0], sup = d0 ? wsSupervisor(d0) : null, role = d0 ? wsRole(d0) : '';
+    var d0 = mine[0], sup = d0 ? wsSupervisor(d0) : null, role = d0 ? wsRole(d0) : '', lead = ps.filter(function (p) { return p.level <= 2; })[0];
     var title = ps.length ? ps.map(function (p) { return p.title; }).join(' · ') : (coP(co.me.id) || {}).title || 'Lytmoz staff';
     var wc = wkCounts(), quick = [['work', 'case', 'My Tasks', wk.loaded ? String(wc.todo + wc.doing) : ''], [f.k ? 'b:' + f.k : 'work', f.icon, f.tile, ''], ['messages', 'chat', 'Team Chat', posts.length ? String(Math.min(posts.length, 99)) : ''], ['meetings', 'activity', 'Meetings', ''], ['documents', 'doc', 'Documents', '']];
     var tasks = wkOverviewCard();
@@ -1515,9 +1536,9 @@
     var news = '<div class="wsx-empty">' + IC('megaphone') + '<p>No announcements yet. Company news from the owner will appear here.</p></div>';
     var side = '<aside class="wsx-side">' +
       '<section class="card wsx-me"><span class="wsx-av">' + esc(initials(co.me.name)) + '<i></i></span><strong>' + esc(co.me.name) + '</strong><span>' + esc(title) + '</span>' +
-        '<div class="wsx-kv">' + IC('flow') + '<div><small>Department</small><b>' + esc(mine.length ? mine.map(function (x) { return x.name; }).join(', ') : 'Not placed yet') + '</b></div></div>' +
+        '<div class="wsx-kv">' + IC('flow') + '<div><small>' + (mine.length || !lead ? 'Department' : 'Leadership') + '</small><b>' + esc(mine.length ? mine.map(function (x) { return x.name; }).join(', ') : lead ? (lead.level === 1 ? 'Board of Directors' : 'Executive management') : 'Not placed yet') + '</b></div></div>' +
         (role ? '<div class="wsx-kv">' + IC('team') + '<div><small>Role</small><b>' + esc(role) + '</b></div></div>' : '') +
-        (sup && sup.p.id !== co.me.id ? '<div class="wsx-kv">' + IC('members') + '<div><small>Reports to</small><b>' + esc(sup.p.name) + '</b></div></div>' : '') +
+        (sup && sup.p.id !== co.me.id ? '<div class="wsx-kv">' + IC('members') + '<div><small>Reports to</small><b>' + esc(sup.p.name) + '</b></div></div>' : lead ? '<div class="wsx-kv">' + IC('members') + '<div><small>Reports to</small><b>' + esc(lead.reports_to ? 'The ' + lead.reports_to : 'The Owner') + '</b></div></div>' : '') +
         '<button type="button" class="btn ghost small" data-ws-chart style="align-self:stretch">View Organization ' + IC('chev') + '</button></section>' +
       '<section class="card wsx-links"><h2>' + IC('link') + 'Quick Links</h2>' + [['b:duties', 'doc', 'My position & duties'], ['chart', 'net', 'Company Structure'], ['department', 'flow', 'Department Workspace'], ['messages', 'support', 'Request Support']].map(function (l) {
         return '<button type="button" ' + (l[0] === 'chart' ? 'data-ws-chart' : 'data-ws-go="' + l[0] + '"') + '>' + IC(l[1]) + '<span>' + l[2] + '</span>' + IC('chev') + '</button>';

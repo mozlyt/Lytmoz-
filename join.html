@@ -30,8 +30,8 @@
 <h1 class="serif" style="font-size:34px;line-height:1.08">You are invited to join Lytmoz.</h1>
 <p style="margin:0;line-height:1.65;color:var(--soft)" id="j-summary"></p>
 <div class="stack join-kv" style="gap:0;border-top:1px solid var(--line)">
-<div class="kv"><span>Department</span><strong id="j-dept"></strong></div>
-<div class="kv"><span>Role</span><strong id="j-role"></strong></div>
+<div class="kv" id="j-dept-row"><span>Department</span><strong id="j-dept"></strong></div>
+<div class="kv" id="j-role-row"><span>Role</span><strong id="j-role"></strong></div>
 <div class="kv" id="j-title-row"><span>Position</span><strong id="j-title"></strong></div>
 <div class="kv"><span>Your email</span><strong id="j-email" style="overflow-wrap:anywhere"></strong></div>
 </div>
@@ -80,10 +80,10 @@
   var KIND = { lead: 'Team lead', mentor: 'Mentor', member: 'Member' };
   function show(id) { ['j-wait', 'j-bad', 'j-ok', 'j-done'].forEach(function (x) { $(x).hidden = x !== id; }); }
   function bad(title, text) { $('j-bad-title').textContent = title; $('j-bad-text').textContent = text; show('j-bad'); }
-  function done(dept) { $('j-done-text').textContent = 'You are now part of the ' + (dept || info.department) + ' department. Your workspace is ready.'; show('j-done'); }
+  function done(r) { var d = (r && r.department) || info.department, pos = (r && r.position) || info.position; $('j-done-text').textContent = (d ? 'You are now part of the ' + d + ' department' + (pos ? ' as ' + pos : '') : 'You are now part of Lytmoz as ' + (pos || 'a member of the leadership')) + '. Your workspace is ready.'; show('j-done'); }
   function pane(id) { ['j-new', 'j-old', 'j-in'].forEach(function (x) { $(x).hidden = x !== id; }); }
   function accept(msgEl, btn) {
-    return sb.rpc('accept_invite', { tok: token }).then(check).then(function (r) { done(r && r.department); })
+    return sb.rpc('accept_invite', { tok: token }).then(check).then(function (r) { done(r); })
       .catch(function (err) { if (btn) btn.disabled = false; LZ.setMsg(msgEl, err.message, 'err'); });
   }
 
@@ -94,9 +94,9 @@
     if (info.status === 'accepted') return bad('This invitation has already been used.', 'Sign in to HQ with your account to open your workspace.');
     if (info.status === 'revoked') return bad('This invitation was withdrawn.', 'Ask Lytmoz to send you a new one.');
     if (info.status === 'expired') return bad('This invitation has expired.', 'Ask the person who invited you to send it again.');
-    $('j-summary').textContent = (info.invited_by ? info.invited_by + ' has invited you' : 'You have been invited') + ', ' + info.name + ', to join Lytmoz as ' + (info.kind === 'member' ? 'a member' : info.kind === 'lead' ? 'a team lead' : 'a mentor') + ' of the ' + info.department + ' department.';
-    $('j-dept').textContent = info.department; $('j-role').textContent = KIND[info.kind] || 'Member';
-    $('j-title').textContent = info.title || ''; $('j-title-row').hidden = !info.title; $('j-email').textContent = info.email;
+    $('j-summary').textContent = (info.invited_by ? info.invited_by + ' has invited you' : 'You have been invited') + ', ' + info.name + ', to join Lytmoz as ' + (info.department ? (info.kind === 'member' ? 'a member' : info.kind === 'lead' ? 'a team lead' : 'a mentor') + ' of the ' + info.department + ' department' + (info.position ? ', in the position of ' + info.position : '') : (info.position || 'a member of the leadership') + (info.level === 1 ? ', on the Board of Directors' : info.level === 2 ? ', in executive management' : '')) + '.';
+    $('j-dept').textContent = info.department || ''; $('j-dept-row').hidden = !info.department; $('j-role').textContent = KIND[info.kind] || 'Member'; $('j-role-row').hidden = !info.department;
+    $('j-title').textContent = info.position || info.title || ''; $('j-title-row').hidden = !(info.position || info.title); $('j-email').textContent = info.email;
     $('j-new').name.value = info.name;
     if (me && me.email.toLowerCase() === info.email) { $('j-me').textContent = me.email; pane('j-in'); }
     else pane(info.has_account ? 'j-old' : 'j-new');

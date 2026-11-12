@@ -89,3 +89,8 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **Side menu → Organization Settings**: Structure, Positions & permissions, Joining & leaving (invitation validity, what happens to tasks when someone leaves), Work rules (heads assign/review, link required, own tasks), Staff workspace (default sections, welcome line).
 - **Top bar → Set Up**: public setup (website, business details, services, consultation, billing & pricing, privacy, top menu, client accounts, activity log).
 - **Side menu bottom → General Settings**: all of the above plus Account & system (owner name and password, notifications and integrations, project stages, security summary). Each setting exists once; the three places open the same screens.
+
+## Communication rooms (`supabase/rooms.sql`)
+
+- **Department Room**: private to each department and its head; the owner reads (HQ → Internal Communication → Department Rooms) but cannot post. Staff are told the owner can read it.
+- **Organization Room**: company news (pinned, shown on every workspace's Announcements card) and discussion for everyone. Owner switch (Open / Approval needed / Closed) in the room and in Organization Settings → Communication; owner approves, removes and pins posts and can stop one person posting. News posters: positions with `news.post`.

@@ -1,0 +1,8 @@
+-- Applied as migration `rooms_communication` (12 Nov 2026).
+-- Department Room (dept_posts): only that department's members and head read and post; the owner reads only (cannot post).
+--   dept_member(d) requires current staff. Messages already in dept_posts stay.
+-- Organization Room (org_posts): news (kind 'news', pinned) and discussion posts. org_settings.room_mode: open | approval | closed.
+--   Post only through org_post(text, news, title): news needs permission 'news.post' (CEO and COO by default; the owner always);
+--   approval mode makes staff posts 'pending' until the owner approves; closed allows news only; muted people (org_room_mutes) cannot post.
+--   org_moderate(post, approve|remove|pin|unpin) is owner-only (authors can remove their own). org_mute(person, on) is owner-only.
+-- room_reads stores each person's last read message per room for unread counts. dept_posts and org_posts are in supabase_realtime.

@@ -23,6 +23,7 @@
     function note() {
       var n = $('note');
       if (opt.staff) { n.hidden = false; n.innerHTML = 'Private: only you and the other person can read a chat. If something is wrong, open the chat and use Report.'; return; }
+      if (opt.isAdmin && opt.only === 'staff') { n.hidden = false; n.innerHTML = 'Private chats between you and your staff. Chats between staff members stay private to them unless one of them reports a conversation.'; return; }
       if (opt.isAdmin) { n.hidden = true; return; }
       n.hidden = st.visible;
       n.innerHTML = 'You are hidden. Other clients cannot see you or start a chat with you. <button type="button" class="linkish" data-c="vis">Show me in Messages</button>';
@@ -30,12 +31,13 @@
     function totalUnread() { return st.list.reduce(function (a, t) { return a + (+t.unread || 0); }, 0); }
     function refreshList() {
       return sb.rpc('chat_list').then(check).then(function (rows) {
-        st.list = rows || []; if (opt.onUnread) opt.onUnread(totalUnread());
+        st.list = keep(rows || []); if (opt.onUnread) opt.onUnread(totalUnread());
         if (st.mode === 'list') renderSide();
         var c = st.list.filter(function (t) { return t.id === st.cur; })[0]; if (c) renderHead(c);
       }).catch(function () {});
     }
-    function loadPeople() { return sb.rpc('chat_people').then(check).then(function (rows) { st.people = rows || []; if (st.mode === 'people') renderSide(); }); }
+    function keep(rows) { return opt.only === 'staff' ? rows.filter(function (r) { return r.staff; }) : opt.only === 'clients' ? rows.filter(function (r) { return !r.staff; }) : rows; }
+    function loadPeople() { return sb.rpc('chat_people').then(check).then(function (rows) { st.people = keep(rows || []); if (st.mode === 'people') renderSide(); }); }
     function avatar(name, online, lytmoz) { return '<span class="chat-av' + (lytmoz ? ' lz' : '') + '">' + esc(initials(name)) + (online ? '<i class="on" aria-hidden="true"></i>' : '') + '</span>'; }
     function renderSide() {
       $('q').value = st.q;
@@ -45,7 +47,7 @@
         var ppl = st.people.filter(match);
         $('list').innerHTML = '<button type="button" class="chat-row back" data-c="back"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg><span>Back to chats</span></button>' +
           (ppl.map(function (p) { return '<button type="button" class="chat-row" role="listitem" data-person="' + p.id + '">' + avatar(p.name, p.online, p.lytmoz) + '<span class="chat-b"><strong>' + esc(p.name) + '</strong><span>' + esc(p.online ? 'Online' : (p.business || (p.lytmoz ? 'Lytmoz team' : 'Client'))) + '</span></span></button>'; }).join('') ||
-            '<p class="chat-none">' + (opt.staff ? 'Nobody to message right now.' : opt.isAdmin ? 'No clients or staff to message yet.' : st.visible ? 'No other clients are visible right now. Lytmoz is always here.' : 'Only Lytmoz is shown while you are hidden.') + '</p>');
+            '<p class="chat-none">' + (opt.staff ? 'Nobody to message right now.' : opt.only === 'staff' ? 'No staff to message yet.' : opt.isAdmin ? 'No clients to message yet.' : st.visible ? 'No other clients are visible right now. Lytmoz is always here.' : 'Only Lytmoz is shown while you are hidden.') + '</p>');
         return;
       }
       var rows = st.list.filter(match);
@@ -156,7 +158,7 @@
 
     // live updates, with a slower check in case the live link drops
     try {
-      sb.channel('lz-chat-' + me).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, function (p) {
+      sb.channel('lz-chat-' + me + (opt.only || '')).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, function (p) {
         var m = p.new; if (m.thread_id === st.cur && m.sender !== me) pullNew(); refreshList();
       }).subscribe();
     } catch (err) {}

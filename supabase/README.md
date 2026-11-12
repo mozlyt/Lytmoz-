@@ -103,3 +103,10 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - **Escalation**: overdue tasks are flagged at once; after `escalate_days` they also reach the head, executives and owner (Overdue tab in Staff tasks / Team Work).
 - **Reviewer**: chosen when assigning (must be above the person).
 - **Workspace home**: My Team, My Performance, My Notifications (and a Notifications page).
+
+## Top bar review (round 2)
+
+- Top bar: Dashboard Overview · Work · **Reports & Quality** · Inbox (Client messages, Support, Email, Consultations) · **Clients & Accounts** (Businesses, Client members, Client accounts) · Billing (Payments & invoices, Subscriptions, Public prices) · **Public Setup**, grouped as Website, Business Profile, Services, Client Experience, Legal & Policies, Records & menu (`PUB_GROUP`).
+- The owner's Inbox → Client messages shows client chats only; chats with staff are in the side menu → Internal Communication → Staff messages (`LZChat.mount({ only: 'clients' | 'staff' })`, `chat_list().staff`).
+- Bell: "Client & Public" and "Internal Organization" groups; staff work and reported conversations open the exact item (`data-deep`).
+- Edit top menu shows a live preview; hiding never changes access. Picture menu → My account.

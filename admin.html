@@ -334,7 +334,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js?v=4"></script>
-<script src="assets/api.js?v=3"></script>
+<script src="assets/api.js?v=4"></script>
 <script src="assets/chat.js?v=3"></script>
 <script>
 (function () {
@@ -1338,7 +1338,7 @@
     }).catch(bad);
     if (k === 'clients') return sb.from('projects').select('*').order('id', { ascending: false }).limit(200).then(check).then(function (ps) {
       return profNames(ps.map(function (p) { return p.client_id; })).then(function (m) {
-        put(wsList('Client projects', ps.map(function (p) { return wsItem(esc(p.name), nm(m, p.client_id) + ' · ' + esc(p.plan || '') + ' plan', '<span class="pill ' + (p.stage >= 5 ? 'green' : '') + '">' + (p.stage || 1) + '. ' + esc(LZ.stages[(p.stage || 1) - 1] || '') + '</span>'); }), 'No client projects yet.'));
+        put(wsList('Client projects', ps.map(function (p) { return wsItem(esc(p.name), nm(m, p.client_id) + ' · ' + esc(p.plan || '') + ' plan', '<span class="pill ' + (p.stage >= 7 ? 'green' : '') + '">' + (p.stage || 1) + '. ' + esc(LZ.stages[(p.stage || 1) - 1] || '') + '</span>'); }), 'No client projects yet.'));
       });
     }).catch(bad);
     if (k === 'requests') return Promise.all([
@@ -1586,7 +1586,7 @@
     var bad = function () { put(none('info', 'Could not load this right now.')); };
     if (f.k === 'clients') return sb.from('projects').select('*').order('id', { ascending: false }).limit(3).then(check).then(function (ps) {
       return profNames(ps.map(function (p) { return p.client_id; })).then(function (m) {
-        put(ps.map(function (p) { var pct = Math.round(Math.min(5, p.stage || 1) / 5 * 100), cl = m[p.client_id] || {}; return '<div class="wsx-proj"><span class="wsx-pic">' + IC('projects') + '</span><div><strong>' + esc(p.name) + '</strong><div class="wsx-bar"><i style="width:' + pct + '%"></i></div><small>' + esc(LZ.stages[(p.stage || 1) - 1] || '') + ' · ' + esc(cl.company || cl.name || 'Client') + '</small></div><b>' + pct + '%</b></div>'; }).join('') || none('projects', 'No client projects yet.'));
+        put(ps.map(function (p) { var pct = Math.round(Math.min(LZ.stages.length, p.stage || 1) / LZ.stages.length * 100), cl = m[p.client_id] || {}; return '<div class="wsx-proj"><span class="wsx-pic">' + IC('projects') + '</span><div><strong>' + esc(p.name) + '</strong><div class="wsx-bar"><i style="width:' + pct + '%"></i></div><small>' + esc(LZ.stages[(p.stage || 1) - 1] || '') + ' · ' + esc(cl.company || cl.name || 'Client') + '</small></div><b>' + pct + '%</b></div>'; }).join('') || none('projects', 'No client projects yet.'));
       });
     }).catch(bad);
     if (f.k === 'finance') return sb.from('payments').select('*').eq('status', 'pending').order('id', { ascending: false }).limit(4).then(check).then(function (ps) {

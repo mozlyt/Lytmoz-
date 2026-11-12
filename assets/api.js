@@ -66,5 +66,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addPasswordToggles); else addPasswordToggles();
 
   window.LZ = { cfg: cfg, sb: sb, check: check, fn: fn, me: me, esc: esc, money: money, when: when, setMsg: setMsg,
-    stages: ['Audit', 'Proposal and deposit', 'Build', 'Launch', 'Monthly care'] };
+    stages: ['Request received', 'Assessment', 'Quotation', 'Approved', 'In progress', 'Review', 'Delivered', 'Monthly care'] };
 })();

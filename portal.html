@@ -321,7 +321,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js?v=4"></script>
-<script src="assets/api.js?v=3"></script>
+<script src="assets/api.js?v=4"></script>
 <script src="assets/chat.js?v=3"></script>
 <script>
 (function () {
@@ -365,11 +365,11 @@
     projectId = p.id; $('empty').hidden = true; $('project').hidden = false; $('no-project').hidden = true;
     $('t-project').textContent = 'Stage ' + p.stage + ' · ' + LZ.stages[p.stage - 1];
     $('plan').textContent = 'Your project · ' + p.plan + ' plan';
-    $('headline').textContent = p.stage >= 5 ? p.name + ' is live and growing.' : p.stage === 4 ? p.name + ' is launching.' : 'Your system is being built.';
-    $('stage-label').textContent = 'Stage ' + p.stage + ' of 5';
-    $('bar').style.width = (p.stage / 5 * 100 - (p.stage < 5 ? 10 : 0)) + '%';
+    var N = LZ.stages.length; $('headline').textContent = p.stage >= N ? p.name + ' is live and growing.' : p.stage === N - 1 ? p.name + ' has been delivered.' : p.stage === N - 2 ? p.name + ' is being reviewed before delivery.' : p.stage >= 5 ? 'Your system is being built.' : p.stage === 4 ? 'Approved. Work is about to start.' : 'We are preparing your project.';
+    $('stage-label').textContent = 'Stage ' + p.stage + ' of ' + N;
+    $('bar').style.width = (p.stage / N * 100 - (p.stage < N ? 100 / N / 2 : 0)) + '%';
     $('steps').innerHTML = LZ.stages.map(function (s, i) {
-      var n = i + 1, st = n < p.stage || p.stage === 5 ? ['Done', '#9FD3AE'] : n === p.stage ? ['In progress', '#E2A97F'] : [n === p.stage + 1 ? 'Next' : 'Later', '#A9A096'];
+      var n = i + 1, st = n < p.stage || p.stage === N ? ['Done', '#9FD3AE'] : n === p.stage ? ['In progress', '#E2A97F'] : [n === p.stage + 1 ? 'Next' : 'Later', '#A9A096'];
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';

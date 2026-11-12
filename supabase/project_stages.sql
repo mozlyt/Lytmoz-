@@ -1,0 +1,4 @@
+-- Applied as migration `project_stages_eight` (12 Nov 2026).
+-- projects.stage is 1..8: Request received, Assessment, Quotation, Approved, In progress, Review, Delivered, Monthly care.
+-- Existing projects moved: Audit->Assessment, Proposal and deposit->Quotation, Build->In progress, Launch->Delivered, Monthly care->Monthly care.
+-- admin_overview: active = stages 1-7, monthly care = stage 8. Names live in LZ.stages (assets/api.js).

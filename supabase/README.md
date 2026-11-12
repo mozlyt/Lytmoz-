@@ -83,3 +83,9 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - HQ: owner → Projects & Tasks → Staff tasks (bell shows work to review). Staff → My Tasks, Submissions, and Team Work for people who assign or review.
 - **Leadership invitations** (`supabase/leadership_invites.sql`): the owner invites by position first. Board (level 1) and executive (level 2) seats have no department; others pick a department (pre-filled from the position). One-person seats (`positions.max_holders = 1`) show who holds them and warn before a second invitation.
 - **Removing people** (`supabase/staff_leave.sql`): "Remove from this position only" ends that title; they stay staff with the basic workspace. "Remove from Lytmoz" (Members & Staff, or from a position) deletes the staff row: HQ access, workspace and every permission end at once, positions end (history kept), teams and open tasks are cleared.
+
+## Settings in three places (`supabase/org_settings.sql`)
+
+- **Side menu → Organization Settings**: Structure, Positions & permissions, Joining & leaving (invitation validity, what happens to tasks when someone leaves), Work rules (heads assign/review, link required, own tasks), Staff workspace (default sections, welcome line).
+- **Top bar → Set Up**: public setup (website, business details, services, consultation, billing & pricing, privacy, top menu, client accounts, activity log).
+- **Side menu bottom → General Settings**: all of the above plus Account & system (owner name and password, notifications and integrations, project stages, security summary). Each setting exists once; the three places open the same screens.

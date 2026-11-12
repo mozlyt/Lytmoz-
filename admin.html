@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=20">
+<link rel="stylesheet" href="assets/app.css?v=21">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -284,7 +284,7 @@
 
 <section data-panel="settings" class="stack" hidden>
 <div id="set-view" class="stack"><p class="muted">Loading settings…</p></div>
-<div class="card stack" style="gap:12px">
+<div class="card stack" id="set-pub-card" style="gap:12px">
 <div class="row between"><h2 style="font-size:16px">Website changes</h2><span class="pill" id="set-state">Loading…</span></div>
 <p class="muted" id="set-meta" style="margin:0;font-size:13px"></p>
 <div class="row" style="gap:10px"><button type="button" class="btn small" id="set-publish">Publish</button><button type="button" class="btn small ghost" id="set-preview">Preview</button><button type="button" class="btn small ghost" id="set-save">Save draft</button><button type="button" class="linkish" id="set-discard" hidden>Discard changes</button></div>
@@ -848,8 +848,7 @@
   var NOTE = function (t) { return '<p class="muted" style="margin:0;font-size:13px">' + t + '</p>'; };
   function setRender() {
     var v = setStack[setStack.length - 1], out, page = v.indexOf('page:') === 0 ? SITE_PAGES.filter(function (p) { return p[0] === v.slice(5); })[0] : null;
-    if (v === 'menu') out = '<div class="head">' + IC('gear') + '<div><h2 class="serif" style="font-size:28px;line-height:1.1">Settings</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Choose what you want to set up.</p></div></div>' + rows([['orgmenu', 'org', 'Organization', 'Everything about how Lytmoz runs and what the public sees.']]);
-    else if (v === 'orgmenu') out = screen('org', 'Organization', 'Everything about how Lytmoz runs and what the public sees.', rows(SET_MENU));
+    if (v === 'menu' || v === 'orgmenu') out = generalMenu();
     else if (v === 'web') out = screen('web', 'Website & Public Content', 'Choose a page to edit.', rows([['home', 'home', 'Home page', 'lytmoz.com']].concat(SITE_PAGES.map(function (p) { return ['page:' + p[0], p[1], p[2], 'lytmoz.com' + p[3]]; }))));
     else if (v === 'home') out = screen('home', 'Home page', 'Choose a section to edit.', rows(HOME_SECTIONS));
     else if (v === 'home:hero') out = screen('home', 'Introduction', 'Home page', editor(v));
@@ -865,9 +864,12 @@
     else if (v === 'billing') out = screen('wallet', 'Billing & Pricing', 'What clients are charged and how they pay.', rows([['pricing', 'tag', 'Public prices', 'The plans and prices shown on the website.'], ['tab:payments', 'billing', 'Payment details', 'Your Mobile Money and bank details, and payments to confirm.'], ['tab:subs', 'subs', 'Subscriptions', 'Recurring plans, price changes and renewals.']]) + info([['Online payment', LZ.cfg.paystackKey ? 'Paystack is connected for card and Mobile Money on GHS invoices.' : 'No online payment key is set.'], ['Invoice currencies', 'GHS, USD and NGN. A client can pay an invoice in parts.']]));
     else if (v === 'team') out = screen('members', 'Team & Permissions', 'Who can sign in and what they can do.', rows([['tab:company', 'org', 'Lytmoz organization', 'Departments, heads, staff and what each level may do.'], ['tab:members', 'members', 'Members', 'Create client logins and see everyone with an account.'], ['tab:orgs', 'biz', 'Businesses', 'Group several logins under one client business.']]) + info([['Owner', 'Sees and manages everything in Lytmoz HQ.'], ['Department head and staff', 'Join by invitation, sign in to HQ and see their own workspace. Their authority is set under Organization.'], ['Business owner (client)', 'Assigns work, manages their team, sees projects, files and billing.'], ['Business member (client)', 'Does assigned work, joins discussions, sees the business\'s projects, files and billing.']]) + NOTE('Roles are fixed for now. Custom permissions are not built yet.'));
     else if (v === 'notify') out = screen('bell', 'Notifications & Integrations', 'Where alerts go and what Lytmoz is connected to.', info([['Email alerts to HQ', 'New consultations, messages, service requests and payments are emailed to ' + esc(LZ.cfg.email || 'the address in the site files') + '.'], ['WhatsApp', 'Chat buttons open a conversation with +' + esc(siteWork.text['org.whatsapp'] || LZ.cfg.whatsapp || '') + '. Change it under Business details.'], ['Paystack', LZ.cfg.paystackKey ? 'Connected for online payments. The secret key is kept in Supabase, never in the website.' : 'Not connected.'], ['Supabase', 'Stores accounts, projects, billing and these settings.'], ['Client alerts', 'Clients see updates inside their portal. They are not emailed or sent WhatsApp messages automatically yet.']]) + NOTE('These are shown for reference. They cannot be switched from here yet.'));
+    else if (ORG_KEYS[v]) out = orgScreen(v);
+    else if (v === 'account' || v === 'security') out = sysScreen(v);
     else { setStack = ['menu']; return setRender(); }
     $('set-view').innerHTML = out;
     $('set-versions-card').hidden = v !== 'menu';
+    $('set-pub-card').hidden = !(SITE_SCREENS[v] || v.indexOf('home') === 0 || v.indexOf('page:') === 0);
   }
   function siteStatus() {
     var live = siteMerge(siteDefaults, siteRow.published), now = siteMerge(siteDefaults, siteWork), n = siteDiff(now, live), unsaved = siteDiff(now, siteMerge(siteDefaults, siteRow.draft || siteRow.published));
@@ -1206,7 +1208,7 @@
     var inv = function (id) { return co.invites.filter(function (i) { return i.id === +id; })[0]; };
     if ((x = t.closest('[data-inv-copy]'))) { var link = inviteLink(inv(x.dataset.invCopy)); return void (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function () { x.textContent = 'Copied'; setTimeout(function () { x.textContent = 'Copy link'; }, 1500); }).catch(function () { prompt('Copy this link', link); }); }
     if ((x = t.closest('[data-inv-show]'))) { co.shareInvite = +x.dataset.invShow; renderCompany(); var c = $('co-invite-form'); if (c) c.scrollIntoView({ block: 'end' }); return; }
-    if ((x = t.closest('[data-inv-resend]'))) return void sb.from('staff_invites').update({ expires_at: new Date(Date.now() + 7 * 864e5).toISOString() }).eq('id', +x.dataset.invResend).then(check).then(function () { co.shareInvite = +x.dataset.invResend; return loadCompany(); }).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-inv-resend]'))) return void sb.from('staff_invites').update({ expires_at: new Date(Date.now() + ((os && os.invite_days) || 7) * 864e5).toISOString() }).eq('id', +x.dataset.invResend).then(check).then(function () { co.shareInvite = +x.dataset.invResend; return loadCompany(); }).catch(function (err) { alert(err.message); });
     if ((x = t.closest('[data-inv-revoke]')) && confirm('Revoke this invitation? The link will stop working.')) return void sb.from('staff_invites').update({ status: 'revoked' }).eq('id', +x.dataset.invRevoke).then(check).then(function () { co.shareInvite = null; return loadCompany(); }).catch(function (err) { alert(err.message); });
   });
   // Keep department messages fresh while the workspace is open, without disturbing someone who is typing.
@@ -1238,7 +1240,7 @@
   function hasPerm(k) { return coOwner() || !!(ws.me && ws.me.permissions.indexOf(k) >= 0); }
   function myBlocks() {
     var seen = {}, out = [];
-    ((ws.me && ws.me.positions.length) ? ws.me.positions : [{ blocks: ['duties', 'work', 'dept'] }]).forEach(function (p) { (p.blocks || []).forEach(function (b) { if (BLOCKS[b] && !seen[b] && (!BLOCKS[b][3] || hasPerm(BLOCKS[b][3]))) { seen[b] = 1; out.push(b); } }); });
+    ((ws.me && ws.me.positions.length) ? ws.me.positions : [{ blocks: (ws.me && ws.me.settings && ws.me.settings.default_blocks) || ['duties', 'work', 'dept'] }]).forEach(function (p) { (p.blocks || []).forEach(function (b) { if (BLOCKS[b] && !seen[b] && (!BLOCKS[b][3] || hasPerm(BLOCKS[b][3]))) { seen[b] = 1; out.push(b); } }); });
     if (!seen.duties) out.unshift('duties');
     return out;
   }
@@ -1554,7 +1556,7 @@
       }).join('') + '</section>' +
       '<section class="card wsx-ok"><span>' + IC('shield') + '</span><div><strong>System Online</strong><small>Your access is checked on every action.</small></div></section>' +
       '<section class="wsx-brand"><strong>Work · Collaborate · Grow</strong><span>— Lytmoz</span></section></aside>';
-    return '<div class="wsx-hero"><div><h3>Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', ' + esc(first) + '</h3><p>Your work environment is ready. Let\'s make it happen today.</p></div>' +
+    return '<div class="wsx-hero"><div><h3>Good ' + (h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening') + ', ' + esc(first) + '</h3><p>' + esc((ws.me && ws.me.settings && ws.me.settings.welcome) || 'Your work environment is ready. Let\'s make it happen today.') + '</p></div>' +
       '<div class="wsx-clock">' + IC('activity') + '<div><b id="wsx-day">' + c.day + '</b><span id="wsx-time">' + c.time + '</span></div></div></div>' +
       '<div class="wsx-grid"><div class="wsx-main">' +
         '<div class="card wsx-quick">' + quick.map(function (q) { return '<button type="button" data-ws-go="' + q[0] + '">' + IC(q[1]) + '<strong>' + q[2] + '</strong>' + (q[3] ? '<small>(' + q[3] + ')</small>' : '') + '</button>'; }).join('') + '</div>' +
@@ -1596,6 +1598,9 @@
   var WSTAT = { assigned: ['To do', ''], in_progress: ['In progress', 'blue'], submitted: ['Awaiting review', ''], returned: ['Needs correction', 'red'], approved: ['Approved', 'green'], cancelled: ['Cancelled', 'grey'] };
   var WPRI = { low: ['Low', 'grey'], normal: ['Normal', 'grey'], high: ['High', ''], urgent: ['Urgent', 'red'] };
   var WEV = { assigned: 'assigned this task', started: 'started work', submitted: 'submitted the work', returned: 'returned it for correction', approved: 'approved the work', comment: 'commented', cancelled: 'cancelled the task' };
+  function wkLinkReq() { return !!(ws.me && ws.me.settings && ws.me.settings.submit_link_required); }
+  function wkSelf() { return !coOwner() && !!(ws.me && ws.me.settings && ws.me.settings.self_tasks); }
+  function wkWho(id) { var p = coP(id); return p ? p.name : 'a former staff member'; }
   function wkMine() { return wk.items.filter(function (w) { return w.assignee === co.me.id; }); }
   function wkTeam() { return wk.items.filter(function (w) { return w.assignee !== co.me.id; }); }
   function wkReviewable(w) { return w.status === 'submitted' && w.assignee !== co.me.id; }
@@ -1638,18 +1643,20 @@
   }
   function wkCard(w, mode) {
     var open = wk.open === w.id, st = WSTAT[w.status], pr = WPRI[w.priority], proj = (wk.projects.filter(function (p) { return p.id === w.project_id; })[0] || {}).name;
-    var meta = mode === 'mine' ? 'From ' + esc(w.assigned_by === co.me.id ? 'you' : coName(w.assigned_by)) : 'For ' + esc(coName(w.assignee)) + (w.assigned_by !== co.me.id ? ' · from ' + esc(coName(w.assigned_by)) : '');
+    var meta = mode === 'mine' ? (w.assigned_by === co.me.id ? 'Your own task' : 'From ' + esc(wkWho(w.assigned_by))) : 'For ' + esc(wkWho(w.assignee)) + (!coP(w.assignee) ? ' (left Lytmoz)' : '') + (w.assigned_by !== co.me.id ? ' · from ' + esc(wkWho(w.assigned_by)) : '');
     var last = wk.ev.filter(function (e) { return e.item_id === w.id && e.kind === 'returned'; }).pop();
     var body = '';
     if (open) {
       var acts = '', live = w.status !== 'approved' && w.status !== 'cancelled';
       if (mode === 'mine' && live) {
         if (w.status === 'assigned' || w.status === 'returned') acts += '<button type="button" class="btn small ghost" data-wk-act="start" data-id="' + w.id + '">' + (w.status === 'returned' ? 'Start the correction' : 'Start work') + '</button>';
-        if (w.status !== 'submitted') acts += '<form class="stack wk-form" data-wk-form="submit" data-id="' + w.id + '"><label>' + (w.status === 'returned' ? 'What did you correct?' : 'What did you do?') + '<textarea name="note" rows="3" maxlength="4000" placeholder="Describe the finished work."></textarea></label><label><span>Link to the work <span class="muted" style="font-weight:400">· optional</span></span><input name="link" type="url" maxlength="500" placeholder="https://"></label><div class="row"><button class="btn small" type="submit">Submit for review</button><p class="msg" role="status" style="margin:0"></p></div></form>';
+        if (w.status !== 'submitted') acts += '<form class="stack wk-form" data-wk-form="submit" data-id="' + w.id + '"><label>' + (w.status === 'returned' ? 'What did you correct?' : 'What did you do?') + '<textarea name="note" rows="3" maxlength="4000" placeholder="Describe the finished work."></textarea></label><label><span>Link to the work <span class="muted" style="font-weight:400">· ' + (wkLinkReq() ? 'required' : 'optional') + '</span></span><input name="link" type="url" maxlength="500" placeholder="https://"' + (wkLinkReq() ? ' required' : '') + '></label><div class="row"><button class="btn small" type="submit">Submit for review</button><p class="msg" role="status" style="margin:0"></p></div></form>';
         else acts += '<p class="muted" style="margin:0;font-size:13.5px">Submitted. Waiting for ' + esc(coName(w.reviewer || w.assigned_by)) + ' to review it.</p>';
       }
       if (mode === 'team' && wkReviewable(w)) acts += '<div class="row" style="gap:10px"><button type="button" class="btn small" data-wk-act="approve" data-id="' + w.id + '">Approve</button></div><form class="stack wk-form" data-wk-form="return" data-id="' + w.id + '"><label>Or return it for correction<textarea name="note" rows="2" maxlength="4000" placeholder="Say exactly what needs to change."></textarea></label><div class="row"><button class="btn small ghost" type="submit">Return for correction</button><p class="msg" role="status" style="margin:0"></p></div></form>';
       if (live) acts += '<form class="row wk-form" data-wk-form="comment" data-id="' + w.id + '" style="gap:8px;align-items:flex-end"><label style="flex:1 1 220px">Comment<input name="note" maxlength="4000" placeholder="Ask a question or give an update"></label><button class="btn small ghost" type="submit">Send</button><p class="msg" role="status" style="margin:0;flex-basis:100%"></p></form>';
+      var others = wk.directs.filter(function (d) { return d.id !== w.assignee; });
+      if (mode === 'team' && live && (coOwner() || w.assigned_by === co.me.id) && others.length) acts += '<form class="row wk-form" data-wk-reassign="' + w.id + '" style="gap:8px;align-items:flex-end"><label style="flex:1 1 220px">Reassign to<select name="to">' + others.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><button class="btn small ghost" type="submit">Reassign</button><p class="msg" role="status" style="margin:0;flex-basis:100%"></p></form>';
       if (mode === 'team' && live && (coOwner() || w.assigned_by === co.me.id)) acts += '<button type="button" class="linkish" data-wk-act="cancel" data-id="' + w.id + '" style="color:var(--muted);align-self:flex-start">Cancel this task</button>';
       body = '<div class="wk-body">' + (w.instructions ? '<div class="wk-ins"><small>Instructions</small><p>' + esc(w.instructions) + '</p></div>' : '') + wkTimeline(w) + '<div class="stack" style="gap:12px">' + acts + '</div></div>';
     }
@@ -1661,7 +1668,7 @@
     if (!wk.loaded) { loadWork(); return '<p class="muted">Loading…</p>'; }
     var m = wkMine(), groups = { todo: m.filter(function (w) { return w.status === 'assigned' || w.status === 'returned'; }), doing: m.filter(function (w) { return w.status === 'in_progress'; }), sent: m.filter(function (w) { return w.status === 'submitted'; }), done: m.filter(function (w) { return w.status === 'approved' || w.status === 'cancelled'; }) };
     var list = groups[wk.tab] || groups.todo;
-    return wkTabs('data-wk-tab', [['todo', 'To do', groups.todo.length], ['doing', 'In progress', groups.doing.length], ['sent', 'Submitted', groups.sent.length], ['done', 'Completed', groups.done.length]], wk.tab) +
+    return (wkSelf() ? '<details class="card"><summary style="cursor:pointer;font-weight:600">Add a task for yourself</summary><form id="wk-self" class="stack" style="gap:12px;margin-top:12px"><label>Task<input name="title" required maxlength="160"></label><label><span>Details <span class="muted" style="font-weight:400">· optional</span></span><textarea name="ins" rows="2" maxlength="4000"></textarea></label><label style="max-width:220px">Due date<input type="date" name="due" min="' + new Date().toISOString().slice(0, 10) + '"></label><p class="muted" style="margin:0;font-size:13px">Your manager reviews it when you submit.</p><div class="row"><button class="btn small" type="submit">Add task</button><p class="msg" role="status" style="margin:0"></p></div></form></details>' : '') + wkTabs('data-wk-tab', [['todo', 'To do', groups.todo.length], ['doing', 'In progress', groups.doing.length], ['sent', 'Submitted', groups.sent.length], ['done', 'Completed', groups.done.length]], wk.tab) +
       '<div class="stack" style="gap:10px">' + (list.map(function (w) { return wkCard(w, 'mine'); }).join('') || wsEmpty('case', wk.tab === 'todo' ? 'Nothing to do right now' : 'Nothing here', wk.tab === 'todo' ? 'When someone assigns you work it appears here with its due date. Open a task to start it, ask a question or submit your work.' : 'Tasks move here as you work on them.')) + '</div>';
   }
   function wkSubsHtml() {
@@ -1697,6 +1704,8 @@
   }
   document.addEventListener('submit', function (e) {
     var f = e.target, x;
+    if (f.dataset.wkReassign) { e.preventDefault(); f.querySelector('button[type=submit]').disabled = true; return void wkAfter(f, sb.rpc('work_reassign', { item: +f.dataset.wkReassign, to_: f.to.value })); }
+    if (f.id === 'wk-self') { e.preventDefault(); f.querySelector('button[type=submit]').disabled = true; return void wkAfter(f, sb.rpc('work_assign', { assignee_: co.me.id, title_: f.title.value.trim(), instructions_: f.ins.value.trim() || null, due_: f.due.value || null }).then(function (r) { if (!r.error) { wk.tab = 'todo'; wk.open = r.data; } return r; })); }
     if (f.id === 'wk-assign') {
       e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
       return void wkAfter(f, sb.rpc('work_assign', { assignee_: f.who.value, title_: f.title.value.trim(), instructions_: f.ins.value.trim() || null, due_: f.due.value || null, priority_: f.pri.value, project_: f.proj && f.proj.value ? +f.proj.value : null }).then(function (r) { if (!r.error) { wk.ttab = 'active'; wk.open = r.data; } return r; }));
@@ -1704,6 +1713,7 @@
     if ((x = f.dataset.wkForm)) {
       e.preventDefault(); var note = f.note ? f.note.value.trim() : '', link = f.link ? f.link.value.trim() : '';
       if (x === 'submit' && !note && !link) return LZ.setMsg(f.querySelector('.msg'), 'Describe what you did or add a link to the work.', 'err');
+      if (x === 'submit' && !link && wkLinkReq()) return LZ.setMsg(f.querySelector('.msg'), 'Add a link to the finished work.', 'err');
       if (x !== 'submit' && !note) return LZ.setMsg(f.querySelector('.msg'), x === 'return' ? 'Say what needs correcting.' : 'Write a comment first.', 'err');
       f.querySelector('button[type=submit]').disabled = true;
       return void wkAfter(f, sb.rpc('work_act', { item: +f.dataset.id, act: x, note: note || null, link_: link || null }).then(function (r) { if (!r.error && x === 'submit') wk.tab = 'sent'; if (!r.error && x === 'return') wk.ttab = 'active'; return r; }));
@@ -1721,6 +1731,115 @@
       if (a === 'cancel' && !confirm('Cancel this task? The person is told it is no longer needed.')) return;
       x.disabled = true;
       return void wkAfter(null, sb.rpc('work_act', { item: +x.dataset.id, act: a }).then(function (r) { if (!r.error && a === 'start') wk.tab = 'doing'; if (!r.error && a === 'approve') wk.ttab = 'done'; return r; }));
+    }
+  });
+
+  // ===== Settings split: Organization Settings (side menu), Set Up (top bar, public), General Settings (everything) =====
+  var ORG_SET = [
+    ['ostruct', 'flow', 'Structure', 'Departments, teams and the five levels of Lytmoz.'],
+    ['opos', 'shield', 'Positions & permissions', 'Every position, what it sees and what it may do.'],
+    ['ojoin', 'members', 'Joining & leaving', 'How long invitations last and what happens when someone leaves.'],
+    ['owork', 'case', 'Work rules', 'Who assigns and reviews work, and what a submission needs.'],
+    ['ows', 'home', 'Staff workspace', 'What staff without a position see, and the welcome message.']
+  ];
+  var PUB_SET = [
+    ['org', 'pin', 'Business details', 'Contact number and social pages shown across Lytmoz.'],
+    ['web', 'web', 'Website & Public Content', 'The home page and every other public page.'],
+    ['services', 'case', 'Services & Expertise', 'Services clients can request and the specialists you work with.'],
+    ['consult', 'chat', 'Consultation & Intake', 'How a consultation is done, its levels, and where lawyers come in.'],
+    ['billing', 'wallet', 'Billing & Pricing', 'Public prices, payment details and subscriptions.'],
+    ['privacy', 'shield', 'Privacy & Policy', 'The privacy policy, and how client chat privacy works.'],
+    ['tab:menu', 'menu', 'Top menu', 'Rename, hide and reorder the buttons in the top bar.']
+  ];
+  var SYS_SET = [
+    ['account', 'members', 'Your owner account', 'Your name and password.'],
+    ['notify', 'bell', 'Notifications & Integrations', 'Where alerts go, and Paystack and Mobile Money.'],
+    ['flow', 'flow', 'Project stages', 'The stages clients see as their project moves forward.'],
+    ['security', 'key', 'Security summary', 'Who can see money, client data and invitations.']
+  ];
+  var ORG_KEYS = { omenu: 1, ostruct: 1, opos: 1, ojoin: 1, owork: 1, ows: 1 };
+  var SITE_SCREENS = { menu: 1, web: 1, home: 1, consult: 1, pricing: 1, privacy: 1, org: 1, services: 1, billing: 1 };
+  var os = null, osBusy = null;
+  function loadOrgSet() {
+    if (osBusy) return osBusy;
+    osBusy = Promise.all([sb.from('org_settings').select('*').eq('id', 1).single().then(check), sb.from('authority_settings').select('rules').eq('id', 1).single().then(check)])
+      .then(function (r) { os = r[0]; os.rules = r[1].rules || {}; osBusy = null; return os; }, function (err) { osBusy = null; throw err; });
+    return osBusy;
+  }
+  function section(title, sub, list) { return '<section class="stack" style="gap:10px"><div><h3 class="set-sec">' + title + '</h3><p class="muted" style="margin:2px 0 0;font-size:13.5px">' + sub + '</p></div><div class="card" style="padding:8px 14px">' + rows(list) + '</div></section>'; }
+  function tog(name, on, label, sub) { return '<label class="cat-ck"><input type="checkbox" name="' + name + '"' + (on ? ' checked' : '') + '><span><strong>' + label + '</strong>' + (sub ? '<small>' + sub + '</small>' : '') + '</span></label>'; }
+  function osForm(id, body) { return '<form class="card stack" id="' + id + '" style="gap:14px">' + body + '<div class="row"><button class="btn" type="submit">Save</button><p class="msg" role="status" style="margin:0"></p></div></form>'; }
+  function orgScreen(v) { // returns html, or null while loading
+    if (v === 'omenu') return screen('org', 'Organization Settings', 'How Lytmoz runs inside: structure, positions, joining and leaving, work and workspaces.', '<div class="card" style="padding:8px 14px">' + rows(ORG_SET) + '</div>' + NOTE('Public things (website, prices, privacy policy) are under Set Up in the top bar. General Settings at the bottom of the side menu has everything in one place.'));
+    if (v === 'ostruct') return screen('flow', 'Structure', 'Departments, teams and levels.', '<div class="card" style="padding:8px 14px">' + rows([['tab:co:departments', 'flow', 'Departments', 'Create departments and appoint their heads.'], ['tab:co:teams', 'team', 'Teams', 'Teams inside each department and their leaders.'], ['tab:co:board', 'biz', 'Board of Directors', 'Board seats and who holds them.'], ['tab:co:exec', 'case', 'Executive Management', 'CEO, COO and other executives.']]) + '</div>' +
+      info([1, 2, 3, 4, 5].map(function (l) { return ['Level ' + l + ' · ' + LEVEL_NAMES[l], { 1: 'Board Chair, Board Members and Board Secretary. Oversight; they report to you.', 2: 'CEO, COO and other executives. They run Lytmoz day to day.', 3: 'Department heads and managers such as the HR Manager.', 4: 'Team leaders inside a department.', 5: 'Everyone else: accountants, developers, receptionists and support staff.' }[l]]; })));
+    if (v === 'opos') return screen('shield', 'Positions & permissions', 'What each position sees and may do.', '<div class="card" style="padding:8px 14px">' + rows([['tab:co:positions', 'doc', 'Position Catalogue', 'Duties, workspace sections and permissions for every position, and adjustments for one person.'], ['tab:co:authority', 'shield', 'What each level may do', 'The switches for department heads and staff.']]) + '</div>' + NOTE('Every permission is checked by the system on each action, not only hidden on screen.'));
+    if (!os) { loadOrgSet().then(setRender).catch(function (err) { $('set-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; }); return '<p class="muted">Loading…</p>'; }
+    if (v === 'ojoin') return screen('members', 'Joining & leaving', 'Invitations and departures.', osForm('os-join',
+      '<label>An invitation link stays valid for<select name="days">' + [1, 2, 3, 5, 7, 10, 14, 21, 30].map(function (d) { return '<option value="' + d + '"' + (d === os.invite_days ? ' selected' : '') + '>' + d + (d === 1 ? ' day' : ' days') + '</option>'; }).join('') + '</select></label>' +
+      '<label>When someone leaves Lytmoz, their open tasks are<select name="leave"><option value="cancel"' + (os.leave_tasks === 'cancel' ? ' selected' : '') + '>Cancelled</option><option value="hold"' + (os.leave_tasks === 'hold' ? ' selected' : '') + '>Kept, waiting for you or their manager to reassign them</option></select></label>') +
+      info([['Who issues invitation links', 'Only you. HR, executives with "Ask the owner to invite" and department heads (for their own department) send you requests to approve. Board and executive seats are invited by you only.'], ['When someone is removed', 'Removing a title ends what that title gave them. Removing someone from Lytmoz ends their HQ access, workspace, positions and permissions at once.']]));
+    if (v === 'owork') return screen('case', 'Work rules', 'How tasks are assigned, submitted and reviewed.', osForm('os-work',
+      tog('assign', os.rules.head_assign_work, 'Department heads may assign work in their department', 'Executives and people someone reports to can always assign.') +
+      tog('review', os.rules.head_review_work, 'Department heads may review work in their department', 'The person who assigned a task can always review it.') +
+      tog('link', os.submit_link_required, 'Every submission must include a link to the work', 'For example a Google Doc, a design file or a page. Staff cannot submit without one.') +
+      tog('self', os.self_tasks, 'Staff may add tasks for themselves', 'Their manager (or their department head, or you) reviews them.')) + NOTE('Nobody can approve their own work, whatever these settings say.'));
+    if (v === 'ows') return screen('home', 'Staff workspace', 'What staff see when they sign in.', osForm('os-ws',
+      '<fieldset class="cat-fs"><legend>Sections for staff without a position yet</legend><div class="cat-grid">' + Object.keys(BLOCKS).filter(function (b) { return !BLOCKS[b][3]; }).map(function (b) { return tog('b:' + b, (os.default_blocks || []).indexOf(b) >= 0 || b === 'duties', BLOCKS[b][1], BLOCKS[b][2]); }).join('') + '</div><p class="muted" style="margin:6px 0 0;font-size:13px">People with a position see that position\'s sections, set in the Position Catalogue.</p></fieldset>' +
+      '<label><span>Welcome message under the greeting <span class="muted" style="font-weight:400">· optional</span></span><input name="welcome" maxlength="200" value="' + esc(os.welcome || '') + '" placeholder="Your work environment is ready. Let\'s make it happen today."></label>'));
+    return null;
+  }
+  function sysScreen(v) {
+    if (v === 'account') { var me = co.me || {}; return screen('members', 'Your owner account', 'Only you can change these.', '<form class="card stack" id="os-name" style="gap:12px"><label>Your name<input name="name" required maxlength="120" value="' + esc(me.name || '') + '"></label><div class="kv" style="justify-content:space-between"><span class="muted">Email</span><strong style="overflow-wrap:anywhere">' + esc(me.email || '') + '</strong></div><div class="row"><button class="btn" type="submit">Save name</button><p class="msg" role="status" style="margin:0"></p></div></form>' +
+      '<form class="card stack" id="os-pw" style="gap:12px"><h2 style="font-size:17px">Change your password</h2><label>New password<input type="password" name="pw" minlength="8" required autocomplete="new-password"></label><label>Type it again<input type="password" name="pw2" minlength="8" required autocomplete="new-password"></label><div class="row"><button class="btn" type="submit">Change password</button><p class="msg" role="status" style="margin:0"></p></div></form>'); }
+    if (v === 'security') {
+      Promise.all([sb.from('positions').select('id, title').then(check), sb.from('permission_grants').select('*').then(check), sb.from('position_assignments').select('position_id, profile_id, ends_on').then(check), sb.from('staff_invites').select('id').eq('status', 'pending').then(check), sb.rpc('org_people').then(check)]).then(function (r) {
+        var today = new Date().toISOString().slice(0, 10), nm = {}; (r[4] || []).forEach(function (p) { nm[p.id] = p.name; });
+        var lines = [['finance.approve', 'Confirm client payments'], ['finance.view', 'See payments and invoices'], ['clients.view', 'See client projects and details'], ['support.reply', 'Reply to clients as Lytmoz'], ['reports.view', 'See company figures'], ['invites.request', 'Ask you to invite people']].map(function (k) {
+          var who = {}; r[1].filter(function (g) { return g.permission === k[0] && !g.deny; }).forEach(function (g) {
+            if (g.profile_id) who[g.profile_id] = 1;
+            if (g.position_id) r[2].filter(function (a) { return a.position_id === g.position_id && (!a.ends_on || a.ends_on >= today); }).forEach(function (a) { who[a.profile_id] = 1; });
+          });
+          r[1].filter(function (g) { return g.permission === k[0] && g.deny && g.profile_id; }).forEach(function (g) { delete who[g.profile_id]; });
+          var names = Object.keys(who).map(function (id) { return nm[id]; }).filter(Boolean);
+          return [k[1], names.length ? esc(names.join(', ')) : 'Nobody except you'];
+        });
+        if (setStack[setStack.length - 1] !== 'security') return;
+        $('sec-body').innerHTML = info(lines) + info([['Invitations waiting to be accepted', String(r[3].length)], ['Personal adjustments', r[1].filter(function (g) { return g.profile_id; }).length + ' (see the Position Catalogue)'], ['How access is enforced', 'The system checks every action on the server. People removed from Lytmoz lose access at once. Only you issue invitation links.']]);
+      }).catch(function (err) { var b = $('sec-body'); if (b) b.innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
+      return screen('key', 'Security summary', 'Who can reach sensitive information right now.', '<div id="sec-body" class="stack"><p class="muted">Loading…</p></div>');
+    }
+    return null;
+  }
+  function generalMenu() {
+    return '<div class="head">' + IC('gear') + '<div><h2 class="serif" style="font-size:28px;line-height:1.1">General Settings</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Everything Lytmoz can be set up with, in one place.</p></div></div>' +
+      section('Organization', 'How Lytmoz runs inside. Also in Organization Settings in the side menu.', ORG_SET) +
+      section('Public site & clients', 'What visitors and clients see. Also under Set Up in the top bar.', PUB_SET) +
+      section('Account & system', 'Your account, alerts, connections and security.', SYS_SET);
+  }
+  function osDone(f, p, okText) {
+    var b = f.querySelector('button[type=submit]'), m = f.querySelector('.msg'); b.disabled = true;
+    return p.then(function () { b.disabled = false; LZ.setMsg(m, okText || 'Saved.', 'ok'); }).catch(function (err) { b.disabled = false; LZ.setMsg(m, err.message, 'err'); });
+  }
+  document.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (f.id === 'os-join') { e.preventDefault(); return void osDone(f, sb.from('org_settings').update({ invite_days: +f.days.value, leave_tasks: f.leave.value, updated_at: new Date().toISOString() }).eq('id', 1).then(check).then(function () { os.invite_days = +f.days.value; os.leave_tasks = f.leave.value; })); }
+    if (f.id === 'os-work') {
+      e.preventDefault(); var rules = Object.assign({}, os.rules, { head_assign_work: f.assign.checked, head_review_work: f.review.checked });
+      return void osDone(f, Promise.all([sb.from('authority_settings').update({ rules: rules, updated_at: new Date().toISOString() }).eq('id', 1).then(check), sb.from('org_settings').update({ submit_link_required: f.link.checked, self_tasks: f.self.checked, updated_at: new Date().toISOString() }).eq('id', 1).then(check)]).then(function () { os.rules = rules; co.rules = rules; os.submit_link_required = f.link.checked; os.self_tasks = f.self.checked; }));
+    }
+    if (f.id === 'os-ws') {
+      e.preventDefault(); var bl = [].slice.call(f.querySelectorAll('input[type=checkbox]:checked')).map(function (i) { return i.name.slice(2); }); if (bl.indexOf('duties') < 0) bl.unshift('duties');
+      return void osDone(f, sb.from('org_settings').update({ default_blocks: bl, welcome: f.welcome.value.trim() || null, updated_at: new Date().toISOString() }).eq('id', 1).then(check).then(function () { os.default_blocks = bl; os.welcome = f.welcome.value.trim() || null; }));
+    }
+    if (f.id === 'os-name') {
+      e.preventDefault(); var me = co.me || {}, nmv = f.name.value.trim();
+      return void osDone(f, sb.rpc('update_my_profile', { p_name: nmv, p_phone: me.phone || null, p_company: me.company || null, p_contact_pref: me.contact_pref || 'whatsapp', p_best_time: me.best_time || null }).then(check).then(function () { me.name = nmv; $('me-name').textContent = nmv; $('me-av').textContent = initialsOf(nmv); }));
+    }
+    if (f.id === 'os-pw') {
+      e.preventDefault();
+      if (f.pw.value !== f.pw2.value) return LZ.setMsg(f.querySelector('.msg'), 'The two passwords are not the same.', 'err');
+      return void osDone(f, sb.auth.updateUser({ password: f.pw.value }).then(function (r) { if (r.error) throw r.error; f.reset(); }), 'Password changed. Use it next time you sign in.');
     }
   });
 
@@ -1756,17 +1875,16 @@
         ['reports:req', 'projects', 'Requests & projects', 'Requests per month and projects by stage.'],
         ['reports:cli', 'members', 'Clients & businesses', 'New clients and businesses over time.']] },
       { key: 'activity', icon: 'activity', label: 'System Logs', desc: 'A record of every change made in HQ and the client portal.' },
-      { id: 'set', icon: 'gear', label: 'Settings', items: [
-        ['settings', 'gear', 'All settings', 'Every Lytmoz setting in one place.'],
-        ['set:web', 'web', 'Website & content', 'Edit and publish the public website.'],
-        ['set:org', 'pin', 'Business details', 'WhatsApp number and social links.'],
-        ['set:billing', 'wallet', 'Billing & pricing', 'Public prices, payment details and subscriptions.'],
-        ['set:notify', 'bell', 'Notifications', 'Where alerts go and what Lytmoz is connected to.'],
-        ['set:privacy', 'shield', 'Privacy & Policy', 'The privacy policy visitors and clients read.'],
-        ['menu', 'menu', 'Top menu', 'Rename, hide and reorder the buttons in the top bar.']] },
+      { id: 'set', icon: 'gear', label: 'Organization Settings', items: [
+        ['set:ostruct', 'flow', 'Structure', 'Departments, teams and the five levels.'],
+        ['set:opos', 'shield', 'Positions & permissions', 'What each position sees and may do.'],
+        ['set:ojoin', 'members', 'Joining & leaving', 'Invitations and what happens when someone leaves.'],
+        ['set:owork', 'case', 'Work rules', 'Assigning, submitting and reviewing work.'],
+        ['set:ows', 'home', 'Staff workspace', 'What staff see when they sign in.']] },
       { id: 'help', icon: 'help', label: 'Help & Support', items: [
         ['help', 'help', 'How HQ works', 'What every button in Admin HQ does.'],
-        ['messages', 'support', 'Client support', 'Answer clients who need help.']] }
+        ['messages', 'support', 'Client support', 'Answer clients who need help.']] },
+      { key: 'settings', icon: 'gear', label: 'General Settings', desc: 'Every setting in one place: organization, public site and account.' }
     ],
     bar: [
       { id: 'b-dash', icon: 'overview', label: 'Dashboard Overview', desc: 'Your starting page.', items: [['dash', 'overview', 'Overview']] },
@@ -1775,12 +1893,12 @@
       { id: 'b-inbox', icon: 'chat', label: 'Inbox', desc: 'Messages, support, email and consultations.', items: [['chat', 'chat', 'Messages'], ['messages', 'support', 'Support'], ['email', 'inbox', 'Email'], ['leads', 'inbox', 'Consultations']] },
       { id: 'b-members', icon: 'members', label: 'Members', desc: 'People who log into the client portal and their businesses.', items: [['members', 'members', 'Client members'], ['orgs', 'biz', 'Businesses']] },
       { id: 'b-billing', icon: 'billing', label: 'Billing', desc: 'Invoices, payments and recurring plans.', items: [['payments', 'billing', 'Payments & invoices'], ['subs', 'subs', 'Subscriptions'], ['set:pricing', 'tag', 'Public prices']] },
-      { id: 'b-setup', icon: 'gear', label: 'Set Up', desc: 'Client accounts, logs, the public website and this menu.', items: [['infra', 'key', 'Client accounts'], ['activity', 'activity', 'Activity log'], ['set:web', 'web', 'Website editing'], ['set:org', 'pin', 'Business details'], ['set:privacy', 'shield', 'Privacy & Policy'], ['menu', 'menu', 'Edit top menu']] }
+      { id: 'b-setup', icon: 'gear', label: 'Set Up', desc: 'Client accounts, logs, the public website and this menu.', items: [['infra', 'key', 'Client accounts'], ['activity', 'activity', 'Activity log'], ['set:web', 'web', 'Website editing'], ['set:org', 'pin', 'Business details'], ['set:services', 'case', 'Services & Expertise'], ['set:consult', 'chat', 'Consultation & Intake'], ['set:billing', 'wallet', 'Billing & Pricing'], ['set:privacy', 'shield', 'Privacy & Policy'], ['menu', 'menu', 'Edit top menu']] }
     ]
   };
   var PUB = { dash: ['overview', 'Overview'], projects: ['projects', 'Clients & projects'], svc: ['services', 'Service requests'], requests: ['edit', 'Change requests'], sites: ['sites', 'Websites & apps'], files: ['files', 'Client files'],
     reports: ['chart', 'Reports'], payments: ['billing', 'Payments'], chat: ['chat', 'Messages'], messages: ['support', 'Support'], email: ['inbox', 'Email'], leads: ['inbox', 'Consultations'], members: ['members', 'Client members'], orgs: ['biz', 'Businesses'],
-    subs: ['subs', 'Subscriptions'], 'set:pricing': ['tag', 'Public prices'], infra: ['key', 'Client accounts'], activity: ['activity', 'Activity log'], 'set:web': ['web', 'Website editing'], 'set:org': ['pin', 'Business details'], 'set:privacy': ['shield', 'Privacy & Policy'], menu: ['menu', 'Edit top menu'] };
+    subs: ['subs', 'Subscriptions'], 'set:pricing': ['tag', 'Public prices'], infra: ['key', 'Client accounts'], activity: ['activity', 'Activity log'], 'set:web': ['web', 'Website editing'], 'set:org': ['pin', 'Business details'], 'set:privacy': ['shield', 'Privacy & Policy'], menu: ['menu', 'Edit top menu'], 'set:services': ['case', 'Services & Expertise'], 'set:consult': ['chat', 'Consultation & Intake'], 'set:billing': ['wallet', 'Billing & Pricing'] };
   var hqMenu = null, chatUnread = 0, hqChat = null;
   function barMenu() { // the owner's saved top menu, keeping only public items; falls back to the default
     var m = hqMenu && Array.isArray(hqMenu) ? hqMenu.map(function (b) { return { id: b.id, icon: b.icon || 'overview', label: String(b.label || '').slice(0, 40) || 'Menu', hidden: !!b.hidden, items: (b.items || []).filter(function (i) { return PUB[i[0]]; }).map(function (i) { return [i[0], PUB[i[0]][0], String(i[1] || PUB[i[0]][1]).slice(0, 40), !!i[2]]; }) }; }) : null;
@@ -1845,7 +1963,7 @@
     var btn = document.querySelector(sel); if (!btn) return;
     hqKey = key; btn.click();
     if (tab === 'company' && sub) { co.tab = sub; if (co.loaded) renderCompany(); }
-    if (tab === 'settings' && sub) { setStack = sub === 'pricing' ? ['menu', 'orgmenu', 'billing', 'pricing'] : ['menu', 'orgmenu', sub]; if (siteLoaded) setRender(); }
+    if (tab === 'settings') { setStack = !sub ? ['menu'] : sub === 'pricing' ? ['menu', 'billing', 'pricing'] : ORG_KEYS[sub] ? (sub === 'omenu' ? ['omenu'] : ['omenu', sub]) : ['menu', sub]; if (siteLoaded) setRender(); }
     if (tab === 'dash') dashLoad();
     if (tab === 'reports') renderReports(sub);
     if (tab === 'help') renderHelp();

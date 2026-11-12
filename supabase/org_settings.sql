@@ -1,0 +1,7 @@
+-- Applied as migration `org_settings` (12 Nov 2026).
+-- org_settings (one row): invite_days (1–30), leave_tasks ('cancel' | 'hold'), submit_link_required, self_tasks,
+-- default_blocks (workspace sections for staff without a position), welcome (workspace greeting line).
+-- Staff read it, only the owner changes it. org_setting(key) reads one value inside database rules.
+-- Enforced by: invite_expiry trigger on staff_invites; staff_left(); work_act (link required); work_assign (own tasks,
+-- reviewed by the person's manager, department head or the owner). work_reassign(item, to) moves an open task.
+-- my_workspace() returns these settings to staff.

@@ -522,3 +522,4 @@ body.staff-mode .hq-nav .nav-i[aria-selected="true"] .ic{color:#1a120b}
 .asg-ask .btn span{display:flex;flex-direction:column;gap:2px}.asg-ask .btn small{font-weight:400;font-size:12.5px;color:var(--muted);white-space:normal}
 .asg-ask .btn.danger strong{color:#E8A08A}
 .asg-ask .linkish{align-self:flex-start}
+.set-sec{margin:6px 0 0;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--copper)}

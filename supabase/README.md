@@ -111,3 +111,4 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - Bell: "Client & Public" and "Internal Organization" groups; staff work and reported conversations open the exact item (`data-deep`).
 - Edit top menu shows a live preview; hiding never changes access. Picture menu → My account.
 - **Reports & Quality** (`supabase/quality.sql`): Delivery reviews (quality checklist for projects at stage 6 · Review), Client feedback (clients rate delivered projects in the portal), Project performance (stage, time since start, change requests, last quality check, rating).
+- **Billing additions** (`supabase/billing_adjustments.sql`): Billing → Outstanding balances (per client, oldest first, overdue marked, WhatsApp/email reminder) and Refunds & adjustments (discount, write-off, refund, each with a reason). Clients see the new amounts and "was … before a discount" in the portal.

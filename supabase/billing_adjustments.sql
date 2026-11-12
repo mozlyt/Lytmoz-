@@ -1,0 +1,5 @@
+-- Applied as migration `billing_adjustments` (12 Nov 2026).
+-- billing_adjustments: discount | writeoff | refund, amount, reason (required), who and when. Created only through
+--   billing_adjust(invoice, kind, amount, reason) by the owner or staff with billing.manage.
+--   Discount / write-off lowers invoices.amount_cents (original kept in original_amount_cents); writing off a whole unpaid
+--   invoice voids it. Refund lowers paid: invoice_resync() = confirmed payments - refunds, used by the payments trigger too.

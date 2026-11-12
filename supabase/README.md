@@ -52,3 +52,9 @@ Project: `lytmoz` (ref `rfcyjjtujrgzneokjfmd`, London). Separate from the MOZLYT
 - Department heads can invite into their own department only when Authority Settings → `head_invite` is on (off by default).
 - **dept_posts** is department communication, readable and writable by that department and the owner.
 - Staff and heads sign in at `admin.html` and get their own workspace (Overview, My Work, Submissions, Department, Messages, My Profile). Changes to staff, departments, memberships, invitations and authority are recorded in `activity_logs`.
+
+## Admin HQ layout (owner)
+
+- The owner sees a left sidebar (Organization Structure, Projects & Tasks, Communication, Reports & Analytics, System Logs, Settings, Help & Support, Log out) and a top bar (Dashboard Overview, Work, Report and Review, Inbox, Members, Billing, Set Up, bell, account menu). Both are built from `NAV` in `admin.html`; `goTo(key)` opens a section. Staff and department heads keep their own workspace menu.
+- The dashboard is computed in the browser from the latest rows of each table (up to 1,000 per table), so its figures are exact at Lytmoz's current size.
+- Owner / Founder, Board of Directors, CEO, Executive Management and Teams use `positions` (level 1 = governance, 2 = executive), `position_assignments` and `teams` / `team_members`.

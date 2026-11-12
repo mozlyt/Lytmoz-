@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/hq-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=14">
+<link rel="stylesheet" href="assets/app.css?v=15">
 <link rel="manifest" href="/hq.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
 <meta name="mobile-web-app-capable" content="yes">
@@ -98,6 +98,10 @@
 <symbol id="i-scales" viewBox="0 0 24 24"><path d="M12 4v16M7.5 20h9M5 7.5h14M5 7.5l-2.500 6a2.700 2.700 0 0 0 5 0zM19 7.5l-2.500 6a2.700 2.700 0 0 0 5 0z"/></symbol>
 <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.3"/></symbol>
 <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9.5L12 5l9.500 4.5L12 14z"/><path d="M6.5 11.700v4c1.500 1.400 3.300 2.100 5.500 2.100s4-.7 5.500-2.100v-4"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></symbol>
 <symbol id="i-members" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.5 20c.8-3.9 3.7-6 7.5-6s6.7 2.1 7.5 6"/></symbol>
 <symbol id="i-subs" viewBox="0 0 24 24"><path d="M20 11.5a8 8 0 0 0-14.3-4.9L4 8.5M4 4.5v4h4M4 12.5a8 8 0 0 0 14.3 4.9l1.7-1.9M20 19.5v-4h-4"/></symbol>
 <symbol id="i-biz" viewBox="0 0 24 24"><path d="M4.5 20.5v-14a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v14M15.5 9.5h2a2 2 0 0 1 2 2v9M3 20.5h18M8 8.5h4M8 12h4M8 15.5h4"/></symbol>
@@ -108,9 +112,21 @@
 </svg>
 
 <div class="wrap hq">
-<nav class="hq-nav" role="tablist" aria-label="HQ"><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Overview</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="work"><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><span>My Work</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="submissions"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg><span>Submissions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="department"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Department</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Messages</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="profile"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>My Profile</span></button><p class="ws muted">Lytmoz</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Organization</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="departments"><svg class="ic" aria-hidden="true"><use href="#i-flow"/></svg><span>Departments</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>People &amp; Roles</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="chart"><svg class="ic" aria-hidden="true"><use href="#i-net"/></svg><span>Organization Chart</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="authority"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>Authority Settings</span></button><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="payments"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Payments</span><span id="nb-pay" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button><p class="ws muted">Setup</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></button></nav>
+<aside id="side" class="side" aria-label="Admin HQ">
+<a class="side-brand" href="/"><img src="assets/favicon.svg" width="38" height="38" alt=""><span><strong>Lytmoz</strong><small>Admin HQ</small></span></a>
+<nav id="side-nav" class="side-nav" aria-label="Main menu"></nav>
+<div class="side-card"><svg class="ic" aria-hidden="true"><use href="#i-crown"/></svg><strong>Lytmoz Enterprise</strong><span>Build · Manage · Scale</span></div>
+</aside>
+<div id="side-shade" class="side-shade"></div>
+<nav class="hq-nav" role="tablist" aria-label="HQ"><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Overview</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="work"><svg class="ic" aria-hidden="true"><use href="#i-case"/></svg><span>My Work</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="submissions"><svg class="ic" aria-hidden="true"><use href="#i-doc"/></svg><span>Submissions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="department"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Department</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Messages</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="ws" data-ws-tab="profile"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>My Profile</span></button><p class="ws muted">Lytmoz</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-org"/></svg><span>Organization</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="departments"><svg class="ic" aria-hidden="true"><use href="#i-flow"/></svg><span>Departments</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>People &amp; Roles</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="chart"><svg class="ic" aria-hidden="true"><use href="#i-net"/></svg><span>Organization Chart</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="company" data-co-tab="authority"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>Authority Settings</span></button><p class="ws muted">Inbox</p><button type="button" class="nav-i" role="tab" aria-selected="true" data-tab="leads"><svg class="ic" aria-hidden="true"><use href="#i-inbox"/></svg><span>Consultations</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="messages"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span>Messages</span><span id="unread" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg><span>Service requests</span><span id="nb-svc" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="payments"><svg class="ic" aria-hidden="true"><use href="#i-billing"/></svg><span>Payments</span><span id="nb-pay" class="nb" hidden></span></button><p class="ws muted">Work</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="projects"><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><span>Clients &amp; projects</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span>Websites &amp; apps</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="files"><svg class="ic" aria-hidden="true"><use href="#i-files"/></svg><span>Client files</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="requests"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg><span>Change requests</span></button><p class="ws muted">Clients</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="members"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg><span>Members</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="orgs"><svg class="ic" aria-hidden="true"><use href="#i-biz"/></svg><span>Businesses</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="infra"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Client accounts</span><span id="nb-infra" class="nb" hidden></span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="subs"><svg class="ic" aria-hidden="true"><use href="#i-subs"/></svg><span>Subscriptions</span></button><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="activity"><svg class="ic" aria-hidden="true"><use href="#i-activity"/></svg><span>Activity</span></button><p class="ws muted">Setup</p><button type="button" class="nav-i" role="tab" aria-selected="false" data-tab="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg><span>Settings</span></button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="dash" tabindex="-1">dash</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="reports" tabindex="-1">reports</button><button type="button" class="nav-i x" role="tab" aria-selected="false" data-tab="help" tabindex="-1">help</button></nav>
 <main class="hq-main stack" style="gap:22px">
-<div>
+<div id="hq-bar" class="hq-bar">
+<button type="button" id="side-open" class="icon-btn" aria-label="Open the menu" aria-expanded="false" aria-controls="side"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+<nav id="bar-menu" class="bar-menu" aria-label="Top menu"></nav>
+<div class="bar-r"><button type="button" id="bell" class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span id="bell-n" class="bm-n" hidden></span></button><button type="button" id="me-btn" class="me-btn" aria-haspopup="true" aria-expanded="false" aria-label="Your account"><span class="av" id="me-av"></span><span id="me-name"></span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button></div>
+</div>
+<div id="dd" class="dd" hidden></div>
+<div id="greet-box">
 <div><p class="muted" id="today" style="margin:0 0 4px"></p><h1 class="serif" style="font-size:42px">Good <span id="greet">day</span>.</h1></div>
 
 </div>
@@ -121,6 +137,16 @@
 <div class="card stat"><div class="k">Recurring income / month</div><div class="v" id="s-care" style="color:var(--copper)">$0</div></div>
 <div class="card stat"><div class="k">Invoices due</div><div class="v" id="s-due">$0</div></div>
 </section>
+
+<section data-panel="dash" class="stack" hidden style="gap:20px">
+<div class="dash-head"><div class="row" style="gap:14px;flex-wrap:nowrap"><span class="co-ic"><svg class="ic" aria-hidden="true"><use href="#i-overview"/></svg></span><div><h1 class="serif" style="font-size:34px;line-height:1.1;margin:0;font-weight:400">Admin Dashboard</h1><p class="muted" style="margin:4px 0 0">Manage client requests, monitor activities and grow the platform.</p></div></div>
+<div class="row" style="gap:10px"><select id="d-period" aria-label="Period"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="0">All time</option></select><select id="d-biz" aria-label="Business"><option value="">All businesses</option></select></div></div>
+<div id="d-stats" class="dash-stats"><p class="muted">Loading…</p></div>
+<div class="dash-g1"><div class="card stack" id="d-req"></div><div class="card stack" id="d-act"></div><div class="card qa"><h2 class="qa-h"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg>Quick actions</h2><div class="qa-b"><button type="button" class="qa-i" data-qa="svc"><svg class="ic" aria-hidden="true"><use href="#i-services"/></svg>Assign request</button><button type="button" class="qa-i" data-qa="messages"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Send message</button><button type="button" class="qa-i" data-qa="project"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Create project</button><button type="button" class="qa-i" data-qa="co:people"><svg class="ic" aria-hidden="true"><use href="#i-members"/></svg>Add member</button><button type="button" class="qa-i" data-qa="reports"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg>View reports</button></div></div></div>
+<div class="dash-g2"><div class="card stack" id="d-msg" style="gap:10px"></div><div class="card stack" id="d-top" style="gap:10px"></div><div class="card stack" id="d-sys" style="gap:6px"></div></div>
+</section>
+<section data-panel="reports" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">Reports &amp; Analytics</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">Revenue, requests, projects and clients over the last six months.</p></div></div><div id="reports-view" class="stack"></div></section>
+<section data-panel="help" class="stack" hidden><div class="head"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg><div><h2 class="serif" style="font-size:28px;line-height:1.1">How HQ works</h2><p class="muted sub" style="margin:4px 0 0;font-size:14px">What every button in Admin HQ does. Tap one to go there.</p></div></div><div id="help-view" class="stack"></div></section>
 
 <section data-panel="leads" class="card stack">
 <div class="row between"><h2 style="font-size:18px">Consultation requests</h2><span class="muted" style="font-size:13px">Newest first</span></div>
@@ -319,6 +345,7 @@
     co.me = p; co.role = role || 'owner';
     $('login').hidden = true; $('app').hidden = false;
     if (co.role !== 'owner') { // staff and department heads: Organization only
+      document.body.classList.remove('owner-mode');
       document.body.classList.add('staff-mode');
       $('who').textContent = p.name;
       $('greet').textContent = new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening';
@@ -328,11 +355,15 @@
       return;
     }
     document.body.classList.remove('staff-mode', 'is-head');
+    document.body.classList.add('owner-mode');
+    if (!$('side-nav').firstChild) buildShell();
+    $('me-name').textContent = p.name; $('me-av').textContent = initialsOf(p.name);
     $('who').textContent = p.name;
     var h = new Date().getHours();
     $('greet').textContent = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
     $('today').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
     load();
+    goTo('dash');
   }
   function fail(e) { console.error(e); if (/JWT|session/i.test(e.message)) showLogin(); }
 
@@ -949,6 +980,7 @@
         : '<p class="muted" style="margin:0;font-size:13.5px">Everyone at Lytmoz is already in this department.' + (coOwner() ? ' Add more people under People & Roles.' : '') + '</p>') : '') + '</div>';
   }
   function renderCompany() {
+    if (STRUCT_TABS[co.tab]) return renderStruct();
     var owner = coOwner(), staff = co.people.filter(function (p) { return p.level !== 'owner' }), owners = co.people.filter(function (p) { return p.level === 'owner'; });
     var headed = co.depts.filter(function (d) { return d.head; }).length, placed = {}; co.members.forEach(function (m) { placed[m.profile_id] = 1; });
     var loose = staff.filter(function (p) { return !placed[p.id]; });
@@ -1159,6 +1191,456 @@
     if (!co.loaded || !sec || sec.hidden || document.visibilityState !== 'visible' || $('ws-view').contains(document.activeElement)) return;
     sb.from('dept_posts').select('*').order('id', { ascending: false }).limit(300).then(check).then(function (rows) { if ((rows[0] || {}).id !== (co.posts[0] || {}).id) { co.posts = rows; renderWs(); } }).catch(function () {});
   }, 30000);
+
+  // ===== Owner HQ layout: sidebar, top bar, dashboard, reports, help, governance pages =====
+  var NAV = {
+    side: [
+      { id: 'org', icon: 'org', label: 'Organization Structure', items: [
+        ['co:owner', 'crown', 'Owner / Founder', 'Your overall authority and duties as owner.'],
+        ['co:board', 'biz', 'Board of Directors', 'Governance seats: chair, members and secretary.'],
+        ['co:ceo', 'members', 'CEO – Chief Executive', 'Who leads daily operations and reports to you.'],
+        ['co:exec', 'case', 'Executive Management', 'COO, CFO, CTO, CHRO, CMO and other executives.'],
+        ['co:departments', 'flow', 'Departments', 'Create departments and appoint their heads.'],
+        ['co:teams', 'team', 'Teams', 'Teams inside each department and their leaders.'],
+        ['co:people', 'members', 'Members & Staff', 'Invite and manage everyone who works for Lytmoz.'],
+        ['co:authority', 'shield', 'Roles & Permissions', 'What each level is allowed to do.']] },
+      { id: 'work', icon: 'projects', label: 'Projects & Tasks', items: [
+        ['projects', 'projects', 'Clients & projects', 'Every client project, its stage, updates and invoices.'],
+        ['svc', 'services', 'Service requests', 'New work clients have asked for.'],
+        ['requests', 'edit', 'Change requests', 'Changes clients want on their projects.'],
+        ['sites', 'sites', 'Websites & apps', 'The websites and apps you run for clients.'],
+        ['files', 'files', 'Client files', 'Files clients have uploaded.'],
+        ['infra', 'key', 'Client accounts', 'Accounts, domains and renewals for each client.']] },
+      { id: 'comm', icon: 'chat', label: 'Communication', items: [
+        ['messages', 'support', 'Inbox', 'Messages from clients.'],
+        ['leads', 'inbox', 'Consultations', 'Consultation requests sent from the website.']] },
+      { id: 'rep', icon: 'chart', label: 'Reports & Analytics', items: [
+        ['dash', 'overview', 'Dashboard overview', 'Key figures, requests and activity at a glance.'],
+        ['reports:rev', 'wallet', 'Revenue', 'Money received month by month and what is still owed.'],
+        ['reports:req', 'projects', 'Requests & projects', 'Requests per month and projects by stage.'],
+        ['reports:cli', 'members', 'Clients & businesses', 'New clients and businesses over time.']] },
+      { key: 'activity', icon: 'activity', label: 'System Logs', desc: 'A record of every change made in HQ and the client portal.' },
+      { id: 'set', icon: 'gear', label: 'Settings', items: [
+        ['settings', 'gear', 'All settings', 'Every Lytmoz setting in one place.'],
+        ['set:web', 'web', 'Website & content', 'Edit and publish the public website.'],
+        ['set:org', 'pin', 'Business details', 'WhatsApp number and social links.'],
+        ['set:billing', 'wallet', 'Billing & pricing', 'Public prices, payment details and subscriptions.'],
+        ['set:notify', 'bell', 'Notifications', 'Where alerts go and what Lytmoz is connected to.']] },
+      { id: 'help', icon: 'help', label: 'Help & Support', items: [
+        ['help', 'help', 'How HQ works', 'What every button in Admin HQ does.'],
+        ['messages', 'support', 'Client support', 'Answer clients who need help.']] }
+    ],
+    bar: [
+      { id: 'b-dash', icon: 'overview', label: 'Dashboard Overview', desc: 'Your starting page, reports and the system log.', items: [['dash', 'overview', 'Overview'], ['reports', 'chart', 'Reports & analytics'], ['activity', 'activity', 'System logs']] },
+      { id: 'b-work', icon: 'projects', label: 'Work', desc: 'Everything you are delivering for clients.', items: [['projects', 'projects', 'Clients & projects'], ['svc', 'services', 'Service requests'], ['requests', 'edit', 'Change requests'], ['leads', 'inbox', 'Consultations'], ['sites', 'sites', 'Websites & apps'], ['files', 'files', 'Client files']] },
+      { id: 'b-review', icon: 'chart', label: 'Report and Review', desc: 'Figures to study and things waiting for your check.', items: [['reports', 'chart', 'Reports'], ['payments', 'billing', 'Payments to confirm'], ['requests', 'edit', 'Change requests to review'], ['activity', 'activity', 'Activity log']] },
+      { key: 'messages', icon: 'chat', label: 'Inbox', badge: 'bb-inbox', desc: 'Client messages. The number shows unread ones.' },
+      { id: 'b-members', icon: 'members', label: 'Members', desc: 'Client logins, client businesses and Lytmoz staff.', items: [['members', 'members', 'Client members'], ['orgs', 'biz', 'Businesses'], ['infra', 'key', 'Client accounts'], ['co:people', 'team', 'Lytmoz staff'], ['co:departments', 'flow', 'Departments']] },
+      { id: 'b-billing', icon: 'billing', label: 'Billing', desc: 'Invoices, payments and recurring plans.', items: [['payments', 'billing', 'Payments & invoices'], ['subs', 'subs', 'Subscriptions'], ['set:pricing', 'tag', 'Public prices']] },
+      { id: 'b-setup', icon: 'gear', label: 'Set Up', desc: 'How Lytmoz is organised and configured.', items: [['settings', 'gear', 'Settings'], ['co:overview', 'org', 'Organization'], ['co:authority', 'shield', 'Roles & permissions'], ['set:web', 'web', 'Website editing']] }
+    ]
+  };
+  var CO_NATIVE = { overview: 1, departments: 1, people: 1, chart: 1, authority: 1 };
+  var STRUCT_TABS = { owner: 1, board: 1, ceo: 1, exec: 1, teams: 1 };
+  var hqKey = 'dash';
+  var ICN = function (n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
+  function initialsOf(n) { return String(n || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join(''); }
+
+  function buildShell() {
+    var side = NAV.side.map(function (g) {
+      if (g.key) return '<button type="button" class="sg-h solo" data-go="' + g.key + '">' + ICN(g.icon) + '<span>' + g.label + '</span></button>';
+      return '<div class="sg"><button type="button" class="sg-h" data-sg="' + g.id + '" aria-expanded="' + (g.id === 'org') + '">' + ICN(g.icon) + '<span>' + g.label + '</span>' + ICN('chev', 'sg-chev') + '</button>' +
+        '<div class="sg-items" id="sg-' + g.id + '"' + (g.id === 'org' ? '' : ' hidden') + '>' + g.items.map(function (i) { return '<button type="button" class="sg-i" data-go="' + i[0] + '">' + ICN(i[1]) + '<span>' + i[2] + '</span></button>'; }).join('') + '</div></div>';
+    }).join('');
+    $('side-nav').innerHTML = side + '<button type="button" class="sg-h solo" id="side-logout">' + ICN('logout') + '<span>Log out</span></button>';
+    $('bar-menu').innerHTML = NAV.bar.map(function (b) {
+      return b.key ? '<button type="button" class="bm" data-go="' + b.key + '">' + ICN(b.icon) + '<span>' + b.label + '</span><span class="bm-n" id="' + b.badge + '" hidden></span></button>'
+        : '<button type="button" class="bm" data-dd="' + b.id + '" aria-haspopup="true" aria-expanded="false">' + ICN(b.icon) + '<span>' + b.label + '</span>' + ICN('chev', 'bm-down') + '</button>';
+    }).join('');
+  }
+  function ddClose() {
+    var dd = $('dd'); if (dd.hidden) return; dd.hidden = true;
+    document.querySelectorAll('#hq-bar [aria-expanded="true"]:not(#side-open)').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+  }
+  function ddOpen(btn, html) {
+    var dd = $('dd'), was = btn.getAttribute('aria-expanded') === 'true';
+    ddClose(); if (was) return;
+    dd.innerHTML = html; dd.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    var r = btn.getBoundingClientRect(), w = dd.offsetWidth;
+    dd.style.top = Math.round(r.bottom + 8) + 'px';
+    dd.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - w - 12))) + 'px';
+    var first = dd.querySelector('button'); if (first) first.focus();
+  }
+  function ddItems(list) { return list.map(function (i) { return '<button type="button" class="dd-i" data-go="' + i[0] + '">' + ICN(i[1]) + '<span>' + i[2] + (i[3] ? '<small>' + i[3] + '</small>' : '') + '</span>' + (i[4] ? '<b class="bm-n">' + i[4] + '</b>' : '') + '</button>'; }).join(''); }
+  function markNav(key) {
+    document.querySelectorAll('#side [data-go],#bar-menu [data-go]').forEach(function (b) { if (b.dataset.go === key) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    var hit = document.querySelector('#side .sg-i[data-go="' + key + '"]');
+    if (hit) { var box = hit.parentNode; box.hidden = false; box.previousElementSibling.setAttribute('aria-expanded', 'true'); }
+    document.querySelectorAll('#bar-menu [data-dd]').forEach(function (b) {
+      var g = NAV.bar.filter(function (x) { return x.id === b.dataset.dd; })[0];
+      b.classList.toggle('on', !!(g && g.items.some(function (i) { return i[0] === key; })));
+    });
+  }
+  function goTo(key) {
+    var p = key.split(':'), tab = p[0] === 'co' ? 'company' : p[0] === 'set' ? 'settings' : p[0], sub = p[1];
+    var sel = tab === 'company' ? '.hq-nav .nav-i[data-tab="company"][data-co-tab="' + (CO_NATIVE[sub] ? sub : 'overview') + '"]' : '.hq-nav .nav-i[data-tab="' + tab + '"]';
+    var btn = document.querySelector(sel); if (!btn) return;
+    hqKey = key; btn.click();
+    if (tab === 'company' && sub) { co.tab = sub; if (co.loaded) renderCompany(); }
+    if (tab === 'settings' && sub) { setStack = sub === 'pricing' ? ['menu', 'orgmenu', 'billing', 'pricing'] : ['menu', 'orgmenu', sub]; if (siteLoaded) setRender(); }
+    if (tab === 'dash') dashLoad();
+    if (tab === 'reports') renderReports(sub);
+    if (tab === 'help') renderHelp();
+    markNav(key); ddClose(); sideOpen(false);
+    if (tab !== 'reports' || !sub) window.scrollTo(0, 0);
+  }
+  function sideOpen(on) { document.body.classList.toggle('side-open', on); $('side-open').setAttribute('aria-expanded', on ? 'true' : 'false'); }
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if (!document.body.classList.contains('owner-mode')) return;
+    if ((x = t.closest('[data-go]')) && !t.closest('[data-panel="company"] form')) { e.preventDefault(); goTo(x.dataset.go); return; }
+    if ((x = t.closest('[data-sg]'))) { var box = $('sg-' + x.dataset.sg), open = box.hidden; box.hidden = !open; x.setAttribute('aria-expanded', open ? 'true' : 'false'); return; }
+    if ((x = t.closest('[data-dd]'))) { var g = NAV.bar.filter(function (b) { return b.id === x.dataset.dd; })[0]; ddOpen(x, ddItems(g.items)); return; }
+    if (t.closest('#bell')) { var b = dash.counts || {}; ddOpen($('bell'), '<p class="dd-h">Needs your attention</p>' + (ddItems([['messages', 'support', 'Unread messages', '', b.unread], ['svc', 'services', 'New service requests', '', b.svc], ['leads', 'inbox', 'New consultations', '', b.leads], ['payments', 'billing', 'Payments to confirm', '', b.pay], ['requests', 'edit', 'Open change requests', '', b.change], ['subs', 'subs', 'Renewals due this week', '', b.renew]].filter(function (i) { return i[4]; })) || '<p class="muted" style="margin:6px 12px 12px;font-size:14px">Nothing is waiting. You are up to date.</p>')); return; }
+    if (t.closest('#me-btn')) { ddOpen($('me-btn'), '<div class="dd-me"><span class="av">' + esc(initialsOf(co.me && co.me.name)) + '</span><div><strong>' + esc(co.me ? co.me.name : '') + '</strong><span>' + esc(co.me ? co.me.email || 'Owner' : '') + ' · Owner</span></div></div>' + ddItems([['co:owner', 'crown', 'Owner / Founder'], ['settings', 'gear', 'Settings'], ['help', 'help', 'How HQ works']]) + (!$('install-app').hidden ? '<button type="button" class="dd-i" id="dd-install">' + ICN('phone') + '<span>Install the HQ app</span></button>' : '') + '<button type="button" class="dd-i" id="dd-logout">' + ICN('logout') + '<span>Log out</span></button>'); return; }
+    if (t.closest('#dd-install')) { ddClose(); $('install-app').click(); return; }
+    if (t.closest('#dd-logout') || t.closest('#side-logout')) { ddClose(); $('logout').click(); return; }
+    if (t.closest('#side-open')) { sideOpen(!document.body.classList.contains('side-open')); return; }
+    if (t.closest('#side-shade')) { sideOpen(false); return; }
+    if (!t.closest('#dd')) ddClose();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { ddClose(); sideOpen(false); } });
+  window.addEventListener('resize', ddClose);
+
+  // ----- Dashboard -----
+  var dash = { data: null, counts: {}, tab: 'all', reqAll: false, topAll: false, month: 0, busy: false };
+  var DAY = 864e5;
+  function dashDay(d) {
+    var dt = new Date(d), now = new Date(), t = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    var diff = Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(dt.getFullYear(), dt.getMonth(), dt.getDate())) / DAY);
+    return diff === 0 ? 'Today, ' + t : diff === 1 ? 'Yesterday, ' + t : dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function dashPill(s) {
+    var m = { new: ['New', 'blue'], open: ['Open', ''], pending: ['Pending', ''], contacted: ['Contacted', 'blue'], call_booked: ['Call booked', 'blue'], audit_sent: ['Audit sent', 'blue'], quoted: ['Quoted', 'blue'], accepted: ['In progress', 'blue'], won: ['Won', 'green'], done: ['Resolved', 'green'], confirmed: ['Confirmed', 'green'], lost: ['Lost', 'grey'], declined: ['Declined', 'grey'], rejected: ['Not received', 'grey'] }[s] || [s, ''];
+    return '<span class="pill ' + m[1] + '">' + esc(m[0]) + '</span>';
+  }
+  function dashLoad() {
+    if (dash.busy) return dash.busy;
+    var q = function (t, cols, n) { return sb.from(t).select(cols).order('id', { ascending: false }).limit(n || 1000).then(check); };
+    var t0 = performance.now();
+    dash.busy = Promise.all([
+      sb.from('profiles').select('id,name,email,role,company,created_at').then(check), q('organizations', 'id,name,created_at'), sb.from('organization_members').select('organization_id,profile_id').then(check),
+      q('projects', 'id,client_id,name,organization_id,stage,created_at'), q('leads', 'id,name,status,created_at', 500), q('service_requests', 'id,client_id,organization_id,service,status,created_at', 500),
+      q('change_requests', 'id,project_id,text,status,created_at', 500), q('messages', 'id,client_id,text,from_admin,read_by_admin,created_at', 2000), q('updates', 'id,project_id,created_at'),
+      q('client_files', 'id,project_id,created_at'), q('payments', 'id,client_id,amount_cents,currency,status,created_at,reviewed_at'), q('invoices', 'id,project_id,amount_cents,paid_cents,currency,status,created_at'),
+      q('subscriptions', 'id,status,renews_on,created_at')
+    ]).then(function (r) {
+      var d = { profiles: r[0], orgs: r[1], om: r[2], projects: r[3], leads: r[4], svc: r[5], change: r[6], msgs: r[7], updates: r[8], files: r[9], pays: r[10], invoices: r[11], subs: r[12], dbMs: Math.round(performance.now() - t0) };
+      d.byId = {}; d.profiles.forEach(function (p) { d.byId[p.id] = p; });
+      d.proj = {}; d.projects.forEach(function (p) { d.proj[p.id] = p; });
+      d.orgOf = {}; d.om.forEach(function (m) { if (!d.orgOf[m.profile_id]) d.orgOf[m.profile_id] = m.organization_id; });
+      d.orgName = {}; d.orgs.forEach(function (o) { d.orgName[o.id] = o.name; });
+      dash.data = d; dash.busy = false;
+      var bizSel = $('d-biz'), cur = bizSel.value;
+      bizSel.innerHTML = '<option value="">All businesses</option>' + d.orgs.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (o) { return '<option value="' + o.id + '">' + esc(o.name) + '</option>'; }).join('');
+      bizSel.value = d.orgName[cur] ? cur : '';
+      var today = new Date().toISOString().slice(0, 10), week = new Date(Date.now() + 7 * DAY).toISOString().slice(0, 10);
+      dash.counts = {
+        unread: Object.keys(d.msgs.reduce(function (a, m) { if (!m.from_admin && !m.read_by_admin) a[m.client_id] = 1; return a; }, {})).length,
+        svc: d.svc.filter(function (s) { return s.status === 'new'; }).length, leads: d.leads.filter(function (l) { return l.status === 'new'; }).length,
+        pay: d.pays.filter(function (p) { return p.status === 'pending'; }).length, change: d.change.filter(function (c) { return c.status === 'open'; }).length,
+        renew: d.subs.filter(function (s) { return s.status === 'active' && s.renews_on && s.renews_on <= week && s.renews_on >= today; }).length
+      };
+      var c = dash.counts, total = c.unread + c.svc + c.leads + c.pay + c.change + c.renew;
+      $('bb-inbox').textContent = c.unread; $('bb-inbox').hidden = !c.unread;
+      $('bell-n').textContent = total; $('bell-n').hidden = !total;
+      $('bell').setAttribute('aria-label', 'Notifications' + (total ? ', ' + total + ' waiting' : ''));
+      renderDash(); dashStatus();
+      if (!document.querySelector('[data-panel="reports"]').hidden) renderReports();
+      return d;
+    }).catch(function (err) { dash.busy = false; fail(err); $('d-stats').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
+    return dash.busy;
+  }
+  function dashScope() {
+    var d = dash.data, biz = +$('d-biz').value || 0, clients = {}, projs = {};
+    if (biz) {
+      d.om.forEach(function (m) { if (m.organization_id === biz) clients[m.profile_id] = 1; });
+      d.projects.forEach(function (p) { if (p.organization_id === biz || clients[p.client_id]) projs[p.id] = 1; });
+    }
+    return {
+      biz: biz, client: function (id) { return !biz || !!clients[id]; }, project: function (id) { return !biz || !!projs[id]; },
+      svc: function (s) { return !biz || s.organization_id === biz || !!clients[s.client_id]; }, clients: clients
+    };
+  }
+  function who(clientId) {
+    var d = dash.data, p = d.byId[clientId] || {}, org = d.orgName[d.orgOf[clientId]];
+    return { name: p.name || p.email || 'Unknown client', biz: org || p.company || '', id: clientId };
+  }
+  function delta(now, before, unit) {
+    if (before === null) return '<span class="dl flat">' + unit + '</span>';
+    if (!before && !now) return '<span class="dl flat">No change</span>';
+    if (!before) return '<span class="dl up">' + ICN('up') + 'New this period</span>';
+    var pct = Math.round((now - before) / before * 100);
+    return '<span class="dl ' + (pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat') + '">' + (pct ? ICN(pct > 0 ? 'up' : 'down') : '') + Math.abs(pct) + '%<small> vs previous</small></span>';
+  }
+  function renderDash() {
+    var d = dash.data; if (!d) return;
+    var days = +$('d-period').value, now = Date.now(), from = days ? now - days * DAY : 0, prev = days ? from - days * DAY : null, sc = dashScope();
+    var inP = function (x) { return +new Date(x) >= from; }, inPrev = function (x) { var t = +new Date(x); return prev !== null && t >= prev && t < from; };
+    var clients = d.profiles.filter(function (p) { return p.role === 'client' && sc.client(p.id); });
+    var orgs = d.orgs.filter(function (o) { return !sc.biz || o.id === sc.biz; });
+    var reqNow = d.svc.filter(function (s) { return sc.svc(s) && inP(s.created_at); }).length + (sc.biz ? 0 : d.leads.filter(function (l) { return inP(l.created_at); }).length);
+    var reqPrev = days ? d.svc.filter(function (s) { return sc.svc(s) && inPrev(s.created_at); }).length + (sc.biz ? 0 : d.leads.filter(function (l) { return inPrev(l.created_at); }).length) : null;
+    var paid = d.pays.filter(function (p) { return p.status === 'confirmed' && sc.client(p.client_id); }), sum = function (list) { return list.reduce(function (a, p) { a[p.currency] = (a[p.currency] || 0) + p.amount_cents; return a; }, {}); };
+    var revNow = sum(paid.filter(function (p) { return inP(p.reviewed_at || p.created_at); })), revPrev = sum(paid.filter(function (p) { return inPrev(p.reviewed_at || p.created_at); }));
+    var curs = Object.keys(revNow).sort(function (a, b) { return a === 'GHS' ? -1 : b === 'GHS' ? 1 : revNow[b] - revNow[a]; });
+    var main = curs[0] || 'GHS', newC = clients.filter(function (p) { return inP(p.created_at); }).length, newO = orgs.filter(function (o) { return inP(o.created_at); }).length;
+    var card = function (cls, icon, val, label, dl) { return '<div class="ds ' + cls + '"><span class="ds-ic">' + ICN(icon) + '</span><div style="min-width:0"><strong>' + val + '</strong><span class="ds-k">' + label + '</span>' + dl + '</div></div>'; };
+    var plus = function (n) { return '<span class="dl ' + (n ? 'up' : 'flat') + '">' + (n ? ICN('up') + n + ' new' : 'None new') + '<small> ' + (days ? 'in ' + $('d-period').selectedOptions[0].textContent.toLowerCase() : 'in total') + '</small></span>'; };
+    $('d-stats').innerHTML = card('blue', 'members', clients.length, 'Total clients', plus(newC)) + card('green', 'case', orgs.length, sc.biz ? 'Business selected' : 'Active businesses', plus(newO)) +
+      card('purple', 'doc', reqNow, 'Service requests' + (sc.biz ? '' : ' and consultations'), days ? delta(reqNow, reqPrev, '') : '<span class="dl flat">All time</span>') +
+      card('gold', 'wallet', curs.length ? curs.map(function (c) { return money(revNow[c], c); }).join(' + ') : money(0, 'GHS'), 'Revenue received', days ? delta(revNow[main] || 0, revPrev[main] || 0, '') : '<span class="dl flat">All time</span>');
+    // incoming requests
+    var rows = [];
+    if (!sc.biz) d.leads.forEach(function (l) { rows.push({ t: 'svc', who: l.name || 'Website visitor', biz: 'Website visitor', type: 'Consultation', at: l.created_at, st: l.status, go: 'leads' }); });
+    d.svc.forEach(function (s) { if (sc.svc(s)) { var w = who(s.client_id); rows.push({ t: 'svc', who: w.name, biz: s.organization_id ? d.orgName[s.organization_id] || w.biz : w.biz, type: s.service, at: s.created_at, st: s.status, go: 'svc' }); } });
+    d.change.forEach(function (c) { var p = d.proj[c.project_id]; if (p && sc.project(p.id)) { var w = who(p.client_id); rows.push({ t: 'proj', who: w.name, biz: w.biz || p.name, type: 'Change · ' + p.name, at: c.created_at, st: c.status, go: 'requests' }); } });
+    d.projects.forEach(function (p) { if (sc.project(p.id) && inP(p.created_at)) { var w = who(p.client_id); rows.push({ t: 'proj', who: w.name, biz: w.biz, type: 'Project · ' + p.name, at: p.created_at, st: 'stage', stage: p.stage, go: 'projects' }); } });
+    var seen = {}; d.msgs.forEach(function (m) { if (!m.from_admin && !m.read_by_admin && sc.client(m.client_id)) { if (!seen[m.client_id]) { var w = who(m.client_id); seen[m.client_id] = { t: 'sup', who: w.name, biz: w.biz, type: 'Message', at: m.created_at, st: 'unread', n: 0, go: 'messages', thread: m.client_id }; rows.push(seen[m.client_id]); } seen[m.client_id].n++; } });
+    rows.sort(function (a, b) { return a.at < b.at ? 1 : -1; });
+    var cnt = { all: rows.length, svc: 0, proj: 0, sup: 0 }; rows.forEach(function (r) { cnt[r.t]++; });
+    var shown = rows.filter(function (r) { return dash.tab === 'all' || r.t === dash.tab; }), lim = dash.reqAll ? 40 : 6;
+    var tab = function (k, l) { return '<button type="button" role="tab" data-dtab="' + k + '" aria-selected="' + (dash.tab === k) + '">' + l + ' (' + cnt[k] + ')</button>'; };
+    $('d-req').innerHTML = '<div class="row between"><h2 class="dh">' + ICN('bell') + 'Incoming requests</h2>' + (shown.length > 6 ? '<button type="button" class="linkish" id="d-req-all">' + (dash.reqAll ? 'Show fewer' : 'View all') + '</button>' : '') + '</div>' +
+      '<div class="tabs" role="tablist" style="margin:2px 0 4px">' + tab('all', 'All') + tab('svc', 'Services') + tab('proj', 'Projects') + tab('sup', 'Support') + '</div>' +
+      (shown.length ? '<div class="table"><table><thead><tr><th>Client / business</th><th>Request type</th><th>Date</th><th>Status</th><th><span class="sr">Action</span></th></tr></thead><tbody>' + shown.slice(0, lim).map(function (r) {
+        return '<tr><td><div class="row" style="gap:10px;flex-wrap:nowrap"><span class="av">' + esc(initialsOf(r.who)) + '</span><div style="min-width:0"><strong style="display:block">' + esc(r.who) + '</strong><span class="muted" style="font-size:12.5px">' + esc(r.biz || '') + '</span></div></div></td><td>' + esc(r.type) + '</td><td class="muted" style="white-space:nowrap">' + dashDay(r.at) + '</td><td>' +
+          (r.st === 'stage' ? '<span class="pill blue">' + esc(LZ.stages[(r.stage || 1) - 1] || 'In progress') + '</span>' : r.st === 'unread' ? '<span class="pill">' + r.n + ' unread</span>' : dashPill(r.st)) + '</td><td><button type="button" class="btn small ghost" data-dview="' + r.go + '"' + (r.thread ? ' data-thread-id="' + r.thread + '"' : '') + '>View</button></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<p class="muted" style="margin:6px 0 0">' + (dash.tab === 'all' ? 'No requests yet.' : 'Nothing here right now.') + '</p>');
+    // activity overview (calendar month)
+    var mNow = new Date(), mStart = new Date(mNow.getFullYear(), mNow.getMonth() - dash.month, 1), mEnd = new Date(mNow.getFullYear(), mNow.getMonth() - dash.month + 1, 1), pStart = new Date(mNow.getFullYear(), mNow.getMonth() - dash.month - 1, 1);
+    var inM = function (x, a, b) { var t = new Date(x); return t >= a && t < b; };
+    var tally = function (a, b) {
+      return [['Service requests', d.svc.filter(function (s) { return sc.svc(s) && inM(s.created_at, a, b); }).length + (sc.biz ? 0 : d.leads.filter(function (l) { return inM(l.created_at, a, b); }).length), '#6F8BEF'],
+        ['Projects', d.updates.concat(d.change, d.files).filter(function (u) { return sc.project(u.project_id) && inM(u.created_at, a, b); }).length + d.projects.filter(function (p) { return sc.project(p.id) && inM(p.created_at, a, b); }).length, '#5DBB7A'],
+        ['Messages', d.msgs.filter(function (m) { return sc.client(m.client_id) && inM(m.created_at, a, b); }).length, '#A98BF0'],
+        ['Others', d.pays.filter(function (p) { return sc.client(p.client_id) && inM(p.created_at, a, b); }).length + d.invoices.filter(function (i) { return sc.project(i.project_id) && inM(i.created_at, a, b); }).length + (sc.biz ? 0 : d.subs.filter(function (s) { return inM(s.created_at, a, b); }).length), '#E0B24F']];
+    };
+    var cats = tally(mStart, mEnd), tot = cats.reduce(function (a, c) { return a + c[1]; }, 0), before = tally(pStart, mStart).reduce(function (a, c) { return a + c[1]; }, 0);
+    var R = 52, C = 2 * Math.PI * R, off = 0;
+    var ring = tot ? cats.map(function (c) { var len = c[1] / tot * C, s = '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="' + c[2] + '" stroke-width="18" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 70 70)"/>'; off += len; return s; }).join('') : '<circle cx="70" cy="70" r="' + R + '" fill="none" stroke="var(--line)" stroke-width="18"/>';
+    var pct = before ? Math.round((tot - before) / before * 100) : null, mName = mStart.toLocaleDateString('en-GB', { month: 'long' });
+    $('d-act').innerHTML = '<div class="row between"><h2 class="dh">' + ICN('activity') + 'Activity overview</h2><select id="d-month" aria-label="Month" style="width:auto;padding:8px 12px;font-size:13.5px"><option value="0"' + (dash.month === 0 ? ' selected' : '') + '>This month</option><option value="1"' + (dash.month === 1 ? ' selected' : '') + '>Last month</option></select></div>' +
+      '<div class="act"><svg viewBox="0 0 140 140" width="150" height="150" role="img" aria-label="' + tot + ' activities in ' + mName + '">' + ring + '<text x="70" y="70" text-anchor="middle" fill="currentColor" font-size="26" font-weight="700">' + tot + '</text><text x="70" y="90" text-anchor="middle" fill="var(--muted)" font-size="10.5">activities</text></svg>' +
+      '<ul class="act-l">' + cats.map(function (c) { return '<li><i style="background:' + c[2] + '"></i><span>' + c[0] + '</span><b>' + (tot ? Math.round(c[1] / tot * 100) : 0) + '%</b><small>' + c[1] + '</small></li>'; }).join('') + '</ul></div>' +
+      '<div class="act-cmp ' + (pct === null ? '' : pct >= 0 ? 'up' : 'down') + '">' + ICN(pct === null ? 'info' : pct >= 0 ? 'up' : 'down') + '<div><strong>' + (pct === null ? (tot ? 'First activity recorded' : 'No activity yet') : (pct >= 0 ? '+' : '') + pct + '% ' + (pct >= 0 ? 'increase' : 'decrease')) + '</strong><span>' + (pct === null ? 'Nothing to compare with the month before ' + mName : 'Compared with the month before ' + mName) + '</span></div></div>';
+    // recent client messages
+    var latest = [], got = {};
+    d.msgs.forEach(function (m) { if (!m.from_admin && sc.client(m.client_id)) { if (!got[m.client_id]) { got[m.client_id] = { m: m, unread: 0 }; latest.push(got[m.client_id]); } if (!m.read_by_admin) got[m.client_id].unread++; } });
+    $('d-msg').innerHTML = '<div class="row between"><h2 class="dh">' + ICN('chat') + 'Recent client messages</h2><button type="button" class="linkish" data-go="messages">View all</button></div>' +
+      (latest.length ? latest.slice(0, 3).map(function (x) {
+        var w = who(x.m.client_id);
+        return '<button type="button" class="dm" data-dview="messages" data-thread-id="' + x.m.client_id + '"><span class="av">' + esc(initialsOf(w.name)) + '</span><span class="dm-b"><strong>' + esc(w.name) + (w.biz ? ' <span class="muted" style="font-weight:500">(' + esc(w.biz) + ')</span>' : '') + '</strong><span>' + esc(x.m.text.slice(0, 90)) + '</span></span><span class="dm-r"><small>' + dashDay(x.m.created_at).replace('Today, ', '') + '</small>' + (x.unread ? '<b class="bm-n">' + x.unread + '</b>' : '') + '</span></button>';
+      }).join('') : '<p class="muted" style="margin:0">No client messages yet.</p>');
+    // top businesses / clients
+    var score = {}, add = function (key, n) { if (!key) return; score[key] = (score[key] || 0) + (n || 1); };
+    var keyOfClient = function (cid) { return d.orgOf[cid] ? 'o' + d.orgOf[cid] : 'c' + cid; };
+    var keyOfProject = function (pid) { var p = d.proj[pid]; return p ? (p.organization_id ? 'o' + p.organization_id : keyOfClient(p.client_id)) : null; };
+    d.msgs.forEach(function (m) { if (!m.from_admin && inP(m.created_at) && sc.client(m.client_id)) add(keyOfClient(m.client_id)); });
+    d.svc.forEach(function (s) { if (inP(s.created_at) && sc.svc(s)) add(s.organization_id ? 'o' + s.organization_id : keyOfClient(s.client_id)); });
+    d.updates.concat(d.change, d.files).forEach(function (u) { if (inP(u.created_at) && sc.project(u.project_id)) add(keyOfProject(u.project_id)); });
+    d.pays.forEach(function (p) { if (inP(p.created_at) && sc.client(p.client_id)) add(keyOfClient(p.client_id)); });
+    var top = Object.keys(score).map(function (k) { var nm = k.charAt(0) === 'o' ? d.orgName[k.slice(1)] : who(k.slice(1)).name; return [nm || 'Unknown', score[k]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    var max = top.length ? top[0][1] : 1;
+    $('d-top').innerHTML = '<div class="row between"><h2 class="dh">' + ICN('crown') + 'Top businesses and clients</h2>' + (top.length > 3 ? '<button type="button" class="linkish" id="d-top-all">' + (dash.topAll ? 'Show fewer' : 'View all') + '</button>' : '') + '</div>' +
+      (top.length ? top.slice(0, dash.topAll ? 10 : 3).map(function (x, i) { return '<div class="tb"><span class="tb-n">' + (i + 1) + '</span><span class="av">' + esc(initialsOf(x[0])) + '</span><div class="tb-b"><div class="row between" style="gap:8px"><strong>' + esc(x[0]) + '</strong><span class="muted" style="font-size:13px">' + x[1] + ' ' + (x[1] === 1 ? 'activity' : 'activities') + '</span></div><div class="bar" style="margin-top:8px"><div style="width:' + Math.max(6, Math.round(x[1] / max * 100)) + '%"></div></div></div></div>'; }).join('')
+        : '<p class="muted" style="margin:0">No client activity in this period yet.</p>');
+  }
+  function dashStatus() {
+    var row = function (icon, name, ok, note) { return '<div class="ss"><span class="ss-ic">' + ICN(icon) + '</span><span class="ss-n">' + name + (note ? '<small>' + note + '</small>' : '') + '</span>' + (ok === true ? '<span class="pill green">Healthy</span>' : ok === false ? '<span class="pill">Check</span>' : '<span class="pill grey">' + ok + '</span>') + '</div>'; };
+    var d = dash.data;
+    var paint = function (pay) {
+      var platform = !!d, healthy = platform && pay !== false;
+      $('d-sys').innerHTML = '<div class="row between"><h2 class="dh">' + ICN('flow') + 'System status</h2><span class="sys-on ' + (healthy ? '' : 'warn') + '"><i></i>' + (healthy ? 'Online' : 'Needs a look') + '</span></div>' +
+        row('web', 'Platform services', platform, 'Sign-in and HQ') + row('billing', 'Payment gateway', LZ.cfg.paystackKey ? pay : 'Not set up', LZ.cfg.paystackKey ? 'Paystack' : '') +
+        row('inbox', 'Email alerts', 'Set up', 'Sent with FormSubmit to ' + esc(LZ.cfg.email || '')) + row('files', 'Database', platform, d ? 'Answered in ' + d.dbMs + ' ms' : '');
+    };
+    paint('Checking');
+    if (!LZ.cfg.paystackKey) return;
+    fetch(LZ.cfg.supabaseUrl + '/functions/v1/paystack-verify', { method: 'OPTIONS' }).then(function (r) { paint(r.ok); }, function () { paint(false); });
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'd-period' || e.target.id === 'd-biz') renderDash();
+    if (e.target.id === 'd-month') { dash.month = +e.target.value; renderDash(); }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-dtab]'))) { dash.tab = x.dataset.dtab; dash.reqAll = false; renderDash(); return; }
+    if (t.closest('#d-req-all')) { dash.reqAll = !dash.reqAll; renderDash(); return; }
+    if (t.closest('#d-top-all')) { dash.topAll = !dash.topAll; renderDash(); return; }
+    if ((x = t.closest('[data-dview]'))) {
+      goTo(x.dataset.dview); var id = x.dataset.threadId;
+      if (id) setTimeout(function () { var th = document.querySelector('[data-thread="' + id + '"]'); if (th) { th.open = true; th.scrollIntoView({ block: 'start' }); } }, 400);
+      return;
+    }
+    if ((x = t.closest('[data-qa]'))) {
+      var a = x.dataset.qa;
+      if (a === 'project') { goTo('projects'); if ($('client-form').hidden) $('new-client-btn').click(); var inp = $('client-form').querySelector('input'); if (inp) inp.focus(); return; }
+      goTo(a);
+    }
+  });
+  setInterval(function () { if (document.body.classList.contains('owner-mode') && document.visibilityState === 'visible') dashLoad(); }, 60000);
+
+  // ----- Reports -----
+  function months(n) { var out = [], d = new Date(); for (var i = n - 1; i >= 0; i--) { var a = new Date(d.getFullYear(), d.getMonth() - i, 1); out.push([a, new Date(a.getFullYear(), a.getMonth() + 1, 1)]); } return out; }
+  function bars(rows, fmt) { var max = Math.max.apply(null, rows.map(function (r) { return r[1]; }).concat([1])); return '<div class="rb">' + rows.map(function (r) { return '<div class="rb-r"><span class="rb-k">' + r[0] + '</span><div class="bar"><div style="width:' + (r[1] ? Math.max(3, Math.round(r[1] / max * 100)) : 0) + '%"></div></div><span class="rb-v">' + (fmt ? fmt(r[1]) : r[1]) + '</span></div>'; }).join('') + '</div>'; }
+  function renderReports(sub) {
+    var box = $('reports-view');
+    if (!dash.data) { box.innerHTML = '<p class="muted">Loading…</p>'; var p = dashLoad(); if (p && p.then) p.then(function () { renderReports(sub); }); return; }
+    var d = dash.data, ms = months(6), lab = function (m) { return m[0].toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }); }, inM = function (x, m) { var t = new Date(x); return t >= m[0] && t < m[1]; };
+    var paid = d.pays.filter(function (p) { return p.status === 'confirmed'; }), curs = {}; paid.forEach(function (p) { curs[p.currency] = 1; });
+    var curList = Object.keys(curs).sort(function (a, b) { return a === 'GHS' ? -1 : b === 'GHS' ? 1 : 0; }); if (!curList.length) curList = ['GHS'];
+    var owed = {}; d.invoices.forEach(function (i) { if (i.status === 'due') owed[i.currency] = (owed[i.currency] || 0) + i.amount_cents - (i.paid_cents || 0); });
+    var rev = '<section class="card stack" id="rep-rev"><h2 class="dh">' + ICN('wallet') + 'Revenue</h2><p class="muted" style="margin:0;font-size:14px">Confirmed payments per month, last 6 months.</p>' +
+      curList.map(function (c) { var tot = 0, rows = ms.map(function (m) { var v = paid.filter(function (p) { return p.currency === c && inM(p.reviewed_at || p.created_at, m); }).reduce(function (a, p) { return a + p.amount_cents; }, 0); tot += v; return [lab(m), v]; }); return '<div><div class="row between" style="margin:6px 0 10px"><strong>' + c + '</strong><span class="muted" style="font-size:13.5px">' + money(tot, c) + ' in 6 months</span></div>' + bars(rows, function (v) { return money(v, c); }) + '</div>'; }).join('') +
+      '<div class="row" style="gap:18px;border-top:1px solid var(--line);padding-top:14px"><span class="muted">Still owed on invoices:</span><strong>' + (Object.keys(owed).map(function (c) { return money(owed[c], c); }).join(' + ') || 'Nothing') + '</strong><button type="button" class="linkish" data-go="payments">Open payments</button></div></section>';
+    var req = '<section class="card stack" id="rep-req"><h2 class="dh">' + ICN('projects') + 'Requests and projects</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px">' +
+      '<div><h3 class="rh">Requests per month</h3>' + bars(ms.map(function (m) { return [lab(m), d.leads.filter(function (l) { return inM(l.created_at, m); }).length + d.svc.filter(function (s) { return inM(s.created_at, m); }).length + d.change.filter(function (c) { return inM(c.created_at, m); }).length]; })) + '<p class="muted" style="margin:10px 0 0;font-size:13px">Consultations, service requests and change requests together.</p></div>' +
+      '<div><h3 class="rh">Projects by stage</h3>' + bars(LZ.stages.map(function (s, i) { return [s, d.projects.filter(function (p) { return p.stage === i + 1; }).length]; })) + '<p class="muted" style="margin:10px 0 0;font-size:13px">' + d.projects.length + ' projects in total.</p></div></div></section>';
+    var cli = '<section class="card stack" id="rep-cli"><h2 class="dh">' + ICN('members') + 'Clients and businesses</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px">' +
+      '<div><h3 class="rh">New client accounts per month</h3>' + bars(ms.map(function (m) { return [lab(m), d.profiles.filter(function (p) { return p.role === 'client' && inM(p.created_at, m); }).length]; })) + '</div>' +
+      '<div><h3 class="rh">New businesses per month</h3>' + bars(ms.map(function (m) { return [lab(m), d.orgs.filter(function (o) { return inM(o.created_at, m); }).length]; })) + '</div></div>' +
+      '<p class="muted" style="margin:0;font-size:13.5px">' + d.profiles.filter(function (p) { return p.role === 'client'; }).length + ' client accounts and ' + d.orgs.length + ' businesses in total.</p></section>';
+    box.innerHTML = rev + req + cli;
+    if (sub) { var el = $('rep-' + sub); if (el) setTimeout(function () { el.scrollIntoView({ block: 'start' }); }, 30); }
+  }
+
+  // ----- Help: what every button does -----
+  function renderHelp() {
+    var item = function (k, icon, label, desc) { return '<button type="button" class="menu-i" data-go="' + k + '">' + ICN(icon) + '<span><strong>' + label + '</strong>' + (desc ? '<small>' + desc + '</small>' : '') + '</span>' + ICN('chev', 'chev') + '</button>'; };
+    $('help-view').innerHTML = '<div class="card stack"><h2 class="dh">' + ICN('overview') + 'Top bar</h2><p class="muted" style="margin:0;font-size:14px">The buttons across the top of every page. The ones with an arrow open a short list.</p><div>' +
+      NAV.bar.map(function (b) { return item(b.key || b.items[0][0], b.icon, b.label, b.desc + (b.items ? ' Contains: ' + b.items.map(function (i) { return i[2]; }).join(', ') + '.' : '')); }).join('') +
+      item('dash', 'bell', 'Bell', 'Everything waiting for you: unread messages, new requests, payments to confirm and renewals due.') + item('co:owner', 'members', 'Your picture', 'Your name, your owner page, settings and log out.') + '</div></div>' +
+      NAV.side.map(function (g) { return '<div class="card stack"><h2 class="dh">' + ICN(g.icon) + g.label + '</h2><div>' + (g.key ? item(g.key, g.icon, g.label, g.desc) : g.items.map(function (i) { return item(i[0], i[1], i[2], i[3]); }).join('')) + '</div></div>'; }).join('') +
+      '<div class="card stack"><h2 class="dh">' + ICN('flow') + 'Dashboard overview</h2><div>' +
+      [['Period and business', 'Choose the time span and, if you like, one client business. The cards, requests and rankings follow your choice.'], ['Four cards', 'Total clients, active businesses, service requests (with consultations) and revenue actually received.'], ['Incoming requests', 'Consultations, service requests, change requests, new projects and unread messages in one list. View opens the right section.'], ['Activity overview', 'All activity this month or last month, by kind, compared with the month before.'], ['Quick actions', 'One tap to the most common jobs.'], ['Recent client messages', 'The latest message from each client. Tap to open the conversation.'], ['Top businesses and clients', 'Who was most active in the chosen period.'], ['System status', 'Whether sign-in, the database and the payment gateway answer right now.']].map(function (r) { return '<div class="item" style="padding:10px 0"><div class="main"><strong style="white-space:normal">' + r[0] + '</strong><span>' + r[1] + '</span></div></div>'; }).join('') + '</div></div>';
+  }
+
+  // ----- Governance pages: Owner, Board, CEO, Executive Management, Teams -----
+  var DUTIES = {
+    'Owner / Founder': ['Establishes the organization and its vision', 'Appoints and authorizes key leadership positions', 'Approves every organizational access invitation', 'Sets organizational policies and strategic direction', 'Oversees all departments and organizational activities', 'Approves major decisions, budgets and changes in authority', 'Reviews organizational performance', 'Retains ultimate ownership authority'],
+    'Board Chair': ['Leads board meetings and the board\'s agenda', 'Provides corporate governance and oversight', 'Reviews executive performance with the board', 'Represents the board to the owner'],
+    'Board Member': ['Provides corporate governance and oversight', 'Reviews executive performance', 'Examines strategic plans and major proposals', 'Reviews financial and organizational reports', 'Records board decisions and resolutions', 'Monitors compliance with organizational policies'],
+    'Board Secretary': ['Schedules board meetings', 'Prepares meeting agendas and minutes', 'Maintains official resolutions and records', 'Circulates approved board communications', 'Tracks decisions requiring follow-up'],
+    'CEO': ['Leads the organization\'s overall operations', 'Translates the owner\'s vision into organizational objectives', 'Coordinates executive managers', 'Reviews departmental performance', 'Makes executive decisions within delegated authority', 'Reports organizational progress to the Owner and Board'],
+    'COO – Chief Operating Officer': ['Coordinates daily organizational operations', 'Ensures departments work together', 'Monitors operational efficiency', 'Resolves operational bottlenecks', 'Ensures approved processes are followed', 'Reports operational performance to the CEO'],
+    'CFO – Chief Financial Officer': ['Oversees financial planning', 'Reviews budgets and expenditure', 'Supervises financial reporting', 'Monitors income, expenses and cash flow', 'Coordinates financial controls', 'Reports financial performance'],
+    'CTO – Chief Technology Officer': ['Oversees technology strategy', 'Supervises software and infrastructure development', 'Ensures systems remain reliable', 'Coordinates technical teams', 'Oversees technology security and improvements', 'Reports technical performance'],
+    'CHRO – Chief Human Resources Officer': ['Oversees recruitment and workforce planning', 'Supervises HR personnel', 'Coordinates employee development', 'Oversees employee records and performance processes', 'Manages staffing policies', 'Reports workforce performance'],
+    'CMO – Chief Marketing Officer': ['Leads marketing strategy', 'Oversees brand positioning', 'Coordinates marketing campaigns', 'Reviews marketing performance', 'Supervises marketing teams', 'Reports customer acquisition and brand performance']
+  };
+  var BOARD_PRESETS = ['Board Chair', 'Board Member', 'Board Secretary'], EXEC_PRESETS = ['COO – Chief Operating Officer', 'CFO – Chief Financial Officer', 'CTO – Chief Technology Officer', 'CHRO – Chief Human Resources Officer', 'CMO – Chief Marketing Officer'];
+  var st = { pos: [], asg: [], teams: [], tm: [], loaded: false, busy: false, editDuty: null };
+  function isCEO(p) { return /^(ceo\b|chief executive)/i.test(p.title); }
+  function dutyKey(title) { if (DUTIES[title]) return title; var k = Object.keys(DUTIES).filter(function (x) { return x.split(' – ')[0].toLowerCase() === String(title).split(/[ –-]/)[0].toLowerCase() && x !== 'Owner / Founder'; })[0]; return k || null; }
+  function loadStruct() {
+    if (st.busy) return st.busy;
+    st.busy = Promise.all([sb.from('positions').select('*').order('level').order('id').then(check), sb.from('position_assignments').select('*').order('id').then(check), sb.from('teams').select('*').order('name').then(check), sb.from('team_members').select('*').then(check)])
+      .then(function (r) { st.pos = r[0]; st.asg = r[1]; st.teams = r[2]; st.tm = r[3]; st.loaded = true; st.busy = false; renderCompany(); })
+      .catch(function (err) { st.busy = false; $('co-view').innerHTML = '<p class="msg err">' + esc(err.message) + '</p>'; });
+    return st.busy;
+  }
+  function holders(p) { var today = new Date().toISOString().slice(0, 10); return st.asg.filter(function (a) { return a.position_id === p.id && (!a.ends_on || a.ends_on >= today); }); }
+  function staffOptions(exclude) { return co.people.filter(function (p) { return p.level !== 'owner' && exclude.indexOf(p.id) < 0; }).map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + (p.title ? ' · ' + esc(p.title) : '') + '</option>'; }).join(''); }
+  function posCard(p, icon) {
+    var owner = coOwner(), hs = holders(p), boss = st.pos.filter(function (x) { return x.id === p.reports_to_position_id; })[0];
+    var lines = String(p.responsibilities || '').split('\n').map(function (s) { return s.trim(); }).filter(Boolean), std = dutyKey(p.title), opts = staffOptions(hs.map(function (h) { return h.profile_id; }));
+    return '<div class="card stack" style="gap:14px"><div class="row" style="gap:14px;flex-wrap:nowrap;align-items:flex-start"><span class="co-ic">' + ICN(icon) + '</span><div style="min-width:0;flex:1"><strong style="font-size:18px;overflow-wrap:anywhere">' + esc(p.title) + '</strong><div class="muted" style="font-size:13.5px;margin-top:2px">Reports to ' + esc(boss ? boss.title : (p.level <= 2 ? 'the Owner' : 'their department head')) + '</div></div>' + (owner ? '<button type="button" class="linkish" data-pos-del="' + p.id + '" style="color:var(--muted)">Remove position</button>' : '') + '</div>' +
+      '<div class="stack" style="gap:8px;border-top:1px solid var(--line);padding-top:12px"><span class="muted" style="font-size:13px">Held by</span>' + (hs.length ? hs.map(function (h) { var pp = coP(h.profile_id) || { name: 'Former staff member' }; return '<div class="item" style="padding:6px 0">' + avatar(h.profile_id) + '<div class="main"><strong>' + esc(pp.name) + (h.is_acting ? ' <span class="pill grey">Acting</span>' : '') + '</strong><span>Since ' + esc(dayFmt(h.starts_on)) + '</span></div>' + (owner ? '<button type="button" class="btn small ghost" data-asg-del="' + h.id + '">Remove</button>' : '') + '</div>'; }).join('') : '<p style="margin:0" class="muted">Vacant</p>') +
+      (owner ? (opts ? '<form class="row" data-pos-assign="' + p.id + '" style="gap:10px;align-items:flex-end"><label style="flex:2 1 200px">Appoint a person<select name="who">' + opts + '</select></label><label class="tog" style="flex:none"><input type="checkbox" name="acting"><span>Acting</span></label><button class="btn small" type="submit">' + ICN('members') + 'Assign person</button></form>' : '<p class="muted" style="margin:0;font-size:13.5px">Nobody to appoint yet. Invite your people under <button type="button" class="linkish" data-go="co:people">Members & Staff</button> first.</p>') : '') + '</div>' +
+      '<details' + (st.editDuty === p.id ? ' open' : '') + '><summary>Duties (' + lines.length + ')</summary>' +
+      (st.editDuty === p.id ? '<form class="stack" data-pos-duties="' + p.id + '" style="gap:10px;margin-top:8px"><label>One duty per line<textarea name="text" rows="7" maxlength="2000">' + esc(lines.join('\n')) + '</textarea></label><div class="row"><button class="btn small" type="submit">Save duties</button><button type="button" class="linkish" data-duty-edit="0">Cancel</button></div></form>'
+        : '<ul class="duties">' + lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' + (owner ? '<div class="row" style="gap:16px"><button type="button" class="linkish" data-duty-edit="' + p.id + '">Edit duties</button>' + (std && lines.length < 3 ? '<button type="button" class="linkish" data-duty-std="' + p.id + '">Use the standard duties for ' + esc(std.split(' – ')[0]) + '</button>' : '') + '</div>' : '')) + '</details></div>';
+  }
+  function addPosForm(kind, presets) {
+    if (!coOwner()) return '';
+    var have = st.pos.map(function (p) { return p.title; });
+    return '<form class="card stack" data-pos-new="' + kind + '"><h2 style="font-size:17px">Add a position</h2><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 220px">Position<select name="preset">' +
+      presets.map(function (t) { return '<option' + (have.indexOf(t) >= 0 && t !== 'Board Member' ? ' disabled' : '') + '>' + esc(t) + '</option>'; }).join('') + '<option value="">Another position…</option></select></label>' +
+      '<label style="flex:2 1 200px"><span>Title <span class="muted" style="font-weight:400">· only for another position</span></span><input name="title" maxlength="80"></label><button class="btn" type="submit">Add position</button></div><p class="msg" role="status" style="margin:0"></p></form>';
+  }
+  function renderStruct() {
+    var T = { owner: ['Owner / Founder', 'Overall authority over Lytmoz.'], board: ['Board of Directors', 'Corporate governance and oversight.'], ceo: ['CEO – Chief Executive', 'Leads daily operations within the authority you delegate.'], exec: ['Executive Management', 'Executives who run their areas and report to the CEO.'], teams: ['Teams', 'Working groups inside each department.'] };
+    $('co-title').textContent = T[co.tab][0]; $('co-sub').textContent = T[co.tab][1];
+    if (!co.loaded) { $('co-view').innerHTML = '<p class="muted">Loading…</p>'; return; }
+    if (!st.loaded) { $('co-view').innerHTML = '<p class="muted">Loading…</p>'; loadStruct(); return; }
+    var owner = coOwner(), out = '', owners = co.people.filter(function (p) { return p.level === 'owner'; }), ceoPos = st.pos.filter(isCEO)[0];
+    var board = st.pos.filter(function (p) { return p.level === 1; }), execs = st.pos.filter(function (p) { return p.level === 2 && !isCEO(p); });
+    var filled = function (list) { return list.filter(function (p) { return holders(p).length; }).length; };
+    if (co.tab === 'owner') {
+      out = '<div class="co-owner"><span class="co-crown">' + ICN('crown') + '</span><div style="min-width:0"><h3 class="serif" style="margin:0;font-size:26px;line-height:1.15;font-weight:400">' + esc(owners.map(function (p) { return p.name; }).join(', ') || 'Owner') + ' <span style="color:var(--copper)">· Owner / Founder</span></h3><p style="margin:6px 0 0;color:var(--soft);font-size:15px;line-height:1.6">The highest authority at Lytmoz, even when other people hold executive positions.</p></div></div>' +
+        '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;align-items:start"><div class="card stack"><h2 class="dh">' + ICN('shield') + 'Duties</h2><ul class="duties">' + DUTIES['Owner / Founder'].map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>' +
+        '<div class="card" style="padding:16px 14px"><div class="row" style="gap:10px;padding:2px 8px 10px"><strong style="font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--copper)">Under your authority</strong></div>' +
+        [['co:board', 'biz', 'Board of Directors', filled(board) + ' of ' + board.length + ' seats filled'], ['co:ceo', 'members', 'CEO – Chief Executive', ceoPos && holders(ceoPos).length ? (coP(holders(ceoPos)[0].profile_id) || {}).name || 'Appointed' : 'Not appointed'], ['co:exec', 'case', 'Executive Management', filled(execs) + ' of ' + execs.length + ' positions filled'], ['co:departments', 'flow', 'Departments', co.depts.length + ' departments, ' + co.depts.filter(function (d) { return d.head; }).length + ' with a head'], ['co:teams', 'team', 'Teams', st.teams.length + ' teams'], ['co:people', 'members', 'Members & Staff', co.people.length - owners.length + ' people'], ['co:authority', 'shield', 'Roles & Permissions', 'What each level may do']].map(function (r) { return '<button type="button" class="menu-i" data-go="' + r[0] + '">' + ICN(r[1]) + '<span><strong>' + r[2] + '</strong><small>' + r[3] + '</small></span>' + ICN('chev', 'chev') + '</button>'; }).join('') + '</div></div>';
+    } else if (co.tab === 'board') {
+      out = '<div class="card stack" style="gap:8px"><p style="margin:0;font-size:15px;line-height:1.65">The board provides governance and oversight. It reviews executive performance, examines strategic plans and major proposals, reviews financial and organizational reports, records its decisions and monitors compliance with your policies.</p><p class="muted" style="margin:0;font-size:13.5px">' + filled(board) + ' of ' + board.length + ' board positions filled.</p></div>' +
+        addPosForm('board', BOARD_PRESETS) + (board.map(function (p) { return posCard(p, /secretary/i.test(p.title) ? 'doc' : 'biz'); }).join('') || '<p class="muted card" style="margin:0">No board positions yet.' + (owner ? ' Add the chair, members and secretary above.' : '') + '</p>');
+    } else if (co.tab === 'ceo') {
+      out = (ceoPos ? posCard(ceoPos, 'members') : '<div class="card stack"><strong>No CEO position yet</strong>' + (owner ? '<button type="button" class="btn small" data-pos-ceo style="align-self:flex-start">Create the CEO position</button>' : '') + '</div>') +
+        (ceoPos ? '<div class="card stack"><h2 class="dh">' + ICN('case') + 'Reporting to the CEO</h2>' + (st.pos.filter(function (p) { return p.reports_to_position_id === ceoPos.id; }).map(function (p) { var h = holders(p)[0]; return '<div class="item"><div class="main"><strong>' + esc(p.title) + '</strong><span>' + (h ? esc((coP(h.profile_id) || {}).name || '') : 'Vacant') + '</span></div></div>'; }).join('') || '<p class="muted" style="margin:0">Nobody yet.</p>') + '</div>' : '');
+    } else if (co.tab === 'exec') {
+      out = '<div class="card stack" style="gap:8px"><p style="margin:0;font-size:15px;line-height:1.65">Executives each run an area of Lytmoz: operations, finance, technology, people and marketing. They report to the CEO.</p><p class="muted" style="margin:0;font-size:13.5px">' + filled(execs) + ' of ' + execs.length + ' executive positions filled.</p></div>' +
+        addPosForm('exec', EXEC_PRESETS) + (execs.map(function (p) { var k = (dutyKey(p.title) || p.title).slice(0, 3).toUpperCase(); return posCard(p, k === 'CFO' ? 'wallet' : k === 'CTO' ? 'code' : k === 'CMO' ? 'megaphone' : k === 'CHR' ? 'members' : 'flow'); }).join('') || '<p class="muted card" style="margin:0">No executive positions yet.' + (owner ? ' Add them above.' : '') + '</p>');
+    } else if (co.tab === 'teams') {
+      var staffList = co.people.filter(function (p) { return p.level !== 'owner'; });
+      out = (owner ? '<form class="card stack" id="team-new"><h2 style="font-size:17px">Create a team</h2><div class="row" style="gap:12px;align-items:flex-end"><label style="flex:2 1 180px">Department<select name="dept">' + co.depts.map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('') + '</select></label><label style="flex:2 1 180px">Team name<input name="name" required maxlength="80" placeholder="Web development"></label>' +
+        '<label style="flex:2 1 180px"><span>Team leader <span class="muted" style="font-weight:400">· optional</span></span><select name="leader"><option value="">Choose later</option>' + staffOptions([]) + '</select></label><button class="btn" type="submit">Create team</button></div><p class="msg" role="status" style="margin:0"></p></form>' : '') +
+        co.depts.map(function (d) {
+          var ts = st.teams.filter(function (t) { return t.department_id === d.id; });
+          return '<div class="card stack"><div class="row" style="gap:12px"><span class="co-ic">' + ICN(deptIcon(d)) + '</span><div><strong style="font-size:18px">' + esc(d.name) + '</strong><div class="muted" style="font-size:13.5px">' + ts.length + (ts.length === 1 ? ' team' : ' teams') + '</div></div></div>' +
+            (ts.map(function (t) {
+              var mem = st.tm.filter(function (m) { return m.team_id === t.id; }), free = staffList.filter(function (p) { return !mem.some(function (m) { return m.profile_id === p.id; }); });
+              return '<div class="team-b"><div class="row between" style="gap:10px"><strong>' + esc(t.name) + '</strong>' + (owner ? '<button type="button" class="linkish" data-team-del="' + t.id + '" style="color:var(--muted)">Delete team</button>' : '') + '</div>' +
+                '<div class="muted" style="font-size:13.5px">Leader: ' + (t.leader ? '<strong style="color:var(--text)">' + esc(coName(t.leader)) + '</strong>' : 'not chosen') + ' · ' + mem.length + (mem.length === 1 ? ' member' : ' members') + '</div>' +
+                '<div class="row" style="gap:8px">' + mem.map(function (m) { return '<span class="co-chip" style="cursor:default">' + esc(coName(m.profile_id)) + (m.profile_id === t.leader ? ' <b>Lead</b>' : owner ? ' <button type="button" class="linkish" data-tm-del="' + t.id + ':' + m.profile_id + '" aria-label="Remove ' + esc(coName(m.profile_id)) + '">×</button>' : '') + '</span>'; }).join('') + '</div>' +
+                (owner && free.length ? '<form class="row" data-tm-add="' + t.id + '" style="gap:10px;align-items:flex-end"><label style="flex:2 1 200px">Add a member<select name="who">' + free.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('') + '</select></label><button class="btn small" type="submit">Add</button></form>' : '') + '</div>';
+            }).join('') || '<p class="muted" style="margin:0">No teams in this department yet.</p>') + '</div>';
+        }).join('') + (!staffList.length && owner ? '<p class="muted" style="margin:0">Invite your people under <button type="button" class="linkish" data-go="co:people">Members & Staff</button> to fill teams.</p>' : '');
+    }
+    $('co-view').innerHTML = out;
+  }
+  function stErr(f, err) { var m = f && f.querySelector('.msg'), b = f && f.querySelector('button[type=submit]'); if (b) b.disabled = false; var t = /teams_department_id_name/.test(err.message) ? 'That department already has a team with this name.' : err.message; if (m) LZ.setMsg(m, t, 'err'); else alert(t); }
+  document.addEventListener('submit', function (e) {
+    var f = e.target, x;
+    if (f.dataset.posNew) {
+      e.preventDefault(); var title = f.preset.value || f.title.value.trim(); if (!title) return LZ.setMsg(f.querySelector('.msg'), 'Write the title of the position.', 'err');
+      var ceo = st.pos.filter(isCEO)[0], k = dutyKey(title);
+      f.querySelector('button').disabled = true;
+      sb.from('positions').insert({ title: title, level: f.dataset.posNew === 'board' ? 1 : 2, reports_to_position_id: f.dataset.posNew === 'exec' && ceo ? ceo.id : null, responsibilities: k ? DUTIES[k].join('\n') : null }).then(check).then(loadStruct).catch(function (err) { stErr(f, err); });
+    } else if ((x = f.dataset.posAssign)) {
+      e.preventDefault(); f.querySelector('button').disabled = true;
+      sb.from('position_assignments').insert({ position_id: +x, profile_id: f.who.value, is_acting: f.acting.checked }).then(check).then(loadStruct).catch(function (err) { stErr(f, err); });
+    } else if ((x = f.dataset.posDuties)) {
+      e.preventDefault();
+      sb.from('positions').update({ responsibilities: f.text.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean).join('\n').slice(0, 2000) || null }).eq('id', +x).then(check).then(function () { st.editDuty = null; return loadStruct(); }).catch(function (err) { stErr(f, err); });
+    } else if (f.id === 'team-new') {
+      e.preventDefault(); f.querySelector('button').disabled = true;
+      sb.from('teams').insert({ department_id: +f.dept.value, name: f.name.value.trim(), leader: f.leader.value || null }).then(check).then(loadStruct).catch(function (err) { stErr(f, err); });
+    } else if ((x = f.dataset.tmAdd)) {
+      e.preventDefault();
+      sb.from('team_members').insert({ team_id: +x, profile_id: f.who.value }).then(check).then(loadStruct).catch(function (err) { stErr(f, err); });
+    }
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target, x;
+    if ((x = t.closest('[data-duty-edit]'))) { st.editDuty = +x.dataset.dutyEdit || null; renderCompany(); return; }
+    if ((x = t.closest('[data-duty-std]'))) { var p = st.pos.filter(function (q) { return q.id === +x.dataset.dutyStd; })[0]; return void sb.from('positions').update({ responsibilities: DUTIES[dutyKey(p.title)].join('\n') }).eq('id', p.id).then(check).then(loadStruct).catch(function (err) { alert(err.message); }); }
+    if (t.closest('[data-pos-ceo]')) return void sb.from('positions').insert({ title: 'CEO', level: 2, responsibilities: DUTIES.CEO.join('\n') }).then(check).then(loadStruct).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-pos-del]')) && confirm('Remove this position? The people holding it stay at Lytmoz.')) return void sb.from('positions').delete().eq('id', +x.dataset.posDel).then(check).then(loadStruct).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-asg-del]')) && confirm('Remove this person from the position?')) return void sb.from('position_assignments').delete().eq('id', +x.dataset.asgDel).then(check).then(loadStruct).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-team-del]')) && confirm('Delete this team? Its people stay in their department.')) return void sb.from('teams').delete().eq('id', +x.dataset.teamDel).then(check).then(loadStruct).catch(function (err) { alert(err.message); });
+    if ((x = t.closest('[data-tm-del]'))) { var pr = x.dataset.tmDel.split(':'); return void sb.from('team_members').delete().eq('team_id', +pr[0]).eq('profile_id', pr[1]).then(check).then(loadStruct).catch(function (err) { alert(err.message); }); }
+  });
 
   function flash(form, text) { var b = form.querySelector('button'); var o = b.textContent; b.textContent = text; setTimeout(function () { b.textContent = o; }, 2200); }
 

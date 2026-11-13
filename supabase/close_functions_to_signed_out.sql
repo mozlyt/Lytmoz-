@@ -1,0 +1,5 @@
+-- Applied as close_functions_to_signed_out. Supabase's security check found 31 security-definer functions callable
+-- by signed-out visitors. All except public_site() (public website content) and invite_info(tok) (the invitation
+-- preview shown before sign-in) are now closed to anon/public and granted only to signed-in users where needed.
+-- Trigger functions keep working: Postgres does not check EXECUTE when a trigger fires.
+-- When adding a new function: revoke execute ... from public, anon; then grant to authenticated if the app calls it.

@@ -1163,10 +1163,11 @@
       }).join('') || '<p class="muted" style="margin:0">Nobody matches these filters.</p>') + '</div></section>';
   }
   function profileView(id) {
-    var p = dirP(id), owner = coOwner();
+    var p = dirP(id), owner = coOwner(), recs = owner || hasPerm('people.records');
+    var canEdit = !!p && (owner || (recs && id !== co.me.id && !p.owner && p.rank > 3 && !(p.departments || []).some(function (d) { return d.head; })));
     if (!p) { co.prof = null; return peopleCentre(); }
     var x = co.profData && co.profData.id === id ? co.profData : null;
-    if (!x && (owner || id === co.me.id)) { co.profData = { id: id, loading: true }; sb.rpc('member_profile', { person: id }).then(check).then(function (d) { d.id = id; co.profData = d; if (co.prof === id) renderCompany(); }).catch(function (err) { co.profData = { id: id, err: err.message }; if (co.prof === id) renderCompany(); }); x = co.profData; }
+    if (!x && (recs || id === co.me.id)) { co.profData = { id: id, loading: true }; sb.rpc('member_profile', { person: id }).then(check).then(function (d) { d.id = id; co.profData = d; if (co.prof === id) renderCompany(); }).catch(function (err) { co.profData = { id: id, err: err.message }; if (co.prof === id) renderCompany(); }); x = co.profData; }
     var info = function (rows) { return '<dl class="pf-dl">' + rows.filter(function (r) { return r[1]; }).map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>'; };
     var out = '<div class="row between"><button type="button" class="linkish" data-pc-back>' + IC('arrow') + 'All people</button></div>' +
       '<section class="card pf-head"><span class="av av-lg">' + esc(initials(p.name)) + '</span><div style="min-width:0;flex:1"><h2 style="font-size:22px;overflow-wrap:anywhere">' + esc(p.name) + '</h2><p class="muted" style="margin:4px 0 0">' + esc(personLine(p)) + '</p>' + (p.status === 'suspended' && p.status_note ? '<p class="msg err" style="margin:8px 0 0">Suspended: ' + esc(p.status_note) + '</p>' : '') + '</div>' + stPill(p) + '</section>';
@@ -1195,8 +1196,9 @@
       }
     }
     out += '</div>';
-    if (owner) {
-      var held = (p.positions || []), posAll = (co.pos || []).filter(function (q) { return !AUTO_POS[q.code] && q.is_active !== false; });
+    if (recs && !canEdit && id !== co.me.id) out += NOTE('Only the owner can change the records of board members, executives and department heads.');
+    if (canEdit) {
+      var held = (p.positions || []), posAll = (co.pos || []).filter(function (q) { return !AUTO_POS[q.code] && q.is_active !== false && (owner || q.level > 3); });
       var posSel = function (list) { return [1, 2, 3, 4, 5].map(function (l) { var g = list.filter(function (q) { return q.level === l; }); return g.length ? '<optgroup label="' + LEVEL_NAMES[l] + '">' + g.map(function (q) { var h = seatHolders(q).filter(function (a) { return a.profile_id !== p.id; }), full = q.max_holders && h.length >= q.max_holders; return '<option value="' + q.id + '"' + (full ? ' disabled' : '') + '>' + esc(q.title) + (full ? ' (held by ' + esc(coName(h[0].profile_id)) + ')' : '') + '</option>'; }).join('') + '</optgroup>' : ''; }).join(''); };
       var resp = p.responsibilities || [];
       out += '<section class="card stack"><h3 class="set-sec" style="margin:0">Change position or department</h3><form id="pc-change" data-person="' + p.id + '" class="stack" style="gap:12px">' +
@@ -1208,9 +1210,9 @@
         '<div class="row"><button class="btn small" type="submit">Record the change</button><p class="msg" role="status" style="margin:0"></p></div>' + NOTE('Their workspace and permissions follow the new position from the effective date. Nothing is deleted: earlier positions stay in their history.') + '</form></section>' +
         '<section class="card stack"><h3 class="set-sec" style="margin:0">Reporting, mentor and responsibilities</h3><form id="pc-links" data-person="' + p.id + '" class="stack" style="gap:12px"><div class="row" style="gap:12px"><label style="flex:1 1 200px">Reports to<select name="reports">' + peopleOpts(p.reports_to && p.reports_to.id, 'Nobody set').replace('<option value="' + p.id + '"', '<option disabled value="' + p.id + '"') + '</select></label><label style="flex:1 1 200px"><span>Mentor <span class="muted" style="font-weight:400">· guidance, not supervision</span></span><select name="mentor">' + peopleOpts(p.mentor && p.mentor.id, 'No mentor').replace('<option value="' + p.id + '"', '<option disabled value="' + p.id + '"') + '</select></label></div>' +
         '<fieldset class="pc-resp"><legend>Additional responsibilities</legend>' + EXTRA_RESP.concat(resp.filter(function (r) { return EXTRA_RESP.indexOf(r) < 0; })).map(function (r) { return '<label class="cat-ck"><input type="checkbox" name="resp" value="' + esc(r) + '"' + (resp.indexOf(r) >= 0 ? ' checked' : '') + '><span>' + esc(r) + '</span></label>'; }).join('') + '</fieldset>' +
-        '<div class="row"><button class="btn small" type="submit">Save</button><p class="msg" role="status" style="margin:0"></p></div></form></section>' +
-        '<section class="card stack"><h3 class="set-sec" style="margin:0">Membership</h3><div class="row" style="gap:10px">' + (p.status === 'suspended' ? '<button type="button" class="btn small" data-pc-status="1">Reactivate</button>' : '<button type="button" class="btn small ghost" data-pc-status="0">Suspend</button>') + '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Job title</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '" style="color:#F0A9A0">Remove from Lytmoz</button></div>' +
-        NOTE('Suspending pauses their HQ access and workspace but keeps their positions, department and history, so you can reactivate them later. Removing ends their positions and access for good; their account and history stay.') + '</section>';
+        '<div class="row"><button class="btn small" type="submit">Save</button><p class="msg" role="status" style="margin:0"></p></div></form></section>' + (!owner ? NOTE('Changes you record are kept in their history with your name. Suspending or removing someone, and board, executive and department-head positions, stay with the owner.') : '') +
+        (!owner ? '' : '<section class="card stack"><h3 class="set-sec" style="margin:0">Membership</h3><div class="row" style="gap:10px">' + (p.status === 'suspended' ? '<button type="button" class="btn small" data-pc-status="1">Reactivate</button>' : '<button type="button" class="btn small ghost" data-pc-status="0">Suspend</button>') + '<button type="button" class="btn small ghost" data-co-title="' + p.id + '">Job title</button><button type="button" class="btn small ghost" data-co-unstaff="' + p.id + '" style="color:#F0A9A0">Remove from Lytmoz</button></div>' +
+        NOTE('Suspending pauses their HQ access and workspace but keeps their positions, department and history, so you can reactivate them later. Removing ends their positions and access for good; their account and history stay.') + '</section>');
     }
     return out;
   }
@@ -1547,25 +1549,25 @@
   document.addEventListener('change', function (e) {
     var t = e.target; if (!t) return;
     if (t.id === 'inv-pos' || t.id === 'inv-dept' || t.id === 'inv-rep') return seatSync();
-    if (t.dataset && t.dataset.df) { co.df[t.dataset.df] = t.value; return renderCompany(); }
+    if (t.dataset && t.dataset.df) { co.df[t.dataset.df] = t.value; return coOwner() ? renderCompany() : renderWs(); }
     if (t.id === 'pc-kind') { var f = t.form, k = t.value; f.querySelector('[data-pc-f="pos"]').hidden = k === 'transfer' || k === 'remove'; f.querySelector('[data-pc-f="held"]').hidden = k !== 'remove'; f.querySelector('[data-pc-f="dept"]').hidden = !(k === 'transfer' || k === 'change'); f.querySelector('[data-pc-opt]').hidden = k === 'transfer'; f.querySelector('[data-pc-f="until"]').hidden = k !== 'acting'; f.until.required = k === 'acting'; }
   });
   document.addEventListener('input', function (e) {
     var t = e.target; if (!(t.dataset && t.dataset.df === 'q')) return;
-    co.df.q = t.value; var pos = t.selectionStart; renderCompany();
+    co.df.q = t.value; var pos = t.selectionStart; if (coOwner()) renderCompany(); else renderWs();
     var q = document.querySelector('[data-df="q"]'); if (q) { q.focus(); try { q.setSelectionRange(pos, pos); } catch (er) {} }
   });
   document.addEventListener('click', function (e) {
     var t = e.target, x; if (!co.loaded) return;
     if ((x = t.closest('[data-pc-tab]'))) { co.ptab = x.dataset.pcTab; co.prof = null; renderCompany(); return; }
     if ((x = t.closest('[data-it]'))) { co.itab = x.dataset.it; renderCompany(); return; }
-    if (t.closest('[data-pc-back]')) { co.prof = null; renderCompany(); window.scrollTo(0, 0); return; }
+    if (t.closest('[data-pc-back]')) { co.prof = null; if (coOwner()) renderCompany(); else renderWs(); window.scrollTo(0, 0); return; }
     if ((x = t.closest('[data-person]')) && !x.matches('form')) { co.prof = x.dataset.person; co.profData = null; if (co.tab !== 'people' && coOwner()) co.tab = 'people'; renderCompany(); if (!coOwner()) renderWs(); window.scrollTo(0, 0); return; }
     if ((x = t.closest('[data-pc-status]'))) {
       var on = x.dataset.pcStatus === '1', who = dirP(co.prof), note = on ? '' : prompt('Suspend ' + who.name + '? They lose HQ and workspace access until you reactivate them. Reason (kept in their history):', '');
       if (!on && note === null) return;
       x.disabled = true;
-      sb.rpc('member_set_status', { person: co.prof, active: on, note_: note || null }).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { x.disabled = false; alert(err.message); });
+      sb.rpc('member_set_status', { person: co.prof, active: on, note_: note || null }).then(check).then(function () { co.profData = null; return loadCompany().then(function () { if (!coOwner()) renderWs(); }); }).catch(function (err) { x.disabled = false; alert(err.message); });
     }
   });
   document.addEventListener('submit', function (e) {
@@ -1576,11 +1578,11 @@
       if ((k === 'change' || k === 'acting' || k === 'add') && !args.pos) return LZ.setMsg(f.querySelector('.msg'), 'Choose the position.', 'err');
       if (k === 'transfer' && !args.dept) return LZ.setMsg(f.querySelector('.msg'), 'Choose the department.', 'err');
       f.querySelector('button[type=submit]').disabled = true;
-      sb.rpc('member_change', args).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { coErr(f, err); });
+      sb.rpc('member_change', args).then(check).then(function () { co.profData = null; return loadCompany().then(function () { if (!coOwner()) renderWs(); }); }).catch(function (err) { coErr(f, err); });
     } else if (f.id === 'pc-links') {
       e.preventDefault(); f.querySelector('button[type=submit]').disabled = true;
       var resp = Array.prototype.filter.call(f.querySelectorAll('[name=resp]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
-      sb.rpc('member_set_links', { person: f.dataset.person, mentor_: f.mentor.value || null, reports_: f.reports.value || null, responsibilities_: resp }).then(check).then(function () { co.profData = null; return loadCompany(); }).catch(function (err) { coErr(f, err); });
+      sb.rpc('member_set_links', { person: f.dataset.person, mentor_: f.mentor.value || null, reports_: f.reports.value || null, responsibilities_: resp }).then(check).then(function () { co.profData = null; return loadCompany().then(function () { if (!coOwner()) renderWs(); }); }).catch(function (err) { coErr(f, err); });
     }
   });
   function deptName(id) { var d = co.depts.filter(function (x) { return x.id === id; })[0]; return d ? d.name : ''; }

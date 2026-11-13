@@ -1,0 +1,8 @@
+-- HR keeps staff records (applied as hr_records, hr_records_functions, hr_records_directory).
+-- New permission people.records, given to the HR Manager position (adjustable in the Position Catalogue).
+-- can_edit_member(person): the owner for anyone; holders of people.records for staff below department-head
+-- level (no board, executive or department-head positions, not department heads, never themselves).
+-- member_change / member_set_links use can_edit_member; people.records holders cannot give positions at level 3 or above.
+-- member_profile and member_changes are readable by the owner, the person and people.records holders.
+-- org_directory shows email and phone to the owner and people.records holders.
+-- Suspend, remove and invitation links stay owner-only. The HR Manager workspace also gets My work.

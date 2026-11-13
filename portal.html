@@ -355,6 +355,10 @@
     }).join('') : '<p class="muted" style="margin:0">No messages yet. Say hello and tell us what you need.</p>';
     $('thread').scrollTop = $('thread').scrollHeight;
     var last = rows[rows.length - 1]; $('t-msgs').textContent = !last ? 'Say hello' : last.from_admin ? 'New reply' : 'Sent';
+    if (last && !seen('support')) setSeen('support', last.created_at);
+    var newR = rows.filter(function (m) { return m.from_admin && m.created_at > seen('support'); }).length;
+    if (!$('thread').closest('[data-v]').hidden) { setSeen('support', last && last.created_at); newR = 0; }
+    badge('support', newR);
   }
   function loadThread() {
     return sb.from('messages').select('*').eq('client_id', me.id).order('created_at', { ascending: true }).limit(200).then(check).then(renderThread);
@@ -364,11 +368,11 @@
   function showRating(p) { // clients rate a project once it has been delivered
     var box = $('rate-box'); if (!box) return;
     var pr = $('rate-prompt');
-    if (p.stage < LZ.stages.length - 1) { box.hidden = true; if (pr) pr.hidden = true; badge('projects', 0); return; }
+    if (p.stage < LZ.stages.length - 1) { box.hidden = true; if (pr) pr.hidden = true; projNews.rate = 0; projBadge(); return; }
     sb.from('project_feedback').select('*').eq('project_id', p.id).eq('client_id', me.id).maybeSingle().then(check).then(function (f) {
       rateNow = f ? f.rating : 0;
       if (pr) { pr.hidden = !!f; $('rate-prompt-t').textContent = 'How did we do with ' + p.name + '?'; }
-      badge('projects', f ? 0 : 1);
+      projNews.rate = f ? 0 : 1; projBadge();
       box.hidden = false;
       box.innerHTML = '<strong>' + (f ? 'Your rating' : 'How did we do?') + '</strong><p class="muted" style="margin:0;font-size:14px">' + (f ? 'Thank you. You can change your rating at any time.' : 'Rate the work Lytmoz delivered. Your feedback goes straight to the owner.') + '</p>' +
         '<div class="stars" role="radiogroup" aria-label="Rating">' + [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (n === rateNow) + '" aria-label="' + n + ' out of 5" data-rate="' + n + '" class="' + (n <= rateNow ? 'on' : '') + '">★</button>'; }).join('') + '</div>' +
@@ -383,7 +387,7 @@
       if (!rateNow) return LZ.setMsg($('rate-msg'), 'Choose from 1 to 5 stars.', 'err');
       t.disabled = true;
       sb.from('project_feedback').upsert({ project_id: +t.dataset.project, client_id: me.id, rating: rateNow, comment: $('rate-text').value.trim() || null, updated_at: new Date().toISOString() }, { onConflict: 'project_id,client_id' }).then(check)
-        .then(function () { t.disabled = false; t.textContent = 'Update rating'; var pr = $('rate-prompt'); if (pr) pr.hidden = true; badge('projects', 0); LZ.setMsg($('rate-msg'), 'Thank you. Your rating was sent to Lytmoz.', 'ok'); })
+        .then(function () { t.disabled = false; t.textContent = 'Update rating'; var pr = $('rate-prompt'); if (pr) pr.hidden = true; projNews.rate = 0; projBadge(); LZ.setMsg($('rate-msg'), 'Thank you. Your rating was sent to Lytmoz.', 'ok'); })
         .catch(function (err) { t.disabled = false; LZ.setMsg($('rate-msg'), err.message, 'err'); });
     }
   });
@@ -404,6 +408,7 @@
       return '<div class="s"><span style="color:' + st[1] + ';font-weight:600">' + st[0] + '</span><span>' + s + '</span></div>';
     }).join('');
     showRating(p);
+    var lastU = updates.length ? updates[0].created_at : ''; if (lastU && !seen('updates')) setSeen('updates', lastU); projNews.upd = lastU && lastU > seen('updates') ? updates.filter(function (u) { return u.created_at > seen('updates'); }).length : 0; projBadge();
     $('updates').innerHTML = updates.length ? updates.map(function (u) { return '<div><span class="muted" style="font-size:12px">' + when(u.created_at) + '</span><br>' + esc(u.text) + '</div>'; }).join('') : '<p class="muted">Updates will appear here as we work.</p>';
     var inv = (invoices || []), cur = inv[0] && inv[0].currency, same = inv.filter(function (i) { return i.currency === cur; });
     var tot = same.reduce(function (a, i) { return a + i.amount_cents; }, 0), got = same.reduce(function (a, i) { return a + (i.paid_cents || 0); }, 0);
@@ -580,6 +585,11 @@
       LZ.setMsg($('chat-vis-msg'), on ? 'You are visible in Messages.' : 'You are hidden. Other clients cannot find you or see when you are online.', 'ok');
     }).catch(function (err) { e.target.checked = !on; LZ.setMsg($('chat-vis-msg'), err.message, 'err'); }).then(function () { e.target.disabled = false; });
   });
+  // What the client has already seen, so news from Lytmoz shows as a number until they open it.
+  function seen(k) { try { return localStorage.getItem('lz-cseen-' + k + '-' + (me && me.id)) || ''; } catch (e) { return ''; } }
+  function setSeen(k, v) { try { localStorage.setItem('lz-cseen-' + k + '-' + (me && me.id), v || new Date().toISOString()); } catch (e) {} }
+  var projNews = { rate: 0, upd: 0 }, svcMap = {};
+  function projBadge() { badge('projects', projNews.rate + projNews.upd); }
   // Services clients can request: set in HQ > Public Setup > Services & Expertise once published.
   function applyServices(c) {
     var list = c && Array.isArray(c.services) ? c.services.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
@@ -602,7 +612,9 @@
     var navView = ['profile', 'settings', 'contact', 'privacy', 'help'].indexOf(view) >= 0 ? 'more' : view;
     document.querySelectorAll('.nav-i').forEach(function (b) { if (b.dataset.view === navView) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     try { history.replaceState(null, '', '#' + view); } catch (e) {}
-    if (view === 'support') $('thread').scrollTop = $('thread').scrollHeight;
+    if (view === 'support') { $('thread').scrollTop = $('thread').scrollHeight; setSeen('support'); badge('support', 0); }
+    if (view === 'projects' && projNews.upd) { setSeen('updates'); projNews.upd = 0; projBadge(); }
+    if (view === 'services' && Object.keys(svcMap).length) { setSeen('svc', JSON.stringify(svcMap)); badge('services', 0); }
     window.scrollTo(0, 0);
   }
   document.addEventListener('click', function (e) {
@@ -680,6 +692,10 @@
   function loadServices() {
     return sb.from('service_requests').select('*').order('id', { ascending: false }).limit(50).then(check).then(function (rows) {
       var label = { 'new': ['Received', ''], quoted: ['Quote sent', 'blue'], accepted: ['In progress', 'blue'], done: ['Done', 'green'], declined: ['Closed', 'grey'] };
+      svcMap = {}; rows.forEach(function (r) { svcMap[r.id] = r.status; });
+      if (!seen('svc')) setSeen('svc', JSON.stringify(svcMap));
+      var old = {}; try { old = JSON.parse(seen('svc') || '{}'); } catch (e) {}
+      badge('services', rows.filter(function (r) { return r.status !== 'new' && old[r.id] !== r.status; }).length);
       $('service-list').innerHTML = rows.length ? rows.map(function (r) {
         var l = label[r.status] || [r.status, ''];
         return '<div class="item">' + ICON('services') + '<div class="main"><strong>' + esc(r.service) + '</strong><span>' + esc(r.details.slice(0, 90)) + (r.details.length > 90 ? '…' : '') + ' · ' + when(r.created_at) + '</span></div><span class="pill ' + l[1] + '">' + l[0] + '</span></div>';

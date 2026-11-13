@@ -2570,7 +2570,11 @@
       b.classList.toggle('on', !!(g && g.items.some(function (i) { return i[0] === key && !i[3]; })));
     });
   }
+  // What the owner has already looked at: client files, ratings and change requests count as new until opened.
+  function seenAt(k) { try { return localStorage.getItem('lz-seen-' + k) || '1970'; } catch (e) { return '1970'; } }
+  function markSeen(k) { try { localStorage.setItem('lz-seen-' + k, new Date().toISOString()); } catch (e) {} if (dash.counts) { dash.counts[{ files: 'files', quality: 'fb', requests: 'change' }[k]] = 0; paintBadges(); } }
   function goTo(key) {
+    var sk = key.split(':')[0]; if (sk === 'files' || sk === 'quality' || sk === 'requests') markSeen(sk);
     var p = key.split(':'), tab = p[0] === 'co' ? 'company' : p[0] === 'set' ? 'settings' : p[0], sub = p[1];
     var sel = tab === 'company' ? '.hq-nav .nav-i[data-tab="company"][data-co-tab="' + (CO_NATIVE[sub] ? sub : 'overview') + '"]' : '.hq-nav .nav-i[data-tab="' + tab + '"]';
     var btn = document.querySelector(sel); if (!btn) return;
@@ -2634,9 +2638,10 @@
       q('projects', 'id,client_id,name,organization_id,stage,created_at'), q('leads', 'id,name,status,created_at', 500), q('service_requests', 'id,client_id,organization_id,service,status,created_at', 500),
       q('change_requests', 'id,project_id,text,status,created_at', 500), q('messages', 'id,client_id,text,from_admin,read_by_admin,created_at', 2000), q('updates', 'id,project_id,created_at'),
       q('client_files', 'id,project_id,created_at'), q('payments', 'id,client_id,amount_cents,currency,status,created_at,reviewed_at'), q('invoices', 'id,project_id,amount_cents,paid_cents,currency,status,created_at'),
-      q('subscriptions', 'id,status,renews_on,created_at')
+      q('subscriptions', 'id,status,renews_on,created_at'),
+      sb.from('project_feedback').select('project_id,client_id,rating,updated_at').then(check, function () { return []; })
     ]).then(function (r) {
-      var d = { profiles: r[0], orgs: r[1], om: r[2], projects: r[3], leads: r[4], svc: r[5], change: r[6], msgs: r[7], updates: r[8], files: r[9], pays: r[10], invoices: r[11], subs: r[12], dbMs: Math.round(performance.now() - t0) };
+      var d = { fb: r[13] || [], profiles: r[0], orgs: r[1], om: r[2], projects: r[3], leads: r[4], svc: r[5], change: r[6], msgs: r[7], updates: r[8], files: r[9], pays: r[10], invoices: r[11], subs: r[12], dbMs: Math.round(performance.now() - t0) };
       d.byId = {}; d.profiles.forEach(function (p) { d.byId[p.id] = p; });
       d.proj = {}; d.projects.forEach(function (p) { d.proj[p.id] = p; });
       d.orgOf = {}; d.om.forEach(function (m) { if (!d.orgOf[m.profile_id]) d.orgOf[m.profile_id] = m.organization_id; });
@@ -2649,10 +2654,11 @@
       dash.counts = {
         unread: Object.keys(d.msgs.reduce(function (a, m) { if (!m.from_admin && !m.read_by_admin) a[m.client_id] = 1; return a; }, {})).length,
         svc: d.svc.filter(function (s) { return s.status === 'new'; }).length, leads: d.leads.filter(function (l) { return l.status === 'new'; }).length,
-        pay: d.pays.filter(function (p) { return p.status === 'pending'; }).length, change: d.change.filter(function (c) { return c.status === 'open'; }).length,
+        pay: d.pays.filter(function (p) { return p.status === 'pending'; }).length, change: d.change.filter(function (c) { return c.status === 'open' && c.created_at > seenAt('requests'); }).length,
+        files: d.files.filter(function (f) { return f.created_at > seenAt('files'); }).length, fb: d.fb.filter(function (f) { return f.updated_at > seenAt('quality'); }).length,
         renew: d.subs.filter(function (s) { return s.status === 'active' && s.renews_on && s.renews_on <= week && s.renews_on >= today; }).length
       };
-      var c = dash.counts, total = c.unread + c.svc + c.leads + c.pay + c.change + c.renew;
+      var c = dash.counts, total = c.unread + c.svc + c.leads + c.pay + c.change + c.renew + (c.files || 0) + (c.fb || 0);
       paintBadges();
       renderDash(); dashStatus();
       if (!document.querySelector('[data-panel="reports"]').hidden) renderReports();
@@ -2790,7 +2796,7 @@
   });
   setInterval(function () { if (document.body.classList.contains('owner-mode') && document.visibilityState === 'visible') dashLoad(); }, 60000);
 
-  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, subs: c.renew || 0, staffchat: staffUnread, 'co:people': invReqN, 'co:tasks': wkReviewN, 'co:orgroom': roomPendingN, 'co:reports': repOpenN }; }
+  function badgeCounts() { var c = dash.counts || {}; return { chat: chatUnread, messages: c.unread || 0, svc: c.svc || 0, leads: c.leads || 0, payments: c.pay || 0, requests: c.change || 0, files: c.files || 0, quality: c.fb || 0, subs: c.renew || 0, staffchat: staffUnread, 'co:people': invReqN, 'co:tasks': wkReviewN, 'co:orgroom': roomPendingN, 'co:reports': repOpenN }; }
   function paintBadges() {
     var cnt = badgeCounts(), total = 0; Object.keys(cnt).forEach(function (k) { total += cnt[k]; });
     document.querySelectorAll('#bar-menu [data-bkeys]').forEach(function (b) {

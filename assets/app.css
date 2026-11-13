@@ -592,3 +592,6 @@ body.staff-mode .hq-nav .nav-i[aria-selected="true"] .ic{color:#1a120b}
 .itabs button{background:transparent;border:1px solid var(--line2);color:var(--soft);border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;cursor:pointer}
 .itabs button b{color:var(--muted);font-weight:600;margin-left:4px}
 .itabs button[aria-selected="true"]{background:#2A2017;border-color:var(--copper);color:var(--text)}
+/* Portal: rating prompt on the home page */
+.rate-prompt{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-color:#4A3626;background:linear-gradient(135deg,#2A2017,#1A1714)}
+.rate-prompt>.ic{width:26px;height:26px;color:var(--copper2);flex:none}.rate-prompt>div{flex:1 1 220px}

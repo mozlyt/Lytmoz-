@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="96x96" href="/assets/icon-96.png?v=3">
 <link rel="apple-touch-icon" href="/assets/icon-180.png?v=3">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=27">
+<link rel="stylesheet" href="assets/app.css?v=28">
 <style>.bub{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}.bub.me{align-self:flex-end;background:#2A2017;border:1px solid #4A3626}.bub.them{align-self:flex-start;background:#1E1B18;border:1px solid var(--line2)}.bub small{display:block;color:var(--muted);font-size:11px;margin-top:6px}</style>
 <link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#0E0D0C">
@@ -105,6 +105,7 @@
 <button type="button" class="card tile" data-go="sites"><svg class="ic" aria-hidden="true"><use href="#i-sites"/></svg><span class="k">Websites & apps</span><span class="v" id="t-sites">0 live</span></button>
 <button type="button" class="card tile" data-go="support"><svg class="ic" aria-hidden="true"><use href="#i-support"/></svg><span class="k">Messages</span><span class="v" id="t-msgs">Say hello</span></button>
 </div>
+<div id="rate-prompt" class="card rate-prompt" hidden><svg class="ic" aria-hidden="true"><use href="#i-projects"/></svg><div><strong id="rate-prompt-t">How did we do?</strong><p class="muted" style="margin:2px 0 0;font-size:14px">Your project has been delivered. Rate it in a few seconds; it goes straight to Lytmoz.</p></div><button type="button" class="btn small" data-go="projects" data-rate-jump>Rate the project</button></div>
 <div id="empty" class="card stack" hidden><p style="margin:0;line-height:1.6;color:var(--soft)">Tell us about your idea or your business any time. Our team replies in <button type="button" class="linkish" data-go="support">Support</button> and on WhatsApp. When we start a project together, its progress and invoices appear here.</p><div class="row"><a class="btn ghost small" href="/services/">Explore our services</a><a class="btn ghost small" href="/#pricing">See pricing</a></div></div>
 <section class="card stack"><h2 style="font-size:18px">Quick actions</h2><div class="row" style="gap:10px">
 <button type="button" class="btn small" data-go="services"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Request a service</button>
@@ -362,9 +363,12 @@
   var rateNow = 0;
   function showRating(p) { // clients rate a project once it has been delivered
     var box = $('rate-box'); if (!box) return;
-    if (p.stage < LZ.stages.length - 1) { box.hidden = true; return; }
+    var pr = $('rate-prompt');
+    if (p.stage < LZ.stages.length - 1) { box.hidden = true; if (pr) pr.hidden = true; badge('projects', 0); return; }
     sb.from('project_feedback').select('*').eq('project_id', p.id).eq('client_id', me.id).maybeSingle().then(check).then(function (f) {
       rateNow = f ? f.rating : 0;
+      if (pr) { pr.hidden = !!f; $('rate-prompt-t').textContent = 'How did we do with ' + p.name + '?'; }
+      badge('projects', f ? 0 : 1);
       box.hidden = false;
       box.innerHTML = '<strong>' + (f ? 'Your rating' : 'How did we do?') + '</strong><p class="muted" style="margin:0;font-size:14px">' + (f ? 'Thank you. You can change your rating at any time.' : 'Rate the work Lytmoz delivered. Your feedback goes straight to the owner.') + '</p>' +
         '<div class="stars" role="radiogroup" aria-label="Rating">' + [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" role="radio" aria-checked="' + (n === rateNow) + '" aria-label="' + n + ' out of 5" data-rate="' + n + '" class="' + (n <= rateNow ? 'on' : '') + '">★</button>'; }).join('') + '</div>' +
@@ -372,13 +376,14 @@
     }).catch(function () { box.hidden = true; });
   }
   document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('[data-rate-jump]')) { setTimeout(function () { var b = $('rate-box'); if (b && !b.hidden) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); }
     var t = e.target, x = t.closest && t.closest('[data-rate]');
     if (x) { rateNow = +x.dataset.rate; document.querySelectorAll('[data-rate]').forEach(function (b) { b.classList.toggle('on', +b.dataset.rate <= rateNow); b.setAttribute('aria-checked', String(+b.dataset.rate === rateNow)); }); return; }
     if (t.id === 'rate-save') {
       if (!rateNow) return LZ.setMsg($('rate-msg'), 'Choose from 1 to 5 stars.', 'err');
       t.disabled = true;
       sb.from('project_feedback').upsert({ project_id: +t.dataset.project, client_id: me.id, rating: rateNow, comment: $('rate-text').value.trim() || null, updated_at: new Date().toISOString() }, { onConflict: 'project_id,client_id' }).then(check)
-        .then(function () { t.disabled = false; t.textContent = 'Update rating'; LZ.setMsg($('rate-msg'), 'Thank you. Your rating was sent to Lytmoz.', 'ok'); })
+        .then(function () { t.disabled = false; t.textContent = 'Update rating'; var pr = $('rate-prompt'); if (pr) pr.hidden = true; badge('projects', 0); LZ.setMsg($('rate-msg'), 'Thank you. Your rating was sent to Lytmoz.', 'ok'); })
         .catch(function (err) { t.disabled = false; LZ.setMsg($('rate-msg'), err.message, 'err'); });
     }
   });
@@ -575,6 +580,17 @@
       LZ.setMsg($('chat-vis-msg'), on ? 'You are visible in Messages.' : 'You are hidden. Other clients cannot find you or see when you are online.', 'ok');
     }).catch(function (err) { e.target.checked = !on; LZ.setMsg($('chat-vis-msg'), err.message, 'err'); }).then(function () { e.target.disabled = false; });
   });
+  // Services clients can request: set in HQ > Public Setup > Services & Expertise once published.
+  function applyServices(c) {
+    var list = c && Array.isArray(c.services) ? c.services.filter(function (x) { return typeof x === 'string' && x.trim(); }) : [];
+    var sel = document.querySelector('#service-form [name=service]'); if (!sel || !list.length) return;
+    var keep = sel.value;
+    if (!list.some(function (x) { return /something else/i.test(x); })) list = list.concat(['Something else']);
+    sel.innerHTML = list.map(function (x) { return '<option>' + esc(x.trim()) + '</option>'; }).join('');
+    if (list.indexOf(keep) >= 0) sel.value = keep;
+  }
+  try { applyServices(JSON.parse(localStorage.getItem('lz-site-v1') || 'null')); } catch (e) {}
+  sb.rpc('public_site').then(function (r) { if (r && r.data) { applyServices(r.data); try { localStorage.setItem('lz-site-v1', JSON.stringify(r.data)); } catch (e) {} } }, function () {});
   function badge(view, n) { var b = $('nb-' + view); if (!b) return; b.textContent = n; b.hidden = !n; }
   var ICON = function (n) { return '<svg class="ic" aria-hidden="true"><use href="#i-' + n + '"/></svg>'; };
   var empty = function (t) { return '<p class="muted" style="margin:0">' + t + '</p>'; };
